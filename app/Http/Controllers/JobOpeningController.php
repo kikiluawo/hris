@@ -9,10 +9,13 @@ use App\Models\Position;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class JobOpeningController extends Controller
 {
+    public const EDUCATION_LEVELS = ['SMA/SMK', 'D3', 'S1', 'S2', 'S3'];
+
     public function index(Request $request): View
     {
         return view('recruitment.openings', [
@@ -23,6 +26,7 @@ class JobOpeningController extends Controller
             'companies' => Company::orderBy('name')->pluck('name', 'id'),
             'departments' => Department::orderBy('name')->pluck('name', 'id'),
             'positions' => Position::orderBy('name')->pluck('name', 'id'),
+            'educationLevels' => array_combine(self::EDUCATION_LEVELS, self::EDUCATION_LEVELS),
             'editing' => JobOpening::find($request->integer('edit')),
         ]);
     }
@@ -74,13 +78,25 @@ class JobOpeningController extends Controller
 
     private function validated(Request $request): array
     {
-        return $request->validate([
+        $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'company_id' => ['nullable', 'exists:companies,id'],
             'department_id' => ['nullable', 'exists:departments,id'],
             'position_id' => ['nullable', 'exists:positions,id'],
             'description' => ['required', 'string', 'max:20000'],
+            'required_skills' => ['nullable', 'string', 'max:1000'],
+            'min_education' => ['nullable', Rule::in(self::EDUCATION_LEVELS)],
+            'min_experience' => ['nullable', 'integer', 'min:0', 'max:50'],
+            'screening_threshold' => ['nullable', 'integer', 'min:0', 'max:100'],
         ]);
+
+        $skills = JobOpening::parseSkills($data['required_skills'] ?? null);
+
+        $data['required_skills'] = $skills === [] ? null : $skills;
+        $data['min_experience'] ??= null;
+        $data['screening_threshold'] = (int) ($data['screening_threshold'] ?? 70);
+
+        return $data;
     }
 
     private function uniqueSlug(string $title): string

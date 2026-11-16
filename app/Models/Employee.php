@@ -114,13 +114,50 @@ class Employee extends Model
             ->when($filters['status'] ?? null, fn (Builder $query, string $status) => $query->where('employment_status', $status));
     }
 
+    public static function employmentStatusOptions(): array
+    {
+        return [
+            'permanent' => 'Tetap',
+            'contract' => 'Kontrak',
+            'probation' => 'Probation',
+            'intern' => 'Magang',
+        ];
+    }
+
+    public static function generateStaffNumber(Company|int|string $company, \DateTimeInterface|string|null $joinedAt = null): string
+    {
+        $companyModel = $company instanceof Company ? $company : Company::find($company);
+        $companyCode = strtoupper(trim((string) ($companyModel?->code ?? 'EMP')));
+
+        $date = $joinedAt instanceof \DateTimeInterface
+            ? \Illuminate\Support\Carbon::instance($joinedAt)
+            : ($joinedAt ? \Illuminate\Support\Carbon::parse($joinedAt) : now());
+
+        $year = $date->format('Y');
+        $month = $date->format('m');
+        $prefix = "{$companyCode}-{$year}.{$month}.";
+
+        $highestSeq = self::where('nik', 'like', "{$prefix}%")
+            ->pluck('nik')
+            ->map(function ($nik) use ($prefix) {
+                $suffix = substr($nik, strlen($prefix));
+                return is_numeric($suffix) ? (int) $suffix : 0;
+            })
+            ->max() ?? 0;
+
+        $nextSeq = $highestSeq + 1;
+
+        return "{$prefix}" . str_pad((string) $nextSeq, 3, '0', STR_PAD_LEFT);
+    }
+
     public function employmentStatusLabel(): string
     {
         return match ($this->employment_status) {
             'permanent' => 'Tetap',
             'contract' => 'Kontrak',
+            'probation' => 'Probation',
             'intern' => 'Magang',
-            default => ucfirst($this->employment_status),
+            default => ucfirst((string) $this->employment_status),
         };
     }
 
@@ -129,6 +166,7 @@ class Employee extends Model
         return match ($this->employment_status) {
             'permanent' => 'success',
             'contract' => 'warning',
+            'probation' => 'indigo',
             'intern' => 'info',
             default => 'neutral',
         };

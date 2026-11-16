@@ -45,6 +45,10 @@
             class="fixed inset-0 z-30 bg-black/40 backdrop-blur-[2px] lg:hidden"
         ></div>
 
+        <x-ui.confirm-modal />
+
+        @stack('modals')
+
         @if (session('status'))
             <div
                 x-data="{ show: true }"

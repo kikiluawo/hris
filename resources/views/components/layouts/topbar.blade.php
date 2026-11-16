@@ -1,6 +1,10 @@
 @php
     $pendingLeaves = \App\Models\LeaveRequest::with('employee')->where('status', 'pending')->latest()->take(4)->get();
     $pendingCount = \App\Models\LeaveRequest::where('status', 'pending')->count();
+
+    $newHiringRequests = \App\Models\HiringRequest::where('status', \App\Models\HiringRequest::STATUS_NEW)->latest()->take(3)->get();
+    $newHiringRequestCount = \App\Models\HiringRequest::where('status', \App\Models\HiringRequest::STATUS_NEW)->count();
+    $notificationCount = $pendingCount + $newHiringRequestCount;
 @endphp
 
 <header
@@ -52,7 +56,7 @@
                     aria-label="Notifikasi"
                 >
                     <x-icon name="bell" class="size-[19px]" />
-                    @if ($pendingCount > 0)
+                    @if ($notificationCount > 0)
                         <span class="absolute right-2.5 top-2.5 size-2 rounded-full bg-brand ring-2 ring-canvas"></span>
                     @endif
                 </button>
@@ -65,29 +69,54 @@
                 >
                     <div class="flex items-center justify-between border-b border-line px-4 py-3">
                         <p class="text-[13px] font-semibold">Notifikasi</p>
-                        @if ($pendingCount > 0)
-                            <x-ui.badge variant="brand">{{ $pendingCount }} menunggu</x-ui.badge>
+                        @if ($notificationCount > 0)
+                            <x-ui.badge variant="brand">{{ $notificationCount }} baru</x-ui.badge>
                         @endif
                     </div>
 
-                    @forelse ($pendingLeaves as $leave)
-                        <a href="{{ route('leaves.index', ['status' => 'pending']) }}" class="flex gap-3 px-4 py-3 transition hover:bg-surface-2">
-                            <x-ui.avatar :name="$leave->employee->name" size="xs" class="mt-0.5" />
-                            <span class="min-w-0">
-                                <span class="block truncate text-[12.5px] leading-snug">
-                                    <span class="font-semibold">{{ $leave->employee->name }}</span> mengajukan {{ $leave->typeLabel() }}
+                    <div class="max-h-[360px] overflow-y-auto">
+                        @forelse ($pendingLeaves as $leave)
+                            <a href="{{ route('leaves.index', ['status' => 'pending']) }}" class="flex gap-3 px-4 py-3 transition hover:bg-surface-2">
+                                <x-ui.avatar :name="$leave->employee->name" size="xs" class="mt-0.5" />
+                                <span class="min-w-0">
+                                    <span class="block truncate text-[12.5px] leading-snug">
+                                        <span class="font-semibold">{{ $leave->employee->name }}</span> mengajukan {{ $leave->typeLabel() }}
+                                    </span>
+                                    <span class="block text-[11px] text-subtle">{{ $leave->start_date->translatedFormat('d M') }} · {{ $leave->days }} hari</span>
                                 </span>
-                                <span class="block text-[11px] text-subtle">{{ $leave->start_date->translatedFormat('d M') }} · {{ $leave->days }} hari</span>
-                            </span>
-                        </a>
-                    @empty
-                        <p class="px-4 py-8 text-center text-[12.5px] text-subtle">Tidak ada pengajuan baru.</p>
-                    @endforelse
+                            </a>
+                        @empty
+                            @if ($newHiringRequestCount === 0)
+                                <p class="px-4 py-8 text-center text-[12.5px] text-subtle">Tidak ada pengajuan baru.</p>
+                            @endif
+                        @endforelse
+
+                        @foreach ($newHiringRequests as $hiringRequest)
+                            <a href="{{ route('hiring-requests.show', $hiringRequest) }}" class="flex gap-3 px-4 py-3 transition hover:bg-surface-2">
+                                <span class="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-amber-50 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300">
+                                    <x-icon name="bell" class="size-3.5" />
+                                </span>
+                                <span class="min-w-0">
+                                    <span class="block truncate text-[12.5px] leading-snug">
+                                        <span class="font-semibold">{{ $hiringRequest->requester_name }}</span> mengajukan {{ $hiringRequest->title }}
+                                    </span>
+                                    <span class="block text-[11px] text-subtle">{{ $hiringRequest->reference() }} · {{ $hiringRequest->created_at->diffForHumans() }}</span>
+                                </span>
+                            </a>
+                        @endforeach
+                    </div>
 
                     <a href="{{ route('leaves.index') }}" class="flex items-center justify-center gap-1.5 border-t border-line px-4 py-2.5 text-[12px] font-semibold text-brand transition hover:bg-surface-2">
                         Lihat semua pengajuan
                         <x-icon name="arrow-right" class="size-3.5" />
                     </a>
+
+                    @if ($newHiringRequestCount > 0)
+                        <a href="{{ route('hiring-requests.index', ['status' => 'baru']) }}" class="flex items-center justify-center gap-1.5 border-t border-line px-4 py-2.5 text-[12px] font-semibold text-brand transition hover:bg-surface-2">
+                            Tinjau permintaan karyawan
+                            <x-icon name="arrow-right" class="size-3.5" />
+                        </a>
+                    @endif
                 </div>
             </div>
 

@@ -4,10 +4,6 @@
         <p class="mt-1.5 text-[13.5px] text-muted">Masuk untuk melanjutkan ke ruang kerja HRD Anda.</p>
     </div>
 
-    <x-ui.alert variant="info" class="mb-6">
-        Akun demo: <span class="font-semibold">admin@hrd.local</span> · <span class="font-semibold">password</span>
-    </x-ui.alert>
-
     @if (session('status'))
         <x-ui.alert variant="success" class="mb-6">{{ session('status') }}</x-ui.alert>
     @endif

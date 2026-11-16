@@ -110,5 +110,13 @@ return [
         'department' => 'departemen',
         'status' => 'status',
         'type' => 'jenis',
+        'title' => 'judul lowongan',
+        'company_id' => 'PT',
+        'department_id' => 'departemen',
+        'position_id' => 'jabatan',
+        'description' => 'deskripsi',
+        'required_skills' => 'keahlian wajib',
+        'min_education' => 'pendidikan minimum',
+        'min_experience' => 'pengalaman minimum',
     ],
 ];

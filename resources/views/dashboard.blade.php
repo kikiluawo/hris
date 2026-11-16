@@ -7,6 +7,15 @@
         </x-ui.alert>
     @endif
 
+    @if ($newHiringRequests > 0)
+        <x-ui.alert variant="warning" class="mb-5">
+            <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <span><strong>{{ $newHiringRequests }} permintaan karyawan baru</strong> masuk dari form publik dan belum ditinjau.</span>
+                <a href="{{ route('hiring-requests.index', ['status' => 'baru']) }}" class="font-semibold underline underline-offset-2">Tinjau sekarang</a>
+            </div>
+        </x-ui.alert>
+    @endif
+
     <x-ui.page-header
         title="Ringkasan"
         :description="'Pantau kondisi tim dan aktivitas HR per ' . now()->translatedFormat('l, d F Y') . '.'"

@@ -99,7 +99,7 @@
                                 <td class="px-5 py-3.5">
                                     <div class="flex items-center justify-end gap-1">
                                         <x-ui.button variant="ghost" size="icon" icon="pencil" :href="route('positions.index', ['edit' => $position->id])" aria-label="Edit {{ $position->name }}" />
-                                        <form method="POST" action="{{ route('positions.destroy', $position) }}" onsubmit="return confirm('Hapus jabatan {{ $position->name }}?')">
+                                        <form method="POST" action="{{ route('positions.destroy', $position) }}" data-confirm="Jabatan {{ $position->name }} akan dihapus permanen. Tindakan ini tidak bisa dibatalkan." data-confirm-title="Hapus jabatan?" data-confirm-tone="danger" data-confirm-label="Ya, hapus">
                                             @csrf
                                             @method('DELETE')
                                             <x-ui.button variant="ghost" size="icon" icon="trash" type="submit" aria-label="Hapus {{ $position->name }}" />

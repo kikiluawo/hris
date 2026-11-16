@@ -1,4 +1,6 @@
 @php
+    $newHiringRequests = \App\Models\HiringRequest::where('status', \App\Models\HiringRequest::STATUS_NEW)->count();
+
     $groups = [
         'Ruang kerja' => [
             ['label' => 'Dashboard', 'icon' => 'grid', 'route' => 'dashboard', 'match' => 'dashboard'],
@@ -14,7 +16,10 @@
         ],
         'Rekrutmen' => [
             ['label' => 'Lowongan', 'icon' => 'file-text', 'route' => 'openings.index', 'match' => 'openings.*'],
+            ['label' => 'Permintaan', 'icon' => 'bell', 'route' => 'hiring-requests.index', 'match' => ['hiring-requests.index', 'hiring-requests.show']],
             ['label' => 'Pelamar', 'icon' => 'users', 'route' => 'applicants.index', 'match' => 'applicants.*'],
+            ['label' => 'Tes online', 'icon' => 'clipboard', 'route' => 'assessments.index', 'match' => 'assessments.*'],
+            ['label' => 'Bank soal', 'icon' => 'copy', 'route' => 'question-bank.index', 'match' => 'question-bank.*'],
         ],
     ];
 @endphp
@@ -56,6 +61,9 @@
                     >
                         <x-icon :name="$item['icon']" class="size-[19px] {{ $active ? 'text-brand' : 'text-subtle group-hover:text-muted' }}" />
                         {{ $item['label'] }}
+                        @if ($item['route'] === 'hiring-requests.index' && $newHiringRequests > 0)
+                            <span class="ml-auto rounded-full bg-brand px-1.5 py-0.5 text-[10.5px] font-bold leading-none text-brand-ink">{{ $newHiringRequests }}</span>
+                        @endif
                     </a>
                 @endforeach
             </div>

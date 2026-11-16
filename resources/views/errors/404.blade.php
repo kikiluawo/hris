@@ -4,12 +4,12 @@
         <div class="pointer-events-none absolute -bottom-28 -right-20 size-72 rounded-full bg-brand/10 blur-3xl"></div>
 
         <div class="relative mx-auto flex max-w-lg flex-col items-center">
-            <span class="flex size-16 items-center justify-center rounded-2xl bg-brand-soft text-brand-soft-ink shadow-sm">
+            <span class="flex size-16 items-center justify-center rounded-full border border-gold/30 bg-gold-soft text-gold-strong shadow-sm">
                 <x-icon name="map-pin" class="size-8" />
             </span>
 
-            <p class="mt-6 text-[11px] font-bold uppercase tracking-[0.24em] text-subtle">Error 404</p>
-            <h1 class="mt-3 text-[26px] font-semibold leading-tight tracking-tight sm:text-[32px]">
+            <p class="mt-6 text-[10px] font-bold uppercase tracking-[0.3em] text-gold-strong">Error 404</p>
+            <h1 class="mt-3 font-display text-[28px] font-medium leading-tight tracking-tight sm:text-[34px]">
                 Halaman ini sedang tidak ada di tempatnya.
             </h1>
             <p class="mt-3 max-w-md text-[13.5px] leading-relaxed text-muted">
@@ -17,7 +17,7 @@
             </p>
 
             <div class="mt-8 flex w-full flex-col items-center justify-center gap-2.5 sm:w-auto sm:flex-row">
-                <x-ui.button :href="route('career.index')" icon="briefcase" class="w-full sm:w-auto">Lihat lowongan</x-ui.button>
+                <x-ui.button :href="route('career.index')" variant="gold" icon="briefcase" class="w-full sm:w-auto">Lihat lowongan</x-ui.button>
 
                 @auth
                     <x-ui.button :href="route('dashboard')" variant="secondary" icon="grid" class="w-full sm:w-auto">Buka dashboard</x-ui.button>

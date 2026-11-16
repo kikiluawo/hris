@@ -43,7 +43,7 @@
                 <x-ui.label for="status">Status</x-ui.label>
                 <x-ui.select
                     name="status"
-                    :options="['permanent' => 'Tetap', 'contract' => 'Kontrak', 'intern' => 'Magang']"
+                    :options="$statuses"
                     :selected="$filters['status'] ?? null"
                     placeholder="Semua status"
                     data-select2-clear

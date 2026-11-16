@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Application;
 use App\Models\Branch;
 use App\Models\Company;
 use App\Models\Department;
@@ -31,13 +32,86 @@ class EmployeeController extends Controller
             'filters' => $filters,
             'companies' => Company::orderBy('name')->get(),
             'departments' => Department::with('company')->orderBy('company_id')->orderBy('name')->get(),
+            'statuses' => Employee::employmentStatusOptions(),
         ]);
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
+        $employee = null;
+        $applicationId = $request->query('application_id');
+
+        if ($applicationId) {
+            $application = Application::with([
+                'candidate',
+                'jobOpening.company',
+                'jobOpening.department',
+                'jobOpening.position',
+                'jobApplicationForm',
+                'employeeBiodata',
+            ])->find($applicationId);
+
+            if ($application) {
+                $candidate = $application->candidate;
+                $biodata = $application->employeeBiodata;
+                $jobForm = $application->jobApplicationForm;
+                $personal = $biodata?->personal_data ?? [];
+                $formPersonal = $jobForm?->personal_details ?? [];
+                $family = $biodata?->family_details ?? [];
+                $formFamily = $jobForm?->family_data ?? [];
+
+                $rawGender = $personal['gender'] ?? $formPersonal['gender'] ?? null;
+                $gender = match ($rawGender) {
+                    'pria', 'L', 'M', 'laki-laki' => 'pria',
+                    'wanita', 'P', 'F', 'perempuan' => 'wanita',
+                    default => null,
+                };
+
+                $children = $biodata?->children ?? $jobForm?->family_data['children'] ?? [];
+                $daughters = 0;
+                $sons = 0;
+                if (is_array($children)) {
+                    foreach ($children as $c) {
+                        $cGender = strtolower((string) ($c['gender'] ?? ''));
+                        if (in_array($cGender, ['p', 'wanita', 'perempuan', 'f'], true)) {
+                            $daughters++;
+                        } elseif (in_array($cGender, ['l', 'pria', 'laki-laki', 'm'], true)) {
+                            $sons++;
+                        }
+                    }
+                }
+
+                $employee = new Employee([
+                    'name' => $candidate->name,
+                    'email' => $candidate->email,
+                    'phone' => $candidate->phone,
+                    'company_id' => $application->jobOpening?->company_id,
+                    'branch_id' => null,
+                    'department_id' => $application->jobOpening?->department_id,
+                    'position_id' => $application->jobOpening?->position_id,
+                    'employment_status' => 'probation',
+                    'joined_at' => now(),
+                    'birth_place' => $personal['birth_place'] ?? $formPersonal['birth_place'] ?? null,
+                    'birth_date' => $personal['birth_date'] ?? $formPersonal['birth_date'] ?? null,
+                    'gender' => $gender,
+                    'religion' => $personal['religion'] ?? $formPersonal['religion'] ?? null,
+                    'marital_status' => $personal['marital_status'] ?? $formPersonal['marital_status'] ?? null,
+                    'daughters_count' => $daughters,
+                    'sons_count' => $sons,
+                    'address' => $personal['address'] ?? $formPersonal['address'] ?? null,
+                    'ktp_no' => $personal['ktp_no'] ?? $formPersonal['ktp_no'] ?? null,
+                    'npwp_no' => $personal['npwp_no'] ?? null,
+                    'bpjs_tk_no' => $personal['bpjs_tk_no'] ?? null,
+                    'spouse_name' => $family['spouse']['name'] ?? $formFamily['spouse']['name'] ?? null,
+                    'father_name' => $family['father']['name'] ?? $formFamily['father']['name'] ?? null,
+                    'mother_name' => $family['mother']['name'] ?? $formFamily['mother']['name'] ?? null,
+                    'emergency_phone' => $personal['phone_home'] ?? $candidate->phone,
+                ]);
+            }
+        }
+
         return view('employees.form', [
-            'employee' => null,
+            'employee' => $employee,
             'organization' => $this->organizationTree(),
             'statuses' => $this->statusOptions(),
         ]);
@@ -140,10 +214,26 @@ class EmployeeController extends Controller
         ]);
     }
 
+    public function nextStaffNumber(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $companyId = $request->query('company_id');
+        $joinedAt = $request->query('joined_at') ?: now()->format('Y-m-d');
+
+        if (! $companyId) {
+            return response()->json(['staff_number' => '']);
+        }
+
+        $staffNumber = Employee::generateStaffNumber($companyId, $joinedAt);
+
+        return response()->json([
+            'staff_number' => $staffNumber,
+        ]);
+    }
+
     private function validated(Request $request, ?Employee $employee = null): array
     {
         $data = $request->validate([
-            'nik' => ['required', 'string', 'max:40', Rule::unique('employees', 'nik')->ignore($employee?->id)],
+            'nik' => ['nullable', 'string', 'max:40', Rule::unique('employees', 'nik')->ignore($employee?->id)],
             'name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'string', 'email', 'max:120', Rule::unique('employees', 'email')->ignore($employee?->id)],
             'phone' => ['nullable', 'string', 'max:30'],
@@ -151,9 +241,8 @@ class EmployeeController extends Controller
             'branch_id' => ['nullable', 'exists:branches,id'],
             'department_id' => ['required', 'exists:departments,id'],
             'position_id' => ['required', 'exists:positions,id'],
-            'employment_status' => ['required', 'in:permanent,contract,intern'],
+            'employment_status' => ['required', 'in:permanent,contract,probation,intern'],
             'joined_at' => ['required', 'date'],
-            'salary' => ['required', 'integer', 'min:0'],
             'contract_1_start' => ['nullable', 'date'],
             'contract_1_end' => ['nullable', 'date', 'after_or_equal:contract_1_start'],
             'contract_2_start' => ['nullable', 'date'],
@@ -232,6 +321,11 @@ class EmployeeController extends Controller
             throw ValidationException::withMessages($conflicts);
         }
 
+        if (empty($data['nik'])) {
+            $data['nik'] = Employee::generateStaffNumber($data['company_id'], $data['joined_at']);
+        }
+
+        $data['salary'] = $request->filled('salary') ? (int) $request->input('salary') : ($employee?->salary ?? null);
         $data['is_active'] = $request->boolean('is_active');
         $data['daughters_count'] = (int) ($data['daughters_count'] ?? 0);
         $data['sons_count'] = (int) ($data['sons_count'] ?? 0);
@@ -250,6 +344,7 @@ class EmployeeController extends Controller
             ->get()
             ->map(fn (Company $company) => [
                 'id' => $company->id,
+                'code' => $company->code,
                 'name' => $company->name,
                 'branches' => $company->branches->map(fn (Branch $branch) => [
                     'id' => $branch->id,
@@ -270,10 +365,6 @@ class EmployeeController extends Controller
 
     private function statusOptions(): array
     {
-        return [
-            'permanent' => 'Tetap',
-            'contract' => 'Kontrak',
-            'intern' => 'Magang',
-        ];
+        return Employee::employmentStatusOptions();
     }
 }

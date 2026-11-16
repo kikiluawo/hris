@@ -119,7 +119,7 @@
                             <td class="px-5 py-3.5 sm:px-6">
                                 @if ($leave->status === 'pending')
                                     <div class="flex items-center justify-end gap-1.5">
-                                        <form method="POST" action="{{ route('leaves.approve', $leave) }}" onsubmit="return confirm('Setujui pengajuan ini?')">
+                                        <form method="POST" action="{{ route('leaves.approve', $leave) }}" data-confirm="Pengajuan {{ $leave->typeLabel() }} oleh {{ $leave->employee->name }} akan disetujui." data-confirm-title="Setujui pengajuan?" data-confirm-label="Ya, setujui">
                                             @csrf
                                             @method('PATCH')
                                             <button type="submit" title="Setujui" class="flex size-8 items-center justify-center rounded-lg border border-brand-line bg-brand-soft text-brand-soft-ink transition hover:bg-brand-soft/70">
@@ -127,7 +127,7 @@
                                             </button>
                                         </form>
 
-                                        <form method="POST" action="{{ route('leaves.reject', $leave) }}" onsubmit="return confirm('Tolak pengajuan ini?')">
+                                        <form method="POST" action="{{ route('leaves.reject', $leave) }}" data-confirm="Pengajuan {{ $leave->typeLabel() }} oleh {{ $leave->employee->name }} akan ditolak." data-confirm-title="Tolak pengajuan?" data-confirm-tone="danger" data-confirm-label="Ya, tolak">
                                             @csrf
                                             @method('PATCH')
                                             <button type="submit" title="Tolak" class="flex size-8 items-center justify-center rounded-lg border border-rose-200 bg-rose-50 text-rose-600 transition hover:bg-rose-100 dark:border-rose-400/25 dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500/20">

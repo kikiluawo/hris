@@ -103,7 +103,7 @@
                                 <td class="px-5 py-3.5">
                                     <div class="flex items-center justify-end gap-1">
                                         <x-ui.button variant="ghost" size="icon" icon="pencil" :href="route('companies.index', ['edit' => $company->id])" aria-label="Edit {{ $company->name }}" />
-                                        <form method="POST" action="{{ route('companies.destroy', $company) }}" onsubmit="return confirm('Hapus PT {{ $company->name }}?')">
+                                        <form method="POST" action="{{ route('companies.destroy', $company) }}" data-confirm="PT {{ $company->name }} akan dihapus permanen. Tindakan ini tidak bisa dibatalkan." data-confirm-title="Hapus PT?" data-confirm-tone="danger" data-confirm-label="Ya, hapus">
                                             @csrf
                                             @method('DELETE')
                                             <x-ui.button variant="ghost" size="icon" icon="trash" type="submit" aria-label="Hapus {{ $company->name }}" />

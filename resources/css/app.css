@@ -10,6 +10,7 @@
 
 @theme inline {
     --font-sans: 'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Fraunces Variable', 'Fraunces', Georgia, 'Times New Roman', serif;
 
     --color-canvas: var(--c-canvas);
     --color-surface: var(--c-surface);
@@ -26,6 +27,10 @@
     --color-brand-soft: var(--c-brand-soft);
     --color-brand-soft-ink: var(--c-brand-soft-ink);
     --color-brand-line: var(--c-brand-line);
+
+    --color-gold: var(--c-gold);
+    --color-gold-strong: var(--c-gold-strong);
+    --color-gold-soft: var(--c-gold-soft);
 
     --shadow-card: var(--s-card);
     --shadow-pop: var(--s-pop);
@@ -48,6 +53,10 @@
     --c-brand-soft-ink: #0b634c;
     --c-brand-line: #bfe3d5;
 
+    --c-gold: #a97c2f;
+    --c-gold-strong: #8a6524;
+    --c-gold-soft: #f4e9d3;
+
     --s-card: 0 1px 2px rgb(32 28 23 / 0.04), 0 10px 30px -18px rgb(32 28 23 / 0.2);
     --s-pop: 0 18px 50px -16px rgb(32 28 23 / 0.28);
 }
@@ -68,6 +77,10 @@
     --c-brand-soft: #12251d;
     --c-brand-soft-ink: #6ee7b7;
     --c-brand-line: #1f4436;
+
+    --c-gold: #d9b46a;
+    --c-gold-strong: #e8c98f;
+    --c-gold-soft: #2a2315;
 
     --s-card: 0 1px 0 rgb(255 255 255 / 0.03), 0 18px 40px -26px rgb(0 0 0 / 0.9);
     --s-pop: 0 24px 60px -20px rgb(0 0 0 / 0.85);
@@ -169,7 +182,7 @@
 .select2-container {
     width: 100% !important;
     font-family: var(--font-sans);
-    z-index: 1060;
+    z-index: auto;
 }
 
 .select2-container--default .select2-selection--single {
@@ -237,7 +250,7 @@
 }
 
 select.select2-hidden-accessible ~ [data-select-chevron] {
-    z-index: 1061;
+    z-index: 1;
 }
 
 .select2-dropdown {
@@ -246,6 +259,7 @@ select.select2-hidden-accessible ~ [data-select-chevron] {
     background-color: var(--c-surface);
     box-shadow: var(--s-pop);
     overflow: hidden;
+    z-index: 25;
 }
 
 .select2-search--dropdown {

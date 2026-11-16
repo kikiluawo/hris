@@ -3,7 +3,7 @@
     $initialBranch = old('branch_id', $employee?->branch_id ?? '');
     $initialDepartment = old('department_id', $employee?->department_id ?? '');
     $initialPosition = old('position_id', $employee?->position_id ?? '');
-    $isEditing = (bool) $employee;
+    $isEditing = (bool) ($employee && $employee->exists);
 @endphp
 
 <x-layouts.app :title="$isEditing ? 'Edit karyawan' : 'Tambah karyawan'">
@@ -38,6 +38,11 @@
             branchId: @js($initialBranch),
             departmentId: @js($initialDepartment),
             positionId: @js($initialPosition),
+            isEditing: @js($isEditing),
+            nik: @js(old('nik', $employee?->nik ?? '')),
+            joinedAt: @js(old('joined_at', $employee?->joined_at?->format('Y-m-d') ?? now()->format('Y-m-d'))),
+            nikTouched: @js((bool) old('nik')),
+            isGeneratingNik: false,
             get company() { return this.organization.find(c => c.id === Number(this.companyId)); },
             get branchOptions() { return this.company ? this.company.branches : []; },
             get departmentOptions() { return this.company ? this.company.departments : []; },
@@ -46,9 +51,35 @@
                 this.branchId = '';
                 this.departmentId = '';
                 this.positionId = '';
+                if (!this.isEditing || !this.nik) {
+                    this.generateStaffNumber();
+                }
             },
             onDepartmentChange() {
                 this.positionId = '';
+            },
+            async generateStaffNumber(force = false) {
+                if (!this.companyId) return;
+                if (this.isEditing && !force) return;
+                if (this.nikTouched && !force) return;
+
+                this.isGeneratingNik = true;
+                try {
+                    const res = await fetch(`{{ route('employees.next-staff-number') }}?company_id=${this.companyId}&joined_at=${this.joinedAt}`);
+                    const data = await res.json();
+                    if (data.staff_number) {
+                        this.nik = data.staff_number;
+                    }
+                } catch (e) {
+                    console.error(e);
+                } finally {
+                    this.isGeneratingNik = false;
+                }
+            },
+            init() {
+                if (!this.isEditing && this.companyId && !this.nik) {
+                    this.generateStaffNumber();
+                }
             }
         }"
     >
@@ -165,14 +196,14 @@
 
                 <div>
                     <x-ui.label for="joined_at">Tanggal masuk <span class="text-rose-500">*</span></x-ui.label>
-                    <x-ui.input type="date" name="joined_at" :value="$employee?->joined_at?->format('Y-m-d') ?? now()->format('Y-m-d')" />
+                    <x-ui.input
+                        type="date"
+                        name="joined_at"
+                        x-model="joinedAt"
+                        x-on:change="if (!isEditing || !nik) { generateStaffNumber(); }"
+                        :value="$employee?->joined_at?->format('Y-m-d') ?? now()->format('Y-m-d')"
+                    />
                     <x-ui.field-error name="joined_at" />
-                </div>
-
-                <div>
-                    <x-ui.label for="salary">Gaji bulanan (Rp) <span class="text-rose-500">*</span></x-ui.label>
-                    <x-ui.input type="number" name="salary" min="0" step="1000" :value="$employee?->salary" placeholder="7000000" />
-                    <x-ui.field-error name="salary" />
                 </div>
 
                 <div class="flex items-end pb-2.5">
@@ -184,8 +215,34 @@
         <x-ui.card title="Identitas" description="Data pribadi dan dokumen resmi karyawan.">
             <div class="grid gap-4 sm:grid-cols-2">
                 <div>
-                    <x-ui.label for="nik">No. staff <span class="text-rose-500">*</span></x-ui.label>
-                    <x-ui.input name="nik" :value="$employee?->nik" placeholder="EMP-2026-001" />
+                    <div class="flex items-center justify-between">
+                        <x-ui.label for="nik">No. staff <span class="text-rose-500">*</span></x-ui.label>
+                        <button
+                            type="button"
+                            x-show="companyId"
+                            x-on:click="generateStaffNumber(true)"
+                            class="text-[11.5px] font-semibold text-brand hover:underline inline-flex items-center gap-1"
+                            :disabled="isGeneratingNik"
+                        >
+                            <x-icon name="refresh" class="size-3" x-bind:class="isGeneratingNik ? 'animate-spin' : ''" />
+                            <span x-text="isGeneratingNik ? 'Menghasilkan…' : 'Generate No. Staff'"></span>
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <input
+                            type="text"
+                            name="nik"
+                            id="nik"
+                            x-model="nik"
+                            x-on:input="nikTouched = true"
+                            placeholder="KODEPT-TAHUNJOIN.BULANJOIN.NOMORURUT (contoh: MAL006-2026.11.001)"
+                            class="h-11 w-full rounded-xl border border-line bg-surface px-3.5 text-[14px] font-mono font-medium text-ink shadow-sm outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/15"
+                            required
+                        >
+                    </div>
+                    <p class="mt-1 text-[11px] text-subtle">
+                        Format: <span class="font-mono font-semibold text-brand">KODEPT-TAHUNJOIN.BULANJOIN.NOMORURUT</span> (contoh: <code class="font-mono text-brand">MAL006-2026.11.001</code>)
+                    </p>
                     <x-ui.field-error name="nik" />
                 </div>
 

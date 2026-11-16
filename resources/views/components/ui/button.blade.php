@@ -9,6 +9,8 @@
         'soft' => 'bg-brand-soft text-brand-soft-ink hover:bg-brand-soft/70 focus-visible:ring-brand/15',
         'ghost' => 'text-muted hover:bg-surface-2 hover:text-ink focus-visible:ring-brand/15',
         'danger' => 'bg-rose-600 text-white shadow-sm hover:bg-rose-700 focus-visible:ring-rose-500/25',
+        'gold' => 'bg-gold text-[#1d150a] shadow-sm hover:bg-gold-strong focus-visible:ring-gold/30',
+        'glass' => 'border border-white/15 bg-white/5 text-white hover:border-white/25 hover:bg-white/10 focus-visible:ring-white/25',
     ];
 
     $sizes = [

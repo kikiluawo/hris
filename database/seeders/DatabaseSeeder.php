@@ -15,10 +15,12 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Rina Kartika',
                 'password' => 'password',
                 'email_verified_at' => now(),
+                'is_hrd' => true,
             ]
         );
 
         $this->call(MajestyCompanySeeder::class);
         $this->call(BranchSeeder::class);
+        $this->call(PsychotestBankSeeder::class);
     }
 }

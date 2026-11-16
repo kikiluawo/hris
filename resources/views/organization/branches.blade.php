@@ -131,7 +131,7 @@
                                 <td class="px-5 py-3.5">
                                     <div class="flex items-center justify-end gap-1">
                                         <x-ui.button variant="ghost" size="icon" icon="pencil" :href="route('branches.index', ['edit' => $branch->id])" aria-label="Edit {{ $branch->name }}" />
-                                        <form method="POST" action="{{ route('branches.destroy', $branch) }}" onsubmit="return confirm('Hapus cabang {{ $branch->name }}?')">
+                                        <form method="POST" action="{{ route('branches.destroy', $branch) }}" data-confirm="Cabang {{ $branch->name }} akan dihapus permanen. Tindakan ini tidak bisa dibatalkan." data-confirm-title="Hapus cabang?" data-confirm-tone="danger" data-confirm-label="Ya, hapus">
                                             @csrf
                                             @method('DELETE')
                                             <x-ui.button variant="ghost" size="icon" icon="trash" type="submit" aria-label="Hapus {{ $branch->name }}" />

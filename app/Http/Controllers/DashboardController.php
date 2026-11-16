@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Company;
 use App\Models\Employee;
+use App\Models\HiringRequest;
 use App\Models\LeaveRequest;
 use Illuminate\View\View;
 
@@ -26,6 +27,8 @@ class DashboardController extends Controller
             : 0.0;
 
         $pendingLeaves = LeaveRequest::where('status', 'pending')->count();
+
+        $newHiringRequests = HiringRequest::where('status', HiringRequest::STATUS_NEW)->count();
 
         $monthlyPayroll = (int) Employee::where('is_active', true)->sum('salary');
 
@@ -60,6 +63,7 @@ class DashboardController extends Controller
             'attendanceRate' => $attendanceRate,
             'onLeaveToday' => $onLeaveToday,
             'pendingLeaves' => $pendingLeaves,
+            'newHiringRequests' => $newHiringRequests,
             'monthlyPayroll' => $monthlyPayroll,
             'companyTotals' => $companyTotals,
             'companyMax' => $companyMax,

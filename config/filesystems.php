@@ -47,6 +47,14 @@ return [
             'report' => false,
         ],
 
+        'assessment-images' => [
+            'driver' => 'local',
+            'root' => public_path('assessment-images'),
+            'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

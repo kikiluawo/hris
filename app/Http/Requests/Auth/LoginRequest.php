@@ -36,6 +36,15 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        if (! Auth::user()?->isHrd()) {
+            Auth::guard('web')->logout();
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => 'Akun ini tidak memiliki akses HRD.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 

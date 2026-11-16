@@ -1,4 +1,4 @@
-@props(['type' => 'text', 'name', 'icon' => null, 'value' => null, 'reveal' => false])
+@props(['type' => 'text', 'name', 'icon' => null, 'value' => null, 'reveal' => false, 'prefix' => null])
 
 @php
     $hasError = $errors->has($name);
@@ -6,11 +6,21 @@
         . ($hasError
             ? 'border-rose-400 focus:border-rose-400 focus:ring-4 focus:ring-rose-500/15 dark:border-rose-500/60'
             : 'border-line focus:border-brand focus:ring-4 focus:ring-brand/15');
-    $padding = ' pl-11 ' . ($reveal ? 'pr-11' : 'pr-3.5');
+    $padding = ' pl-3.5 ' . ($reveal ? 'pr-11' : 'pr-3.5');
+
+    if ($prefix !== null) {
+        $padding = ' pl-16 ' . ($reveal ? 'pr-11' : 'pr-3.5');
+    } elseif ($icon) {
+        $padding = ' pl-11 ' . ($reveal ? 'pr-11' : 'pr-3.5');
+    }
 @endphp
 
 <div class="relative" @if ($reveal) x-data="{ show: false }" @endif>
-    @if ($icon)
+    @if ($prefix !== null)
+        <span class="pointer-events-none absolute inset-y-0 left-0 flex w-14 items-center justify-center border-r border-line text-[14px] font-semibold text-muted">
+            {{ $prefix }}
+        </span>
+    @elseif ($icon)
         <span class="pointer-events-none absolute inset-y-0 left-0 flex w-11 items-center justify-center text-subtle">
             <x-icon :name="$icon" class="size-[18px]" />
         </span>
@@ -23,7 +33,7 @@
         id="{{ $attributes->get('id', $name) }}"
         @if ($type !== 'password') value="{{ old($name, $value) }}" @endif
         {{ $attributes->except(['id'])->merge([
-            'class' => $fieldClasses . ($icon ? $padding : ' px-3.5' . ($reveal ? ' pr-11' : '')),
+            'class' => $fieldClasses . $padding,
             'aria-invalid' => $hasError ? 'true' : 'false',
         ]) }}
     />

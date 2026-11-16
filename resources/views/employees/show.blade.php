@@ -233,7 +233,7 @@
                     </div>
                     <div class="flex items-start justify-between gap-3">
                         <dt class="text-subtle">Gaji bulanan</dt>
-                        <dd class="text-right font-medium tabular-nums">{{ \App\Support\Currency::rupiah($employee->salary) }}</dd>
+                        <dd class="text-right font-medium tabular-nums">{{ $employee->salary ? \App\Support\Currency::rupiah($employee->salary) : '-' }}</dd>
                     </div>
                 </div>
             </x-ui.card>

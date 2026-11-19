@@ -8,7 +8,7 @@
             data
         </p>
 
-        <nav class="flex items-center gap-1" aria-label="Navigasi halaman">
+        <nav class="flex flex-wrap items-center gap-1" aria-label="Navigasi halaman">
             @if ($paginator->onFirstPage())
                 <span class="flex size-9 cursor-not-allowed items-center justify-center rounded-lg border border-line text-subtle opacity-60">
                     <x-icon name="chevron-left" class="size-4" />

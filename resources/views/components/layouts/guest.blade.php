@@ -21,16 +21,14 @@
 <body class="min-h-full bg-canvas">
     <div class="grid min-h-screen lg:grid-cols-[minmax(0,1fr)_46%]">
         <div class="flex flex-col px-6 py-7 sm:px-10 lg:px-16">
-            <a href="{{ url('/') }}" class="flex w-fit items-center gap-3">
-                <span class="flex size-9 items-center justify-center rounded-xl bg-brand text-brand-ink shadow-sm">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="size-5" aria-hidden="true">
-                        <path d="M8 6v12M16 6v12M8 12h8" />
-                    </svg>
-                </span>
-                <span class="leading-tight">
-                    <span class="block text-[15px] font-bold tracking-tight">HRD System</span>
-                    <span class="block text-[10px] font-semibold uppercase tracking-[0.14em] text-subtle">People Ops</span>
-                </span>
+            <a href="{{ url('/') }}" class="inline-flex w-fit items-center gap-3 rounded-xl border border-gold/25 bg-[#06231b] px-4 py-2.5 shadow-sm transition hover:border-gold/50">
+                <img
+                    src="{{ asset('images/majesty-logo.png') }}"
+                    alt="Majesty Group"
+                    class="h-7 w-auto object-contain opacity-95"
+                />
+                <span class="h-5 w-px bg-gold/30" aria-hidden="true"></span>
+                <span class="text-[10px] font-semibold uppercase tracking-[0.2em] text-gold">HR Portal</span>
             </a>
 
             <div class="flex flex-1 items-center justify-center py-10">
@@ -48,6 +46,12 @@
             <div class="absolute -right-24 bottom-0 size-[400px] rounded-full bg-lime-300/10 blur-3xl"></div>
 
             <div class="relative flex flex-1 flex-col justify-center px-14 xl:px-20">
+                <img
+                    src="{{ asset('images/majesty-logo.png') }}"
+                    alt="Majesty Group"
+                    class="mb-8 h-11 w-auto self-start object-contain opacity-95"
+                />
+
                 <span class="inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[10.5px] font-semibold uppercase tracking-[0.14em] text-emerald-100/90">
                     <span class="size-1.5 rounded-full bg-emerald-300"></span>
                     People Operations
@@ -74,7 +78,7 @@
             </div>
 
             <div class="relative border-t border-white/10 px-14 py-6 text-[11.5px] text-emerald-50/45 xl:px-20">
-                HRD System · Template dashboard internal
+                Majesty HR Portal · Dashboard Internal Majesty Group
             </div>
         </aside>
     </div>

@@ -14,6 +14,7 @@ class AssessmentRunner
     public const VIOLATION_TYPES = [
         'tab_hidden',
         'tab_hidden_long',
+        'fullscreen_exit',
         'camera_lost',
         'warning_acknowledged',
     ];
@@ -159,7 +160,7 @@ class AssessmentRunner
         }
 
         $recentIncident = $attempt->events()
-            ->whereIn('type', ['tab_hidden', 'camera_lost'])
+            ->whereIn('type', ['tab_hidden', 'fullscreen_exit', 'camera_lost'])
             ->where('occurred_at', '>=', now()->subSeconds(5))
             ->exists();
 

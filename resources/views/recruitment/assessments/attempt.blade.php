@@ -356,6 +356,46 @@
                 </dl>
             </x-ui.card>
 
+            <x-ui.card title="Foto Pengawasan Kamera" description="{{ $attempt->snapshots->count() }} foto terekam selama ujian." :padded="false">
+                @if ($attempt->snapshots->isEmpty())
+                    <p class="px-5 py-6 text-[13px] text-muted">Belum ada foto snapshot terekam.</p>
+                @else
+                    <div class="p-3" x-data="{ preview: null }">
+                        <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                            @foreach ($attempt->snapshots as $snapshot)
+                                <button
+                                    type="button"
+                                    x-on:click="preview = '{{ route('assessments.attempts.snapshot', $snapshot) }}'"
+                                    class="group relative aspect-[4/3] w-full overflow-hidden rounded-lg border border-line bg-surface-2 transition hover:ring-2 hover:ring-brand focus:outline-none"
+                                >
+                                    <img
+                                        src="{{ route('assessments.attempts.snapshot', $snapshot) }}"
+                                        alt="Foto pengawasan {{ $snapshot->captured_at->translatedFormat('H:i:s') }}"
+                                        loading="lazy"
+                                        class="size-full object-cover transition duration-200 group-hover:scale-105"
+                                    >
+                                    <span class="absolute bottom-1 left-1 rounded bg-black/75 px-1.5 py-0.5 text-[9.5px] font-medium text-white backdrop-blur">
+                                        {{ $snapshot->captured_at->format('H:i:s') }}
+                                    </span>
+                                    <span class="absolute top-1 right-1 rounded px-1 py-0.5 text-[8.5px] font-bold uppercase tracking-wider {{ $snapshot->triggerTone() === 'danger' ? 'bg-rose-600 text-white' : ($snapshot->triggerTone() === 'success' ? 'bg-emerald-600 text-white' : 'bg-surface/90 text-ink backdrop-blur') }}">
+                                        {{ $snapshot->triggerLabel() }}
+                                    </span>
+                                </button>
+                            @endforeach
+                        </div>
+
+                        <div x-show="preview" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm" x-on:click="preview = null">
+                            <div class="relative max-w-lg overflow-hidden rounded-2xl border border-line bg-surface p-2 shadow-pop" x-on:click.stop>
+                                <img :src="preview" alt="Foto pengawasan" class="w-full rounded-xl object-contain">
+                                <button type="button" x-on:click="preview = null" class="absolute top-4 right-4 flex size-8 items-center justify-center rounded-full bg-black/70 text-white hover:bg-black">
+                                    <x-icon name="close" class="size-4" />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            </x-ui.card>
+
             <x-ui.card title="Log pengawasan" description="Catatan aktivitas selama tes." :padded="false">
                 @if ($attempt->events->isEmpty())
                     <p class="px-5 py-6 text-[13px] text-muted">Belum ada aktivitas tercatat.</p>

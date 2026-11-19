@@ -61,6 +61,9 @@ Route::post('tes/{token}/jawab', [AssessmentTestController::class, 'answer'])
 Route::post('tes/{token}/pelanggaran', [AssessmentTestController::class, 'violation'])
     ->middleware('throttle:120,1')
     ->name('assessment.violation');
+Route::post('tes/{token}/snapshot', [AssessmentTestController::class, 'snapshot'])
+    ->middleware('throttle:60,1')
+    ->name('assessment.snapshot');
 Route::get('tes/{token}/status', [AssessmentTestController::class, 'status'])
     ->middleware('throttle:240,1')
     ->name('assessment.status');
@@ -79,7 +82,9 @@ Route::post('onboarding/{token}/biodata', [EmployeeBiodataController::class, 'st
     ->middleware('throttle:20,1')
     ->name('employee-biodatas.store');
 
-Route::middleware(['auth', 'hrd'])->group(function () {
+Route::redirect('admin-hrd', '/admin-hrd/dashboard');
+
+Route::middleware(['auth', 'hrd'])->prefix('admin-hrd')->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('karyawan', [EmployeeController::class, 'index'])->name('employees.index');
@@ -134,6 +139,7 @@ Route::middleware(['auth', 'hrd'])->group(function () {
     Route::get('rekrutmen/pelamar/{application}/formulir-lamaran', [JobApplicationFormController::class, 'viewAdmin'])->name('applicants.view-form');
     Route::get('rekrutmen/pelamar/{application}/formulir-lamaran/cetak', [JobApplicationFormController::class, 'printAdmin'])->name('applicants.print-form');
     Route::patch('rekrutmen/pelamar/{application}/interview', [ApplicantController::class, 'scheduleInterview'])->name('applicants.interview');
+    Route::patch('rekrutmen/pelamar/{application}/selesai-interview', [ApplicantController::class, 'completeInterview'])->name('applicants.complete-interview');
     Route::post('rekrutmen/pelamar/{application}/undang-tes', [ApplicantController::class, 'inviteAssessment'])->name('applicants.invite-assessment');
     Route::post('rekrutmen/pelamar/{application}/keputusan', [ApplicantController::class, 'decideFinal'])->name('applicants.decide-final');
     Route::get('rekrutmen/pelamar/{application}/biodata', [EmployeeBiodataController::class, 'viewAdmin'])->name('applicants.view-biodata');
@@ -158,6 +164,7 @@ Route::middleware(['auth', 'hrd'])->group(function () {
     Route::delete('rekrutmen/tes/{assessment}/undangan/{invitation}', [AssessmentController::class, 'destroyInvitation'])->name('assessments.invitations.destroy');
 
     Route::get('rekrutmen/percobaan/{attempt}', [AssessmentAttemptController::class, 'show'])->name('assessments.attempt');
+    Route::get('rekrutmen/percobaan-snapshot/{snapshot}', [AssessmentAttemptController::class, 'viewSnapshot'])->name('assessments.attempts.snapshot');
     Route::patch('rekrutmen/percobaan/{attempt}', [AssessmentAttemptController::class, 'grade'])->name('assessments.grade');
 
     Route::get('rekrutmen/bank-soal', [QuestionBankController::class, 'index'])->name('question-bank.index');

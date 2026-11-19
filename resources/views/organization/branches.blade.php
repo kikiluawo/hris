@@ -20,6 +20,14 @@
         </x-ui.alert>
     @endif
 
+    @php
+        $hasFilter = (bool) array_filter($filters);
+        $queryParams = array_filter([
+            ...$filters,
+            'per_page' => $perPage !== 10 ? $perPage : null,
+            'page' => request()->integer('page') > 1 ? request()->integer('page') : null,
+        ]);
+    @endphp
     <div class="space-y-4">
         <x-ui.card :title="$editing ? 'Edit cabang' : 'Tambah cabang'" description="Nama cabang harus unik dalam satu PT.">
             <form
@@ -75,7 +83,7 @@
                     <div class="flex flex-wrap gap-2">
                         <x-ui.button type="submit">{{ $editing ? 'Simpan perubahan' : 'Tambah cabang' }}</x-ui.button>
                         @if ($editing)
-                            <x-ui.button variant="ghost" :href="route('branches.index')">Batal</x-ui.button>
+                            <x-ui.button variant="ghost" :href="route('branches.index', $queryParams)">Batal</x-ui.button>
                         @endif
                     </div>
                 </div>
@@ -86,10 +94,46 @@
             <div class="flex items-center justify-between px-5 py-4 sm:px-6">
                 <div>
                     <h2 class="text-[15px] font-semibold">Daftar cabang</h2>
-                    <p class="mt-0.5 text-[12.5px] text-muted">{{ $branches->count() }} cabang terdaftar</p>
+                    <p class="mt-0.5 text-[12.5px] text-muted">{{ $branches->total() }} cabang {{ $hasFilter ? 'ditemukan' : 'terdaftar' }}</p>
                 </div>
                 <x-icon name="map-pin" class="size-5 text-subtle" />
             </div>
+
+            <form method="GET" action="{{ route('branches.index') }}" class="border-t border-line bg-surface-2/30 px-5 py-3.5 sm:px-6">
+                <input type="hidden" name="per_page" value="{{ $perPage }}">
+                <div class="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_220px_150px_auto] lg:items-end">
+                    <div>
+                        <x-ui.label for="q" class="sr-only">Cari cabang</x-ui.label>
+                        <x-ui.input name="q" type="search" icon="search" :value="$filters['q'] ?? null" placeholder="Cari nama, kode, kota, brand, tipe, atau PT..." />
+                    </div>
+                    <div>
+                        <x-ui.label for="company" class="sr-only">Filter PT</x-ui.label>
+                        <x-ui.select
+                            name="company"
+                            :options="$companies->pluck('name', 'id')->all()"
+                            :selected="$filters['company'] ?? null"
+                            placeholder="Semua PT"
+                            data-select2-clear
+                        />
+                    </div>
+                    <div>
+                        <x-ui.label for="status" class="sr-only">Status</x-ui.label>
+                        <x-ui.select
+                            name="status"
+                            :options="['active' => 'Aktif', 'inactive' => 'Nonaktif']"
+                            :selected="$filters['status'] ?? null"
+                            placeholder="Semua status"
+                            data-select2-clear
+                        />
+                    </div>
+                    <div class="flex gap-2">
+                        <x-ui.button type="submit" icon="search" class="flex-1 lg:flex-none">Cari</x-ui.button>
+                        @if ($hasFilter)
+                            <x-ui.button variant="ghost" :href="route('branches.index', $perPage !== 10 ? ['per_page' => $perPage] : [])">Reset</x-ui.button>
+                        @endif
+                    </div>
+                </div>
+            </form>
 
             <div class="overflow-x-auto border-t border-line">
                 <table class="w-full min-w-[820px] text-left">
@@ -130,7 +174,7 @@
                                 </td>
                                 <td class="px-5 py-3.5">
                                     <div class="flex items-center justify-end gap-1">
-                                        <x-ui.button variant="ghost" size="icon" icon="pencil" :href="route('branches.index', ['edit' => $branch->id])" aria-label="Edit {{ $branch->name }}" />
+                                        <x-ui.button variant="ghost" size="icon" icon="pencil" :href="route('branches.index', [...$queryParams, 'edit' => $branch->id])" aria-label="Edit {{ $branch->name }}" />
                                         <form method="POST" action="{{ route('branches.destroy', $branch) }}" data-confirm="Cabang {{ $branch->name }} akan dihapus permanen. Tindakan ini tidak bisa dibatalkan." data-confirm-title="Hapus cabang?" data-confirm-tone="danger" data-confirm-label="Ya, hapus">
                                             @csrf
                                             @method('DELETE')
@@ -142,13 +186,19 @@
                         @empty
                             <tr>
                                 <td colspan="7">
-                                    <x-ui.empty-state icon="map-pin" title="Belum ada cabang" description="PT tanpa cabang tidak perlu dicatat di sini." />
+                                    <x-ui.empty-state
+                                        icon="map-pin"
+                                        :title="$hasFilter ? 'Cabang tidak ditemukan' : 'Belum ada cabang'"
+                                        :description="$hasFilter ? 'Coba ubah kata kunci pencarian atau reset filter.' : 'PT tanpa cabang tidak perlu dicatat di sini.'"
+                                    />
                                 </td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
+
+            {{ $branches->links('vendor.pagination.hr-per-page', ['perPage' => $perPage, 'action' => route('branches.index')]) }}
         </x-ui.card>
     </div>
 </x-layouts.app>

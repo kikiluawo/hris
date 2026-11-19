@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\AssessmentAttempt;
 use App\Models\AssessmentQuestion;
+use App\Models\AssessmentSnapshot;
 use App\Services\AssessmentRunner;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class AssessmentAttemptController extends Controller
 {
@@ -22,6 +25,7 @@ class AssessmentAttemptController extends Controller
             'invitation.application.jobOpening',
             'answers.question',
             'events',
+            'snapshots',
         ]);
 
         $assessment = $attempt->invitation->assessment;
@@ -142,5 +146,16 @@ class AssessmentAttemptController extends Controller
         $runner->recalculateScore($attempt);
 
         return back()->with('status', 'Penilaian disimpan dan skor tes diperbarui.');
+    }
+
+    public function viewSnapshot(AssessmentSnapshot $snapshot): BinaryFileResponse
+    {
+        $disk = Storage::disk('local');
+        abort_unless($disk->exists($snapshot->file_path), 404);
+
+        return response()->file($disk->path($snapshot->file_path), [
+            'Content-Type' => 'image/jpeg',
+            'Cache-Control' => 'private, max-age=86400',
+        ]);
     }
 }

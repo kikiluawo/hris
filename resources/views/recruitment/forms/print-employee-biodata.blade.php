@@ -259,7 +259,13 @@
             </div>
             <div style="text-align: center; width: 180px;">
                 <p>{{ $biodata->signed_city ?? 'Kota' }}, {{ $biodata->submitted_at?->format('d/m/Y') ?? date('d/m/Y') }}</p>
-                <div style="height: 50px;"></div>
+                @if ($biodata->digital_signature)
+                    <div style="height: 55px; display: flex; align-items: center; justify-content: center; margin: 2px auto;">
+                        <img src="{{ $biodata->digital_signature }}" alt="Tanda Tangan" style="max-height: 50px; max-width: 150px; object-fit: contain;">
+                    </div>
+                @else
+                    <div style="height: 50px;"></div>
+                @endif
                 <p style="border-top: 1px solid #000; font-weight: bold;">( {{ $biodata->signed_name ?? $personal['full_name'] ?? $candidate->name }} )</p>
                 <span style="font-size: 9px; color: #555;">Tanda Tangan Karyawan</span>
             </div>

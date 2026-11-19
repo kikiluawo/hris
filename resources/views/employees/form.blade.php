@@ -369,7 +369,7 @@
             </div>
         </x-ui.card>
 
-        <x-ui.card title="Keluarga" description="Data pasangan, orang tua, dan jumlah anak.">
+        <x-ui.card title="Keluarga" description="Data pasangan, orang tua, serta jumlah dan nama anak.">
             <div class="grid gap-4 sm:grid-cols-2">
                 <div>
                     <x-ui.label for="spouse_name">Nama istri / suami</x-ui.label>
@@ -378,15 +378,25 @@
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <x-ui.label for="daughters_count">Anak perempuan</x-ui.label>
+                        <x-ui.label for="daughters_count">Jml. anak perempuan</x-ui.label>
                         <x-ui.input type="number" name="daughters_count" min="0" max="20" :value="$employee?->daughters_count ?? 0" />
                         <x-ui.field-error name="daughters_count" />
                     </div>
                     <div>
-                        <x-ui.label for="sons_count">Anak laki-laki</x-ui.label>
+                        <x-ui.label for="sons_count">Jml. anak laki-laki</x-ui.label>
                         <x-ui.input type="number" name="sons_count" min="0" max="20" :value="$employee?->sons_count ?? 0" />
                         <x-ui.field-error name="sons_count" />
                     </div>
+                </div>
+                <div>
+                    <x-ui.label for="daughters_names">Nama anak perempuan</x-ui.label>
+                    <x-ui.input name="daughters_names" :value="$employee?->daughters_names" placeholder="Pisahkan dengan koma, mis. Sherly, Sheria" />
+                    <x-ui.field-error name="daughters_names" />
+                </div>
+                <div>
+                    <x-ui.label for="sons_names">Nama anak laki-laki</x-ui.label>
+                    <x-ui.input name="sons_names" :value="$employee?->sons_names" placeholder="Pisahkan dengan koma, mis. Alfredo, Carlson" />
+                    <x-ui.field-error name="sons_names" />
                 </div>
                 <div>
                     <x-ui.label for="father_name">Nama ayah</x-ui.label>

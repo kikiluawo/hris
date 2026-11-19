@@ -26,6 +26,7 @@ class EmployeeBiodata extends Model
         'signed_city',
         'signed_name',
         'signed_date',
+        'digital_signature',
     ];
 
     protected function casts(): array

@@ -137,8 +137,8 @@
             >
                 @csrf
 
-                <div class="rounded-3xl border border-line bg-surface p-6 shadow-sm sm:p-8">
-                    <div class="flex items-center justify-between border-b border-line pb-4">
+                <div class="rounded-2xl sm:rounded-3xl border border-line bg-surface p-4 sm:p-6 lg:p-8 shadow-sm">
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-4">
                         <div>
                             <span class="text-[11px] font-bold uppercase tracking-wider text-brand">Bagian 1</span>
                             <h2 class="text-[17px] font-bold text-ink">Posisi & Foto Pelamar / Applicant Photograph</h2>
@@ -146,7 +146,7 @@
                         <span class="rounded-full bg-surface-2 px-3 py-1 text-[11px] font-semibold text-subtle">Langkah 1 dari 6</span>
                     </div>
 
-                    <div class="mt-6 grid gap-6 sm:grid-cols-2">
+                    <div class="mt-6 grid gap-5 sm:grid-cols-2">
                         <div>
                             <x-ui.label for="position_applied">Posisi yang Dilamar / Position applied <span class="text-rose-500">*</span></x-ui.label>
                             <x-ui.input id="position_applied" name="position_applied" :value="old('position_applied', $jobOpening->title)" required readonly class="bg-surface-2" />
@@ -160,15 +160,15 @@
                         <div class="sm:col-span-2">
                             <x-ui.label for="photo">Foto Pelamar / Applicant Photograph (Format Pas Foto, maks 2MB)</x-ui.label>
                             <div class="mt-1 flex items-center gap-4">
-                                <input type="file" id="photo" name="photo" accept="image/*" class="block w-full text-[13px] text-muted file:mr-4 file:rounded-xl file:border-0 file:bg-brand/10 file:px-4 file:py-2.5 file:text-[13px] file:font-semibold file:text-brand hover:file:bg-brand/20" />
+                                <input type="file" id="photo" name="photo" accept="image/*" class="block w-full text-[14px] sm:text-[13px] text-muted file:mr-4 file:rounded-xl file:border-0 file:bg-brand/10 file:px-4 file:py-2.5 file:text-[13px] file:font-semibold file:text-brand hover:file:bg-brand/20" />
                             </div>
                             <p class="mt-1.5 text-[11.5px] text-subtle">Gunakan foto formal setengah badan dengan latar polos.</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="rounded-3xl border border-line bg-surface p-6 shadow-sm sm:p-8">
-                    <div class="flex items-center justify-between border-b border-line pb-4">
+                <div class="rounded-2xl sm:rounded-3xl border border-line bg-surface p-4 sm:p-6 lg:p-8 shadow-sm">
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-4">
                         <div>
                             <span class="text-[11px] font-bold uppercase tracking-wider text-brand">Bagian 2</span>
                             <h2 class="text-[17px] font-bold text-ink">Identitas Pribadi & Kondisi Kesehatan</h2>
@@ -210,7 +210,7 @@
 
                         <div>
                             <x-ui.label for="gender">Jenis Kelamin / Sex <span class="text-rose-500">*</span></x-ui.label>
-                            <select id="gender" name="gender" required class="h-11 w-full rounded-xl border border-line bg-surface px-3.5 text-[14px] text-ink outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/15">
+                            <select id="gender" name="gender" required class="h-11 w-full rounded-xl border border-line bg-surface px-3.5 text-[16px] sm:text-[14px] text-ink outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/15">
                                 <option value="">Pilih Jenis Kelamin</option>
                                 <option value="pria" @selected(old('gender', $candidate->gender) === 'pria' || old('gender', $candidate->gender) === 'L' || old('gender', $candidate->gender) === 'M')>Laki-laki / Male (M)</option>
                                 <option value="wanita" @selected(old('gender', $candidate->gender) === 'wanita' || old('gender', $candidate->gender) === 'P' || old('gender', $candidate->gender) === 'F')>Perempuan / Female (F)</option>
@@ -229,7 +229,7 @@
 
                         <div>
                             <x-ui.label for="religion">Agama / Religion <span class="text-rose-500">*</span></x-ui.label>
-                            <select id="religion" name="religion" required class="h-11 w-full rounded-xl border border-line bg-surface px-3.5 text-[14px] text-ink outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/15">
+                            <select id="religion" name="religion" required class="h-11 w-full rounded-xl border border-line bg-surface px-3.5 text-[16px] sm:text-[14px] text-ink outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/15">
                                 <option value="">Pilih Agama</option>
                                 <option value="Islam" @selected(old('religion') === 'Islam')>Islam</option>
                                 <option value="Kristen Protestan" @selected(old('religion') === 'Kristen Protestan')>Kristen Protestan</option>
@@ -242,7 +242,7 @@
 
                         <div>
                             <x-ui.label for="marital_status">Status Pernikahan / Marital Status <span class="text-rose-500">*</span></x-ui.label>
-                            <select id="marital_status" name="marital_status" x-model="maritalStatus" required class="h-11 w-full rounded-xl border border-line bg-surface px-3.5 text-[14px] text-ink outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/15">
+                            <select id="marital_status" name="marital_status" x-model="maritalStatus" required class="h-11 w-full rounded-xl border border-line bg-surface px-3.5 text-[16px] sm:text-[14px] text-ink outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/15">
                                 <option value="Belum Menikah">Belum Menikah / Single</option>
                                 <option value="Menikah">Menikah / Married</option>
                                 <option value="Duda / Janda">Duda / Janda / Divorced / Widowed</option>
@@ -296,8 +296,8 @@
                     </div>
                 </div>
 
-                <div class="rounded-3xl border border-line bg-surface p-6 shadow-sm sm:p-8">
-                    <div class="flex items-center justify-between border-b border-line pb-4">
+                <div class="rounded-2xl sm:rounded-3xl border border-line bg-surface p-4 sm:p-6 lg:p-8 shadow-sm">
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-4">
                         <div>
                             <span class="text-[11px] font-bold uppercase tracking-wider text-brand">Bagian 3</span>
                             <h2 class="text-[17px] font-bold text-ink">Data Keluarga / Family Particulars</h2>
@@ -337,7 +337,7 @@
                     </div>
 
                     <div class="mt-6 border-t border-line pt-6">
-                        <div class="flex items-center justify-between">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
                             <div>
                                 <h3 class="text-[14px] font-bold text-ink">Nama Anak / Children's Name (Jika ada)</h3>
                                 <p class="text-[12px] text-muted">Isi jika Anda sudah memiliki anak</p>
@@ -350,20 +350,31 @@
 
                         <div class="mt-4 space-y-3">
                             <template x-for="(child, index) in children" :key="index">
-                                <div class="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3.5">
-                                    <span class="flex size-7 shrink-0 items-center justify-center rounded-lg bg-surface-2 text-[12px] font-bold text-muted" x-text="index + 1"></span>
-                                    <div class="grid flex-1 gap-3 sm:grid-cols-3">
-                                        <input type="text" :name="'children[' + index + '][name]'" x-model="child.name" placeholder="Nama Anak" class="h-10 rounded-xl border border-line bg-surface px-3 text-[13px] text-ink outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/15" />
-                                        <input type="text" :name="'children[' + index + '][dob]'" x-model="child.dob" placeholder="Tempat & Tgl Lahir" class="h-10 rounded-xl border border-line bg-surface px-3 text-[13px] text-ink outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/15" />
-                                        <select :name="'children[' + index + '][gender]'" x-model="child.gender" class="h-10 rounded-xl border border-line bg-surface px-3 text-[13px] text-ink outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/15">
-                                            <option value="">Jenis Kelamin</option>
-                                            <option value="L">Laki-laki (L)</option>
-                                            <option value="P">Perempuan (P)</option>
-                                        </select>
+                                <div class="rounded-2xl border border-line bg-surface p-3.5 sm:p-4 space-y-2.5 shadow-sm">
+                                    <div class="flex items-center justify-between border-b border-line/60 pb-2">
+                                        <span class="text-[12px] font-bold text-ink" x-text="'Anak #' + (index + 1)"></span>
+                                        <button type="button" x-on:click="removeChild(index)" class="inline-flex items-center gap-1 text-[12px] font-medium text-rose-500 hover:text-rose-700 p-1" title="Hapus baris">
+                                            <x-icon name="trash" class="size-3.5" /> Hapus
+                                        </button>
                                     </div>
-                                    <button type="button" x-on:click="removeChild(index)" class="p-1.5 text-rose-500 hover:text-rose-700" title="Hapus baris">
-                                        <x-icon name="trash" class="size-4" />
-                                    </button>
+                                    <div class="grid gap-2.5 sm:grid-cols-3">
+                                        <div>
+                                            <label class="block text-[11px] font-semibold text-subtle mb-1 sm:hidden">Nama Anak</label>
+                                            <input type="text" :name="'children[' + index + '][name]'" x-model="child.name" placeholder="Nama Anak" class="h-11 sm:h-10 w-full rounded-xl border border-line bg-surface px-3 text-[16px] sm:text-[13.5px] text-ink outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/15" />
+                                        </div>
+                                        <div>
+                                            <label class="block text-[11px] font-semibold text-subtle mb-1 sm:hidden">Tempat & Tgl Lahir</label>
+                                            <input type="text" :name="'children[' + index + '][dob]'" x-model="child.dob" placeholder="Tempat & Tgl Lahir" class="h-11 sm:h-10 w-full rounded-xl border border-line bg-surface px-3 text-[16px] sm:text-[13.5px] text-ink outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/15" />
+                                        </div>
+                                        <div>
+                                            <label class="block text-[11px] font-semibold text-subtle mb-1 sm:hidden">Jenis Kelamin</label>
+                                            <select :name="'children[' + index + '][gender]'" x-model="child.gender" class="h-11 sm:h-10 w-full rounded-xl border border-line bg-surface px-3 text-[16px] sm:text-[13.5px] text-ink outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/15">
+                                                <option value="">Jenis Kelamin</option>
+                                                <option value="L">Laki-laki (L)</option>
+                                                <option value="P">Perempuan (P)</option>
+                                            </select>
+                                        </div>
+                                    </div>
                                 </div>
                             </template>
                         </div>
@@ -403,7 +414,7 @@
                     </div>
 
                     <div class="mt-6 border-t border-line pt-6">
-                        <div class="flex items-center justify-between">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
                             <div>
                                 <h3 class="text-[14px] font-bold text-ink">Nama Saudara Kandung / Sibling's Name</h3>
                                 <p class="text-[12px] text-muted">Kakak / Adik kandung</p>
@@ -416,15 +427,23 @@
 
                         <div class="mt-4 space-y-3">
                             <template x-for="(sibling, index) in siblings" :key="index">
-                                <div class="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3.5">
-                                    <span class="flex size-7 shrink-0 items-center justify-center rounded-lg bg-surface-2 text-[12px] font-bold text-muted" x-text="index + 1"></span>
-                                    <div class="grid flex-1 gap-3 sm:grid-cols-2">
-                                        <input type="text" :name="'siblings[' + index + '][name]'" x-model="sibling.name" placeholder="Nama Saudara" class="h-10 rounded-xl border border-line bg-surface px-3 text-[13px] text-ink outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/15" />
-                                        <input type="text" :name="'siblings[' + index + '][job]'" x-model="sibling.job" placeholder="Pekerjaan" class="h-10 rounded-xl border border-line bg-surface px-3 text-[13px] text-ink outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/15" />
+                                <div class="rounded-2xl border border-line bg-surface p-3.5 sm:p-4 space-y-2.5 shadow-sm">
+                                    <div class="flex items-center justify-between border-b border-line/60 pb-2">
+                                        <span class="text-[12px] font-bold text-ink" x-text="'Saudara #' + (index + 1)"></span>
+                                        <button type="button" x-on:click="removeSibling(index)" class="inline-flex items-center gap-1 text-[12px] font-medium text-rose-500 hover:text-rose-700 p-1" title="Hapus baris">
+                                            <x-icon name="trash" class="size-3.5" /> Hapus
+                                        </button>
                                     </div>
-                                    <button type="button" x-on:click="removeSibling(index)" class="p-1.5 text-rose-500 hover:text-rose-700" title="Hapus baris">
-                                        <x-icon name="trash" class="size-4" />
-                                    </button>
+                                    <div class="grid gap-2.5 sm:grid-cols-2">
+                                        <div>
+                                            <label class="block text-[11px] font-semibold text-subtle mb-1 sm:hidden">Nama Saudara</label>
+                                            <input type="text" :name="'siblings[' + index + '][name]'" x-model="sibling.name" placeholder="Nama Saudara" class="h-11 sm:h-10 w-full rounded-xl border border-line bg-surface px-3 text-[16px] sm:text-[13.5px] text-ink outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/15" />
+                                        </div>
+                                        <div>
+                                            <label class="block text-[11px] font-semibold text-subtle mb-1 sm:hidden">Pekerjaan</label>
+                                            <input type="text" :name="'siblings[' + index + '][job]'" x-model="sibling.job" placeholder="Pekerjaan" class="h-11 sm:h-10 w-full rounded-xl border border-line bg-surface px-3 text-[16px] sm:text-[13.5px] text-ink outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/15" />
+                                        </div>
+                                    </div>
                                 </div>
                             </template>
                         </div>
@@ -445,8 +464,8 @@
                     </div>
                 </div>
 
-                <div class="rounded-3xl border border-line bg-surface p-6 shadow-sm sm:p-8">
-                    <div class="flex items-center justify-between border-b border-line pb-4">
+                <div class="rounded-2xl sm:rounded-3xl border border-line bg-surface p-4 sm:p-6 lg:p-8 shadow-sm">
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-4">
                         <div>
                             <span class="text-[11px] font-bold uppercase tracking-wider text-brand">Bagian 4</span>
                             <h2 class="text-[17px] font-bold text-ink">Pendidikan, Bahasa & Keahlian</h2>
@@ -490,9 +509,9 @@
                                 <div>
                                     <x-ui.label for="edu_univ_from">Tahun (Dari - Sampai)</x-ui.label>
                                     <div class="flex items-center gap-1.5">
-                                        <input type="text" name="education[university][from]" value="{{ old('education.university.from') }}" placeholder="2018" class="h-10 w-full rounded-xl border border-line bg-surface px-2.5 text-center text-[13px] outline-none focus:border-brand" />
+                                        <input type="text" name="education[university][from]" value="{{ old('education.university.from') }}" placeholder="2018" class="h-11 sm:h-10 w-full rounded-xl border border-line bg-surface px-2.5 text-center text-[16px] sm:text-[13px] outline-none focus:border-brand" />
                                         <span>-</span>
-                                        <input type="text" name="education[university][to]" value="{{ old('education.university.to') }}" placeholder="2022" class="h-10 w-full rounded-xl border border-line bg-surface px-2.5 text-center text-[13px] outline-none focus:border-brand" />
+                                        <input type="text" name="education[university][to]" value="{{ old('education.university.to') }}" placeholder="2022" class="h-11 sm:h-10 w-full rounded-xl border border-line bg-surface px-2.5 text-center text-[16px] sm:text-[13px] outline-none focus:border-brand" />
                                     </div>
                                 </div>
                                 <div>
@@ -512,9 +531,9 @@
                                 <div>
                                     <x-ui.label for="edu_course_from">Tahun (Dari - Sampai)</x-ui.label>
                                     <div class="flex items-center gap-1.5">
-                                        <input type="text" name="education[courses][from]" value="{{ old('education.courses.from') }}" placeholder="2023" class="h-10 w-full rounded-xl border border-line bg-surface px-2.5 text-center text-[13px] outline-none focus:border-brand" />
+                                        <input type="text" name="education[courses][from]" value="{{ old('education.courses.from') }}" placeholder="2023" class="h-11 sm:h-10 w-full rounded-xl border border-line bg-surface px-2.5 text-center text-[16px] sm:text-[13px] outline-none focus:border-brand" />
                                         <span>-</span>
-                                        <input type="text" name="education[courses][to]" value="{{ old('education.courses.to') }}" placeholder="2023" class="h-10 w-full rounded-xl border border-line bg-surface px-2.5 text-center text-[13px] outline-none focus:border-brand" />
+                                        <input type="text" name="education[courses][to]" value="{{ old('education.courses.to') }}" placeholder="2023" class="h-11 sm:h-10 w-full rounded-xl border border-line bg-surface px-2.5 text-center text-[16px] sm:text-[13px] outline-none focus:border-brand" />
                                     </div>
                                 </div>
                                 <div>
@@ -527,8 +546,8 @@
 
                     <div class="mt-6 border-t border-line pt-6">
                         <h3 class="text-[14px] font-bold text-ink">Penguasaan Bahasa / Language Proficiency</h3>
-                        <div class="mt-3 overflow-x-auto">
-                            <table class="w-full text-left text-[13px]">
+                        <div class="mt-3 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
+                            <table class="w-full min-w-[460px] text-left text-[13px]">
                                 <thead>
                                     <tr class="border-b border-line text-[11px] uppercase tracking-wider text-subtle">
                                         <th class="py-2">Bahasa</th>
@@ -540,7 +559,7 @@
                                     <tr>
                                         <td class="py-2 font-medium">Bahasa Indonesia</td>
                                         <td class="py-2">
-                                            <select name="languages[0][spoken]" class="h-9 rounded-lg border border-line bg-surface px-2.5 text-[12.5px]">
+                                            <select name="languages[0][spoken]" class="h-11 sm:h-9 w-full rounded-xl sm:rounded-lg border border-line bg-surface px-2.5 text-[16px] sm:text-[12.5px]">
                                                 <option value="Fluent" selected>Fluent (Lancar)</option>
                                                 <option value="Fair">Fair (Cukup)</option>
                                                 <option value="Poor">Poor (Kurang)</option>
@@ -548,7 +567,7 @@
                                             <input type="hidden" name="languages[0][lang]" value="Bahasa Indonesia" />
                                         </td>
                                         <td class="py-2">
-                                            <select name="languages[0][written]" class="h-9 rounded-lg border border-line bg-surface px-2.5 text-[12.5px]">
+                                            <select name="languages[0][written]" class="h-11 sm:h-9 w-full rounded-xl sm:rounded-lg border border-line bg-surface px-2.5 text-[16px] sm:text-[12.5px]">
                                                 <option value="Fluent" selected>Fluent (Lancar)</option>
                                                 <option value="Fair">Fair (Cukup)</option>
                                                 <option value="Poor">Poor (Kurang)</option>
@@ -558,7 +577,7 @@
                                     <tr>
                                         <td class="py-2 font-medium">Bahasa Inggris</td>
                                         <td class="py-2">
-                                            <select name="languages[1][spoken]" class="h-9 rounded-lg border border-line bg-surface px-2.5 text-[12.5px]">
+                                            <select name="languages[1][spoken]" class="h-11 sm:h-9 w-full rounded-xl sm:rounded-lg border border-line bg-surface px-2.5 text-[16px] sm:text-[12.5px]">
                                                 <option value="Fluent">Fluent (Lancar)</option>
                                                 <option value="Fair" selected>Fair (Cukup)</option>
                                                 <option value="Poor">Poor (Kurang)</option>
@@ -566,7 +585,7 @@
                                             <input type="hidden" name="languages[1][lang]" value="Bahasa Inggris" />
                                         </td>
                                         <td class="py-2">
-                                            <select name="languages[1][written]" class="h-9 rounded-lg border border-line bg-surface px-2.5 text-[12.5px]">
+                                            <select name="languages[1][written]" class="h-11 sm:h-9 w-full rounded-xl sm:rounded-lg border border-line bg-surface px-2.5 text-[16px] sm:text-[12.5px]">
                                                 <option value="Fluent">Fluent (Lancar)</option>
                                                 <option value="Fair" selected>Fair (Cukup)</option>
                                                 <option value="Poor">Poor (Kurang)</option>
@@ -575,17 +594,17 @@
                                     </tr>
                                     <tr>
                                         <td class="py-2">
-                                            <input type="text" name="languages[2][lang]" placeholder="Bahasa lain (misal: Mandarin/Jepang)" class="h-9 w-full rounded-lg border border-line bg-surface px-2.5 text-[12.5px]" />
+                                            <input type="text" name="languages[2][lang]" placeholder="Bahasa lain (Mandarin/Jepang)" class="h-11 sm:h-9 w-full rounded-xl sm:rounded-lg border border-line bg-surface px-2.5 text-[16px] sm:text-[12.5px]" />
                                         </td>
                                         <td class="py-2">
-                                            <select name="languages[2][spoken]" class="h-9 rounded-lg border border-line bg-surface px-2.5 text-[12.5px]">
+                                            <select name="languages[2][spoken]" class="h-11 sm:h-9 w-full rounded-xl sm:rounded-lg border border-line bg-surface px-2.5 text-[16px] sm:text-[12.5px]">
                                                 <option value="Poor">Poor (Kurang)</option>
                                                 <option value="Fair">Fair (Cukup)</option>
                                                 <option value="Fluent">Fluent (Lancar)</option>
                                             </select>
                                         </td>
                                         <td class="py-2">
-                                            <select name="languages[2][written]" class="h-9 rounded-lg border border-line bg-surface px-2.5 text-[12.5px]">
+                                            <select name="languages[2][written]" class="h-11 sm:h-9 w-full rounded-xl sm:rounded-lg border border-line bg-surface px-2.5 text-[16px] sm:text-[12.5px]">
                                                 <option value="Poor">Poor (Kurang)</option>
                                                 <option value="Fair">Fair (Cukup)</option>
                                                 <option value="Fluent">Fluent (Lancar)</option>
@@ -627,8 +646,8 @@
                     </div>
                 </div>
 
-                <div class="rounded-3xl border border-line bg-surface p-6 shadow-sm sm:p-8">
-                    <div class="flex items-center justify-between border-b border-line pb-4">
+                <div class="rounded-2xl sm:rounded-3xl border border-line bg-surface p-4 sm:p-6 lg:p-8 shadow-sm">
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-4">
                         <div>
                             <span class="text-[11px] font-bold uppercase tracking-wider text-brand">Bagian 5</span>
                             <h2 class="text-[17px] font-bold text-ink">Riwayat Pekerjaan / Career History</h2>
@@ -638,7 +657,7 @@
                     </div>
 
                     <div class="mt-6">
-                        <div class="flex items-center justify-between">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
                             <h3 class="text-[14px] font-bold text-ink">Pengalaman Kerja Sebelumnya</h3>
                             <button type="button" x-on:click="addCareer()" class="inline-flex items-center gap-1.5 rounded-xl border border-brand/30 bg-brand/10 px-3 py-1.5 text-[12px] font-semibold text-brand transition hover:bg-brand/20">
                                 <x-icon name="plus" class="size-3.5" />
@@ -648,43 +667,45 @@
 
                         <div class="mt-4 space-y-4">
                             <template x-for="(c, idx) in careers" :key="idx">
-                                <div class="rounded-2xl border border-line bg-surface-2/30 p-4 space-y-3">
+                                <div class="rounded-2xl border border-line bg-surface-2/30 p-3.5 sm:p-4 space-y-3">
                                     <div class="flex items-center justify-between border-b border-line/60 pb-2">
                                         <span class="text-[12.5px] font-bold text-ink" x-text="'Perusahaan #' + (idx + 1)"></span>
-                                        <button type="button" x-on:click="removeCareer(idx)" class="text-[11.5px] text-rose-500 hover:text-rose-700">Hapus</button>
+                                        <button type="button" x-on:click="removeCareer(idx)" class="inline-flex items-center gap-1 text-[12px] text-rose-500 hover:text-rose-700">
+                                            <x-icon name="trash" class="size-3.5" /> Hapus
+                                        </button>
                                     </div>
                                     <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                                         <div>
-                                            <label class="block text-[11px] font-semibold text-subtle">Nama Perusahaan & Bidang</label>
-                                            <input type="text" :name="'careers[' + idx + '][company]'" x-model="c.company" placeholder="PT ABC (Retail)" class="mt-1 h-10 w-full rounded-xl border border-line bg-surface px-3 text-[13px] text-ink outline-none focus:border-brand" />
+                                            <label class="block text-[11px] font-semibold text-subtle mb-1">Nama Perusahaan & Bidang</label>
+                                            <input type="text" :name="'careers[' + idx + '][company]'" x-model="c.company" placeholder="PT ABC (Retail)" class="h-11 sm:h-10 w-full rounded-xl border border-line bg-surface px-3 text-[16px] sm:text-[13.5px] text-ink outline-none focus:border-brand" />
                                         </div>
                                         <div>
-                                            <label class="block text-[11px] font-semibold text-subtle">Jabatan / Posisi</label>
-                                            <input type="text" :name="'careers[' + idx + '][position]'" x-model="c.position" placeholder="Staff Operasional" class="mt-1 h-10 w-full rounded-xl border border-line bg-surface px-3 text-[13px] text-ink outline-none focus:border-brand" />
+                                            <label class="block text-[11px] font-semibold text-subtle mb-1">Jabatan / Posisi</label>
+                                            <input type="text" :name="'careers[' + idx + '][position]'" x-model="c.position" placeholder="Staff Operasional" class="h-11 sm:h-10 w-full rounded-xl border border-line bg-surface px-3 text-[16px] sm:text-[13.5px] text-ink outline-none focus:border-brand" />
                                         </div>
                                         <div>
-                                            <label class="block text-[11px] font-semibold text-subtle">Melapor Kepada</label>
-                                            <input type="text" :name="'careers[' + idx + '][report_to]'" x-model="c.report_to" placeholder="Manager" class="mt-1 h-10 w-full rounded-xl border border-line bg-surface px-3 text-[13px] text-ink outline-none focus:border-brand" />
+                                            <label class="block text-[11px] font-semibold text-subtle mb-1">Melapor Kepada</label>
+                                            <input type="text" :name="'careers[' + idx + '][report_to]'" x-model="c.report_to" placeholder="Manager" class="h-11 sm:h-10 w-full rounded-xl border border-line bg-surface px-3 text-[16px] sm:text-[13.5px] text-ink outline-none focus:border-brand" />
                                         </div>
                                         <div>
-                                            <label class="block text-[11px] font-semibold text-subtle">Periode (Dari - Sampai)</label>
-                                            <div class="mt-1 flex items-center gap-1.5">
-                                                <input type="text" :name="'careers[' + idx + '][period_from]'" x-model="c.period_from" placeholder="2020" class="h-10 w-full rounded-xl border border-line bg-surface px-2.5 text-center text-[13px]" />
+                                            <label class="block text-[11px] font-semibold text-subtle mb-1">Periode (Dari - Sampai)</label>
+                                            <div class="flex items-center gap-1.5">
+                                                <input type="text" :name="'careers[' + idx + '][period_from]'" x-model="c.period_from" placeholder="2020" class="h-11 sm:h-10 w-full rounded-xl border border-line bg-surface px-2.5 text-center text-[16px] sm:text-[13px]" />
                                                 <span>-</span>
-                                                <input type="text" :name="'careers[' + idx + '][period_to]'" x-model="c.period_to" placeholder="2023" class="h-10 w-full rounded-xl border border-line bg-surface px-2.5 text-center text-[13px]" />
+                                                <input type="text" :name="'careers[' + idx + '][period_to]'" x-model="c.period_to" placeholder="2023" class="h-11 sm:h-10 w-full rounded-xl border border-line bg-surface px-2.5 text-center text-[16px] sm:text-[13px]" />
                                             </div>
                                         </div>
                                         <div>
-                                            <label class="block text-[11px] font-semibold text-subtle">Gaji Terakhir (Rp)</label>
-                                            <input type="text" :name="'careers[' + idx + '][salary_end]'" x-model="c.salary_end" placeholder="Contoh: 4.500.000" class="mt-1 h-10 w-full rounded-xl border border-line bg-surface px-3 text-[13px] text-ink outline-none focus:border-brand" />
+                                            <label class="block text-[11px] font-semibold text-subtle mb-1">Gaji Terakhir (Rp)</label>
+                                            <input type="text" :name="'careers[' + idx + '][salary_end]'" x-model="c.salary_end" placeholder="Contoh: 4.500.000" class="h-11 sm:h-10 w-full rounded-xl border border-line bg-surface px-3 text-[16px] sm:text-[13.5px] text-ink outline-none focus:border-brand" />
                                         </div>
                                         <div>
-                                            <label class="block text-[11px] font-semibold text-subtle">Alasan Berhenti</label>
-                                            <input type="text" :name="'careers[' + idx + '][reason_leaving]'" x-model="c.reason_leaving" placeholder="Kontrak selesai / Karir" class="mt-1 h-10 w-full rounded-xl border border-line bg-surface px-3 text-[13px] text-ink outline-none focus:border-brand" />
+                                            <label class="block text-[11px] font-semibold text-subtle mb-1">Alasan Berhenti</label>
+                                            <input type="text" :name="'careers[' + idx + '][reason_leaving]'" x-model="c.reason_leaving" placeholder="Kontrak selesai / Karir" class="h-11 sm:h-10 w-full rounded-xl border border-line bg-surface px-3 text-[16px] sm:text-[13.5px] text-ink outline-none focus:border-brand" />
                                         </div>
                                         <div class="sm:col-span-2 lg:col-span-3">
-                                            <label class="block text-[11px] font-semibold text-subtle">Tanggung Jawab & Pencapaian Utama</label>
-                                            <textarea :name="'careers[' + idx + '][responsibilities]'" x-model="c.responsibilities" rows="2" placeholder="Uraikan tugas pokok Anda" class="mt-1 w-full rounded-xl border border-line bg-surface p-2.5 text-[13px] text-ink outline-none focus:border-brand"></textarea>
+                                            <label class="block text-[11px] font-semibold text-subtle mb-1">Tanggung Jawab & Pencapaian Utama</label>
+                                            <textarea :name="'careers[' + idx + '][responsibilities]'" x-model="c.responsibilities" rows="2" placeholder="Uraikan tugas pokok Anda" class="w-full rounded-xl border border-line bg-surface p-2.5 text-[16px] sm:text-[13.5px] text-ink outline-none focus:border-brand"></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -698,8 +719,8 @@
                     </div>
                 </div>
 
-                <div class="rounded-3xl border border-line bg-surface p-6 shadow-sm sm:p-8">
-                    <div class="flex items-center justify-between border-b border-line pb-4">
+                <div class="rounded-2xl sm:rounded-3xl border border-line bg-surface p-4 sm:p-6 lg:p-8 shadow-sm">
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-4">
                         <div>
                             <span class="text-[11px] font-bold uppercase tracking-wider text-brand">Bagian 6</span>
                             <h2 class="text-[17px] font-bold text-ink">Informasi Tambahan, Referensi & Pernyataan</h2>
@@ -711,7 +732,7 @@
                     <div class="mt-6 grid gap-5 sm:grid-cols-2">
                         <div>
                             <x-ui.label for="criminal_record">Apakah Anda pernah dihukum karena tindakan pidana? <span class="text-rose-500">*</span></x-ui.label>
-                            <select id="criminal_record" name="criminal_record" required class="h-11 w-full rounded-xl border border-line bg-surface px-3.5 text-[14px] text-ink outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/15">
+                            <select id="criminal_record" name="criminal_record" required class="h-11 w-full rounded-xl border border-line bg-surface px-3.5 text-[16px] sm:text-[14px] text-ink outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/15">
                                 <option value="Tidak" @selected(old('criminal_record') === 'Tidak')>Tidak / No</option>
                                 <option value="Ya" @selected(old('criminal_record') === 'Ya')>Ya / Yes (Jelaskan di catatan)</option>
                             </select>
@@ -806,7 +827,7 @@
                     </div>
 
                     <div class="mt-8 flex flex-wrap items-center justify-end gap-3 border-t border-line pt-5">
-                        <x-ui.button type="submit" variant="primary" icon="send" class="w-full sm:w-auto text-[14px] px-6 py-3">
+                        <x-ui.button type="submit" variant="primary" icon="send" class="w-full sm:w-auto text-[15px] sm:text-[14px] px-6 py-3.5 min-h-[48px]">
                             Kirim Formulir Lamaran Kerja
                         </x-ui.button>
                     </div>

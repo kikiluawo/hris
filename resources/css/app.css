@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import '../../node_modules/select2/dist/css/select2.min.css';
+@import '../../node_modules/sweetalert2/dist/sweetalert2.min.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -311,4 +312,34 @@ select.select2-hidden-accessible ~ [data-select-chevron] {
     padding: 0.5rem 0.75rem;
     color: var(--c-muted);
     font-size: 13.5px;
+}
+
+.swal2-modern-popup {
+    border-radius: 26px !important;
+    border: 1px solid var(--c-line, #e8e1d6) !important;
+    box-shadow: 0 25px 50px -12px rgba(6, 35, 27, 0.25) !important;
+    padding: 24px 28px !important;
+}
+
+.swal2-modern-confirm {
+    border-radius: 12px !important;
+    padding: 10px 22px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    background-color: #06231b !important;
+    border: 1px solid #d9b46a !important;
+    color: #d9b46a !important;
+    transition: all 0.2s ease !important;
+}
+
+.swal2-modern-confirm:hover {
+    background-color: #0f3d30 !important;
+    color: #fff !important;
+}
+
+.swal2-modern-cancel {
+    border-radius: 12px !important;
+    padding: 10px 20px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
 }

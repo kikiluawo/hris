@@ -79,7 +79,7 @@
 
     <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_400px] lg:items-start">
         <article class="space-y-6">
-            <div class="rounded-[26px] border border-line bg-surface p-6 shadow-card sm:p-8">
+            <div class="rounded-2xl sm:rounded-[26px] border border-line bg-surface p-5 sm:p-8 shadow-card">
                 <div class="flex items-center gap-3">
                     <span class="h-px w-8 bg-gold/60"></span>
                     <p class="text-[10px] font-semibold uppercase tracking-[0.3em] text-gold-strong">Tentang posisi</p>
@@ -89,7 +89,7 @@
             </div>
 
             @if ($opening->required_skills || $opening->min_education || $opening->min_experience !== null)
-                <div class="rounded-[26px] border border-line bg-surface p-6 shadow-card sm:p-8">
+                <div class="rounded-2xl sm:rounded-[26px] border border-line bg-surface p-5 sm:p-8 shadow-card">
                     <div class="flex items-center gap-3">
                         <span class="h-px w-8 bg-gold/60"></span>
                         <p class="text-[10px] font-semibold uppercase tracking-[0.3em] text-gold-strong">Kualifikasi</p>
@@ -130,7 +130,7 @@
                 </div>
             @endif
 
-            <div class="rounded-[26px] border border-gold/20 bg-[#06231b] p-6 text-white sm:p-8">
+            <div class="rounded-2xl sm:rounded-[26px] border border-gold/20 bg-[#06231b] p-5 sm:p-8 text-white">
                 <div class="flex flex-wrap items-center justify-between gap-4">
                     <div>
                         <p class="text-[10px] font-semibold uppercase tracking-[0.3em] text-gold">Seleksi transparan</p>
@@ -148,8 +148,8 @@
 
         <aside id="lamar" class="scroll-mt-24 lg:sticky lg:top-24">
             @if ($opening->is_open)
-                <div class="overflow-hidden rounded-[26px] border border-line bg-surface shadow-card">
-                    <div class="relative overflow-hidden bg-[#06231b] px-6 py-5 text-white">
+                <div class="overflow-hidden rounded-2xl sm:rounded-[26px] border border-line bg-surface shadow-card">
+                    <div class="relative overflow-hidden bg-[#06231b] px-5 sm:px-6 py-5 text-white">
                         <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(217,180,106,0.18),transparent_60%)]"></div>
                         <div class="relative">
                             <p class="text-[9.5px] font-semibold uppercase tracking-[0.3em] text-gold">Formulir lamaran</p>
@@ -158,7 +158,7 @@
                         </div>
                     </div>
 
-                    <div class="p-6">
+                    <div class="p-5 sm:p-6">
                         @if ($errors->any())
                             <x-ui.alert variant="danger" class="mb-4">
                                 <ul class="list-disc space-y-0.5 pl-4">
@@ -182,14 +182,18 @@
                             <div>
                                 <x-ui.label for="email">Email</x-ui.label>
                                 <x-ui.input type="email" name="email" icon="mail" placeholder="nama@email.com" autocomplete="email" />
-                                <x-ui.field-error name="email" />
+                                @if (! session('already_applied'))
+                                    <x-ui.field-error name="email" />
+                                @endif
                             </div>
 
                             <div>
                                 <x-ui.label for="phone">Nomor HP / WhatsApp</x-ui.label>
                                 <x-ui.input type="tel" name="phone" prefix="+62" placeholder="812 3456 7890" autocomplete="tel" inputmode="numeric" />
                                 <p class="mt-1.5 text-[11.5px] text-subtle">Langsung tulis angkanya tanpa 0 di depan, contoh 812 3456 7890.</p>
-                                <x-ui.field-error name="phone" />
+                                @if (! session('already_applied'))
+                                    <x-ui.field-error name="phone" />
+                                @endif
                             </div>
 
                             <div>
@@ -277,5 +281,58 @@
                 @endforeach
             </div>
         </section>
+    @endif
+
+    @if (session('already_applied'))
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const info = @json(session('already_applied'));
+                if (window.Swal) {
+                    window.Swal.fire({
+                        icon: 'info',
+                        iconColor: '#d9b46a',
+                        title: '<span style="font-family: var(--font-display, serif); font-size: 22px; font-weight: 600; color: #1a2e26;">Lamaran Sudah Pernah Terkirim</span>',
+                        html: `
+                            <div style="text-align: left; font-size: 13.5px; line-height: 1.7; color: #4a5550;">
+                                <p style="margin-bottom: 12px;">
+                                    Data pendaftaran dengan Email <strong>${info.email}</strong> atau Nomor WhatsApp <strong>${info.phone}</strong> sudah pernah tercatat melamar untuk posisi <strong>${info.opening_title}</strong> di <strong>${info.company_name}</strong>.
+                                </p>
+                                <div style="border-radius: 16px; border: 1px solid rgba(217, 180, 106, 0.4); background: #fdfaf3; padding: 14px; margin-bottom: 12px;">
+                                    <div style="display: flex; align-items: flex-start; gap: 10px;">
+                                        <span style="font-size: 18px; line-height: 1;">✨</span>
+                                        <div>
+                                            <strong style="color: #634a19; font-size: 13px; display: block; margin-bottom: 3px;">Kabar baik untuk Anda:</strong>
+                                            <p style="color: #785c25; font-size: 12.5px; margin: 0; line-height: 1.5;">
+                                                Anda tetap <strong>dapat menggunakan data yang sama</strong> untuk melamar pada <strong>posisi atau lowongan lain</strong> yang sedang dibuka di Majesty Group.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p style="font-size: 12px; color: #7f8c85; margin: 0;">
+                                    Silakan jelajahi kesempatan karier lain yang sesuai dengan minat dan kualifikasi Anda!
+                                </p>
+                            </div>
+                        `,
+                        background: '#fffdfa',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showCancelButton: true,
+                        confirmButtonText: 'Jelajahi Lowongan Lain',
+                        cancelButtonText: 'Tutup',
+                        confirmButtonColor: '#06231b',
+                        cancelButtonColor: '#78716c',
+                        customClass: {
+                            popup: 'swal2-modern-popup',
+                            confirmButton: 'swal2-modern-confirm',
+                            cancelButton: 'swal2-modern-cancel',
+                        },
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = info.other_openings_url;
+                        }
+                    });
+                }
+            });
+        </script>
     @endif
 </x-layouts.public>

@@ -1,11 +1,13 @@
 <x-layouts.test :title="'Mengerjakan · ' . $assessment->title">
     <div
-        class="min-h-dvh bg-canvas pb-24 lg:pb-8"
+        class="min-h-dvh select-none bg-canvas pb-24 lg:pb-8"
+        oncontextmenu="return false;"
         x-data="assessmentTest({{ Illuminate\Support\Js::from([
             'questions' => $questions,
             'remaining' => $remaining,
             'answerUrl' => route('assessment.answer', $attempt->token),
             'violationUrl' => route('assessment.violation', $attempt->token),
+            'snapshotUrl' => route('assessment.snapshot', $attempt->token),
             'statusUrl' => route('assessment.status', $attempt->token),
             'submitUrl' => route('assessment.submit', $attempt->token),
             'finishedUrl' => route('assessment.finished', $attempt->token),
@@ -386,6 +388,30 @@
                     </button>
                     <button type="button" x-on:click="submit('submitted')" x-bind:disabled="submitting" class="flex h-10 items-center justify-center gap-2 rounded-xl bg-brand text-[13px] font-semibold text-brand-ink shadow-sm transition hover:bg-brand-hover disabled:opacity-60">
                         <span x-text="submitting ? 'Mengirim…' : 'Kirim jawaban'"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div x-show="copyAlert" x-cloak x-transition class="fixed top-20 left-1/2 z-50 -translate-x-1/2 rounded-xl border border-rose-300 bg-rose-600 px-4 py-2.5 text-center text-[12.5px] font-semibold text-white shadow-pop">
+            <p class="flex items-center gap-2">
+                <x-icon name="alert-circle" class="size-4 shrink-0" />
+                Menyalin atau memindahkan teks soal tidak diperbolehkan selama tes!
+            </p>
+        </div>
+
+        <div x-show="cameraReady && !isFullscreen && !ended" x-cloak class="fixed inset-0 z-40 flex items-center justify-center bg-canvas/95 p-4 backdrop-blur-sm">
+            <div class="w-full max-w-sm rounded-2xl border border-line bg-surface p-6 text-center shadow-pop">
+                <div class="mx-auto flex size-12 items-center justify-center rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400">
+                    <x-icon name="maximize" class="size-7" />
+                </div>
+                <h2 class="mt-4 text-[18px] font-semibold">Mode Layar Penuh Diperlukan</h2>
+                <p class="mt-2 text-[12.5px] leading-relaxed text-muted">
+                    Tes ini wajib dikerjakan dalam mode layar penuh (fullscreen). Keluar dari mode ini dicatat sebagai pelanggaran aturan.
+                </p>
+                <div class="mt-5">
+                    <button type="button" x-on:click="requestFullscreen()" class="flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-brand text-[13px] font-semibold text-brand-ink transition hover:opacity-90">
+                        <x-icon name="maximize" class="size-4" /> Masuk Mode Layar Penuh
                     </button>
                 </div>
             </div>

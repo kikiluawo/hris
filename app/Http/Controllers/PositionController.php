@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
 use App\Models\Department;
 use App\Models\EmployeeTransfer;
 use App\Models\Position;
@@ -14,13 +15,50 @@ class PositionController extends Controller
 {
     public function index(Request $request): View
     {
+        $filters = [
+            'q' => trim((string) $request->query('q', '')),
+            'company' => $request->query('company'),
+            'department' => $request->query('department'),
+            'status' => $request->query('status'),
+        ];
+
+        $perPage = $request->integer('per_page', 10);
+        if (! in_array($perPage, [10, 25, 50, 100], true)) {
+            $perPage = 10;
+        }
+
+        $positions = Position::with('department.company')
+            ->withCount('employees')
+            ->when($filters['q'] !== '', function ($query) use ($filters): void {
+                $term = '%' . $filters['q'] . '%';
+                $query->where(function ($sub) use ($term): void {
+                    $sub->where('name', 'like', $term)
+                        ->orWhereHas('department', function ($deptQuery) use ($term): void {
+                            $deptQuery->where('name', 'like', $term)
+                                ->orWhereHas('company', function ($companyQuery) use ($term): void {
+                                    $companyQuery->where('name', 'like', $term)
+                                        ->orWhere('code', 'like', $term);
+                                });
+                        });
+                });
+            })
+            ->when($filters['company'], function ($query, $companyId): void {
+                $query->whereHas('department', fn ($deptQuery) => $deptQuery->where('company_id', $companyId));
+            })
+            ->when($filters['department'], fn ($query, $departmentId) => $query->where('department_id', $departmentId))
+            ->when($filters['status'] === 'active', fn ($query) => $query->where('is_active', true))
+            ->when($filters['status'] === 'inactive', fn ($query) => $query->where('is_active', false))
+            ->orderBy('department_id')
+            ->orderBy('name')
+            ->paginate($perPage)
+            ->withQueryString();
+
         return view('organization.positions', [
-            'positions' => Position::with('department.company')
-                ->withCount('employees')
-                ->orderBy('department_id')
-                ->orderBy('name')
-                ->get(),
+            'positions' => $positions,
+            'companies' => Company::orderBy('name')->get(),
             'departments' => Department::with('company')->orderBy('company_id')->orderBy('name')->get(),
+            'filters' => $filters,
+            'perPage' => $perPage,
             'editing' => Position::find($request->integer('edit')),
         ]);
     }

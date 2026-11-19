@@ -11,6 +11,7 @@
     </x-ui.page-header>
 
     <form method="GET" action="{{ route('employees.index') }}" class="mb-4 rounded-2xl border border-line bg-surface p-4 shadow-card">
+        <input type="hidden" name="per_page" value="{{ $perPage }}">
         <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_220px_220px_160px_auto] xl:items-end">
             <div>
                 <x-ui.label for="q">Cari karyawan</x-ui.label>
@@ -80,7 +81,8 @@
                         <th class="px-3 py-3 font-semibold">Departemen</th>
                         <th class="px-3 py-3 font-semibold">Jabatan</th>
                         <th class="px-3 py-3 font-semibold">Status</th>
-                        <th class="px-5 py-3 font-semibold sm:px-6">Bergabung</th>
+                        <th class="px-3 py-3 font-semibold">Bergabung</th>
+                        <th class="px-5 py-3 text-right font-semibold sm:px-6">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -104,17 +106,23 @@
                             <td class="whitespace-nowrap px-3 py-3.5">
                                 <x-ui.badge :variant="$employee->employmentStatusTone()">{{ $employee->employmentStatusLabel() }}</x-ui.badge>
                             </td>
-                            <td class="whitespace-nowrap px-5 py-3.5 text-[12.5px] text-muted sm:px-6">
+                            <td class="whitespace-nowrap px-3 py-3.5 text-[12.5px] text-muted">
                                 <p>{{ $employee->joined_at->translatedFormat('d M Y') }}</p>
                                 @if ($employee->activeContractLabel())
                                     <p class="text-[11.5px] text-subtle">{{ $employee->activeContractLabel() }}</p>
                                 @endif
                             </td>
+                            <td class="whitespace-nowrap px-5 py-3.5 text-right sm:px-6">
+                                <div class="flex items-center justify-end gap-1.5">
+                                    <x-ui.button variant="secondary" size="sm" icon="eye" :href="route('employees.show', $employee)">Detail</x-ui.button>
+                                    <x-ui.button variant="ghost" size="icon" icon="pencil" :href="route('employees.edit', $employee)" aria-label="Edit {{ $employee->name }}" />
+                                </div>
+                            </td>
                         </tr>
                     @empty
                         @php($hasFilters = filled($filters['q'] ?? null) || filled($filters['company'] ?? null) || filled($filters['department'] ?? null) || filled($filters['status'] ?? null))
                         <tr>
-                            <td colspan="6">
+                            <td colspan="7">
                                 <x-ui.empty-state
                                     icon="users"
                                     :title="$hasFilters ? 'Karyawan tidak ditemukan' : 'Belum ada karyawan'"
@@ -135,6 +143,6 @@
             </table>
         </div>
 
-        {{ $employees->links('vendor.pagination.hr') }}
+        {{ $employees->links('vendor.pagination.hr-per-page', ['perPage' => $perPage, 'action' => route('employees.index')]) }}
     </x-ui.card>
 </x-layouts.app>

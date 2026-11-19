@@ -22,6 +22,16 @@
             <x-icon name="menu" class="size-5" />
         </button>
 
+        <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-2 rounded-lg border border-gold/25 bg-[#06231b] px-2.5 py-1.5 shadow-sm sm:hidden" aria-label="Majesty HR Portal">
+            <img
+                src="{{ asset('images/majesty-logo.png') }}"
+                alt="Majesty Group"
+                class="h-5 w-auto object-contain opacity-95"
+            />
+            <span class="h-3.5 w-px bg-gold/30" aria-hidden="true"></span>
+            <span class="text-[9px] font-semibold uppercase tracking-[0.16em] text-gold">HR Portal</span>
+        </a>
+
         <form action="{{ route('employees.index') }}" method="GET" role="search" class="relative hidden w-full max-w-[320px] sm:block">
             <span class="pointer-events-none absolute inset-y-0 left-0 flex w-10 items-center justify-center text-subtle">
                 <x-icon name="search" class="size-[17px]" />

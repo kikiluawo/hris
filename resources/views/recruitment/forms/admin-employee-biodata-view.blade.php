@@ -293,7 +293,22 @@
 
                 <div class="rounded-xl border border-line bg-surface-2/30 p-4 text-[12.5px]">
                     <p><strong>Pernyataan Karyawan:</strong> Keterangan telah dibuat dengan sebenar-benarnya dan penuh tanggung jawab.</p>
-                    <p class="mt-1 text-subtle">Ditandatangani di {{ $biodata->signed_city ?? 'Jakarta' }}, tanggal {{ $biodata->signed_date ?? $biodata->submitted_at?->format('d/m/Y') }} oleh <strong>{{ $biodata->signed_name ?? $personal['full_name'] }}</strong></p>
+                    <p class="mt-1 text-subtle">Ditandatangani di {{ $biodata->signed_city ?? 'Jakarta' }}, tanggal {{ $biodata->signed_date?->format('d/m/Y') ?? $biodata->submitted_at?->format('d/m/Y') }} oleh <strong>{{ $biodata->signed_name ?? $personal['full_name'] }}</strong></p>
+
+                    @if ($biodata->digital_signature)
+                        <div class="mt-4 flex flex-wrap items-center gap-4 rounded-xl border border-line bg-surface p-3">
+                            <div class="rounded-lg border border-line bg-white p-2">
+                                <img src="{{ $biodata->digital_signature }}" alt="Tanda Tangan Digital" class="h-14 max-w-[180px] object-contain">
+                            </div>
+                            <div>
+                                <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                                    <x-icon name="check-circle" class="size-3.5" /> Tanda Tangan Digital Tersimpan
+                                </span>
+                                <p class="mt-1 text-[12.5px] font-semibold text-ink">{{ $biodata->signed_name ?? $personal['full_name'] }}</p>
+                                <p class="text-[11px] text-subtle">{{ $biodata->signed_city ?? 'Jakarta' }}, {{ $biodata->signed_date?->format('d/m/Y') ?? $biodata->submitted_at?->format('d/m/Y') }}</p>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </x-ui.card>

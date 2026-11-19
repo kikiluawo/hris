@@ -33,6 +33,7 @@ class AssessmentEvent extends Model
             'started' => 'Tes dimulai',
             'tab_hidden' => 'Kandidat meninggalkan tab',
             'tab_hidden_long' => 'Meninggalkan tab lebih dari 15 detik',
+            'fullscreen_exit' => 'Keluar dari mode layar penuh (fullscreen)',
             'camera_lost' => 'Kamera terputus',
             'warning_acknowledged' => 'Peringatan dibaca kandidat',
             'submitted' => 'Jawaban dikirim',
@@ -45,7 +46,7 @@ class AssessmentEvent extends Model
     public function tone(): string
     {
         return match ($this->type) {
-            'tab_hidden', 'tab_hidden_long', 'camera_lost', 'ended' => 'danger',
+            'tab_hidden', 'tab_hidden_long', 'fullscreen_exit', 'camera_lost', 'ended' => 'danger',
             'warning_acknowledged' => 'warning',
             'started', 'submitted' => 'success',
             default => 'neutral',

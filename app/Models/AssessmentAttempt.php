@@ -92,6 +92,11 @@ class AssessmentAttempt extends Model
         return $this->hasMany(AssessmentEvent::class)->orderBy('occurred_at')->orderBy('id');
     }
 
+    public function snapshots(): HasMany
+    {
+        return $this->hasMany(AssessmentSnapshot::class)->orderBy('captured_at')->orderBy('id');
+    }
+
     public function isInProgress(): bool
     {
         return $this->status === self::STATUS_IN_PROGRESS;
@@ -145,6 +150,15 @@ class AssessmentAttempt extends Model
         }
 
         return rtrim(rtrim(number_format($this->score, 2, '.', ''), '0'), '.');
+    }
+
+    public function formattedScore(): string
+    {
+        if ($this->score === null) {
+            return $this->isInProgress() ? 'Sedang tes' : 'Menunggu nilai';
+        }
+
+        return $this->scoreLabel() . '%';
     }
 
     public function isFullyGraded(): bool

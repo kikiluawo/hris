@@ -33,7 +33,9 @@ class Employee extends Model
         'religion',
         'marital_status',
         'daughters_count',
+        'daughters_names',
         'sons_count',
+        'sons_names',
         'address',
         'ktp_no',
         'npwp_no',
@@ -222,5 +224,41 @@ class Employee extends Model
         }
 
         return "{$daughters} perempuan · {$sons} laki-laki";
+    }
+
+    public function daughterNamesList(): array
+    {
+        return self::parseChildrenNames($this->daughters_names);
+    }
+
+    public function sonNamesList(): array
+    {
+        return self::parseChildrenNames($this->sons_names);
+    }
+
+    public static function parseChildrenNames(?string $raw): array
+    {
+        if ($raw === null) {
+            return [];
+        }
+
+        $text = trim(preg_replace('/\s+/', ' ', $raw));
+        if ($text === '' || in_array($text, ['-', '--', '.', '—'], true)) {
+            return [];
+        }
+
+        $normalized = preg_replace("/['’]\s*-/", ' , ', $text);
+        $normalized = preg_replace('/(?<=^|[\s,\/])-\s*(?=[A-Za-z])/', ' , ', $normalized);
+        $items = preg_split('/\s*(?:,|;|\/|\n|&|\bdan\b)\s*/i', $normalized) ?: [];
+
+        $clean = [];
+        foreach ($items as $item) {
+            $name = trim($item, " \t\n\r\0\x0B-,;'\"/");
+            if ($name !== '' && ! in_array($name, ['-', '--', '.'], true)) {
+                $clean[] = $name;
+            }
+        }
+
+        return array_values(array_unique($clean));
     }
 }

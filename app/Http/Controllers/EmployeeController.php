@@ -21,15 +21,21 @@ class EmployeeController extends Controller
     {
         $filters = $request->only(['q', 'company', 'department', 'status']);
 
+        $perPage = $request->integer('per_page', 10);
+        if (! in_array($perPage, [10, 25, 50, 100], true)) {
+            $perPage = 10;
+        }
+
         $employees = Employee::with(['company', 'branch', 'department', 'position'])
             ->filter($filters)
             ->orderBy('name')
-            ->paginate(10)
+            ->paginate($perPage)
             ->withQueryString();
 
         return view('employees.index', [
             'employees' => $employees,
             'filters' => $filters,
+            'perPage' => $perPage,
             'companies' => Company::orderBy('name')->get(),
             'departments' => Department::with('company')->orderBy('company_id')->orderBy('name')->get(),
             'statuses' => Employee::employmentStatusOptions(),
@@ -70,13 +76,22 @@ class EmployeeController extends Controller
                 $children = $biodata?->children ?? $jobForm?->family_data['children'] ?? [];
                 $daughters = 0;
                 $sons = 0;
+                $daughterNames = [];
+                $sonNames = [];
                 if (is_array($children)) {
                     foreach ($children as $c) {
                         $cGender = strtolower((string) ($c['gender'] ?? ''));
+                        $cName = trim((string) ($c['name'] ?? ''));
                         if (in_array($cGender, ['p', 'wanita', 'perempuan', 'f'], true)) {
                             $daughters++;
+                            if ($cName !== '') {
+                                $daughterNames[] = $cName;
+                            }
                         } elseif (in_array($cGender, ['l', 'pria', 'laki-laki', 'm'], true)) {
                             $sons++;
+                            if ($cName !== '') {
+                                $sonNames[] = $cName;
+                            }
                         }
                     }
                 }
@@ -97,7 +112,9 @@ class EmployeeController extends Controller
                     'religion' => $personal['religion'] ?? $formPersonal['religion'] ?? null,
                     'marital_status' => $personal['marital_status'] ?? $formPersonal['marital_status'] ?? null,
                     'daughters_count' => $daughters,
+                    'daughters_names' => ! empty($daughterNames) ? implode(', ', $daughterNames) : null,
                     'sons_count' => $sons,
+                    'sons_names' => ! empty($sonNames) ? implode(', ', $sonNames) : null,
                     'address' => $personal['address'] ?? $formPersonal['address'] ?? null,
                     'ktp_no' => $personal['ktp_no'] ?? $formPersonal['ktp_no'] ?? null,
                     'npwp_no' => $personal['npwp_no'] ?? null,
@@ -193,8 +210,8 @@ class EmployeeController extends Controller
                     $employee->genderLabel(),
                     $employee->religion,
                     $employee->marital_status,
-                    $employee->daughters_count,
-                    $employee->sons_count,
+                    $employee->daughters_names ?: $employee->daughters_count,
+                    $employee->sons_names ?: $employee->sons_count,
                     $employee->address,
                     $employee->ktp_no,
                     $employee->npwp_no,
@@ -254,7 +271,9 @@ class EmployeeController extends Controller
             'religion' => ['nullable', 'string', 'max:30'],
             'marital_status' => ['nullable', 'string', 'max:30'],
             'daughters_count' => ['nullable', 'integer', 'min:0', 'max:20'],
+            'daughters_names' => ['nullable', 'string', 'max:500'],
             'sons_count' => ['nullable', 'integer', 'min:0', 'max:20'],
+            'sons_names' => ['nullable', 'string', 'max:500'],
             'address' => ['nullable', 'string', 'max:500'],
             'ktp_no' => ['nullable', 'string', 'max:32'],
             'npwp_no' => ['nullable', 'string', 'max:32'],
@@ -286,7 +305,9 @@ class EmployeeController extends Controller
             'religion' => 'agama',
             'marital_status' => 'status pernikahan',
             'daughters_count' => 'jumlah anak perempuan',
+            'daughters_names' => 'nama anak perempuan',
             'sons_count' => 'jumlah anak laki-laki',
+            'sons_names' => 'nama anak laki-laki',
             'address' => 'alamat tempat tinggal',
             'ktp_no' => 'no KTP',
             'npwp_no' => 'no NPWP',

@@ -12,8 +12,36 @@ class CompanyController extends Controller
 {
     public function index(Request $request): View
     {
+        $filters = [
+            'q' => trim((string) $request->query('q', '')),
+            'status' => $request->query('status'),
+        ];
+
+        $perPage = $request->integer('per_page', 10);
+        if (! in_array($perPage, [10, 25, 50, 100], true)) {
+            $perPage = 10;
+        }
+
+        $companies = Company::withCount(['branches', 'employees'])
+            ->when($filters['q'] !== '', function ($query) use ($filters): void {
+                $term = '%' . $filters['q'] . '%';
+                $query->where(function ($sub) use ($term): void {
+                    $sub->where('name', 'like', $term)
+                        ->orWhere('code', 'like', $term)
+                        ->orWhere('address', 'like', $term)
+                        ->orWhere('phone', 'like', $term);
+                });
+            })
+            ->when($filters['status'] === 'active', fn ($query) => $query->where('is_active', true))
+            ->when($filters['status'] === 'inactive', fn ($query) => $query->where('is_active', false))
+            ->orderBy('name')
+            ->paginate($perPage)
+            ->withQueryString();
+
         return view('organization.companies', [
-            'companies' => Company::withCount(['branches', 'employees'])->orderBy('name')->get(),
+            'companies' => $companies,
+            'filters' => $filters,
+            'perPage' => $perPage,
             'editing' => Company::find($request->integer('edit')),
         ]);
     }

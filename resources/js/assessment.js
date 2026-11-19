@@ -743,27 +743,53 @@ window.assessmentTest = (config = {}) => ({
     tickHandle: null,
     visibilityHandler: null,
     beforeUnloadHandler: null,
+    isFullscreen: false,
+    fullscreenHandler: null,
+    keyHandler: null,
+    copyHandler: null,
+    copyAlert: false,
+    copyAlertTimer: null,
+    snapshotTimer: null,
 
     init() {
         this.deadline = Date.now() + this.remaining * 1000;
         this.tick();
         this.tickHandle = setInterval(() => this.tick(), 1000);
 
+        this.isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement);
         this.visibilityHandler = () => this.onVisibilityChange();
         this.beforeUnloadHandler = (event) => this.onBeforeUnload(event);
+        this.fullscreenHandler = () => this.onFullscreenChange();
+        this.keyHandler = (event) => this.onKeyDown(event);
+        this.copyHandler = (event) => this.onCopyAttempt(event);
 
         document.addEventListener('visibilitychange', this.visibilityHandler);
         window.addEventListener('beforeunload', this.beforeUnloadHandler);
+        document.addEventListener('fullscreenchange', this.fullscreenHandler);
+        document.addEventListener('webkitfullscreenchange', this.fullscreenHandler);
+        window.addEventListener('keydown', this.keyHandler);
+        document.addEventListener('copy', this.copyHandler);
+        document.addEventListener('cut', this.copyHandler);
+        document.addEventListener('paste', this.copyHandler);
 
         this.startCamera();
+        this.snapshotTimer = setInterval(() => this.captureSnapshot('periodic'), 75000);
     },
 
     destroy() {
         clearInterval(this.tickHandle);
+        clearInterval(this.snapshotTimer);
         clearTimeout(this.hiddenTimer);
         clearTimeout(this.saveResetTimer);
+        clearTimeout(this.copyAlertTimer);
         document.removeEventListener('visibilitychange', this.visibilityHandler);
         window.removeEventListener('beforeunload', this.beforeUnloadHandler);
+        document.removeEventListener('fullscreenchange', this.fullscreenHandler);
+        document.removeEventListener('webkitfullscreenchange', this.fullscreenHandler);
+        window.removeEventListener('keydown', this.keyHandler);
+        document.removeEventListener('copy', this.copyHandler);
+        document.removeEventListener('cut', this.copyHandler);
+        document.removeEventListener('paste', this.copyHandler);
         this.stopCamera();
     },
 
@@ -991,6 +1017,7 @@ window.assessmentTest = (config = {}) => ({
                 return;
             }
 
+            this.captureSnapshot('submit');
             const { data, status } = await postJson(config.submitUrl, { access_token: config.accessToken });
             if (status === 409) {
                 window.location.href = config.finishedUrl;
@@ -1019,6 +1046,7 @@ window.assessmentTest = (config = {}) => ({
 
         if (document.visibilityState === 'hidden') {
             this.reportViolation('tab_hidden');
+            this.captureSnapshot('violation');
 
             clearTimeout(this.hiddenTimer);
             this.hiddenTimer = setTimeout(() => {
@@ -1155,8 +1183,100 @@ window.assessmentTest = (config = {}) => ({
             }
 
             this.cameraReady = true;
+            setTimeout(() => this.captureSnapshot('start'), 2000);
         } catch (error) {
             this.cameraError = cameraErrorMessage(error);
+        }
+    },
+
+    async requestFullscreen() {
+        try {
+            const el = document.documentElement;
+            if (el.requestFullscreen) {
+                await el.requestFullscreen();
+            } else if (el.webkitRequestFullscreen) {
+                await el.webkitRequestFullscreen();
+            }
+            this.isFullscreen = true;
+        } catch (error) {
+            // Safari/mobile permissions
+        }
+    },
+
+    onFullscreenChange() {
+        if (this.ended) {
+            return;
+        }
+
+        const isNowFull = !!(document.fullscreenElement || document.webkitFullscreenElement);
+        if (!isNowFull && this.isFullscreen) {
+            this.isFullscreen = false;
+            this.reportViolation('fullscreen_exit');
+            this.captureSnapshot('violation');
+        } else if (isNowFull) {
+            this.isFullscreen = true;
+        }
+    },
+
+    onKeyDown(event) {
+        if (this.ended) {
+            return;
+        }
+
+        const key = event.key?.toLowerCase();
+        const isCtrlOrCmd = event.ctrlKey || event.metaKey;
+
+        if (
+            (isCtrlOrCmd && ['c', 'v', 'x', 'u', 'a', 'p', 's'].includes(key)) ||
+            key === 'f12' ||
+            (isCtrlOrCmd && event.shiftKey && ['i', 'j', 'c'].includes(key))
+        ) {
+            event.preventDefault();
+            this.triggerCopyAlert();
+        }
+    },
+
+    onCopyAttempt(event) {
+        if (this.ended) {
+            return;
+        }
+        event.preventDefault();
+        this.triggerCopyAlert();
+    },
+
+    triggerCopyAlert() {
+        this.copyAlert = true;
+        clearTimeout(this.copyAlertTimer);
+        this.copyAlertTimer = setTimeout(() => {
+            this.copyAlert = false;
+        }, 3000);
+    },
+
+    captureSnapshot(trigger = 'periodic') {
+        if (this.ended || !this.cameraReady || !this.$refs.camera || !config.snapshotUrl) {
+            return;
+        }
+
+        try {
+            const video = this.$refs.camera;
+            if (!video.videoWidth || !video.videoHeight) {
+                return;
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = 320;
+            canvas.height = 240;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, 320, 240);
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.55);
+
+            postJson(config.snapshotUrl, {
+                image: dataUrl,
+                trigger: trigger,
+                access_token: config.accessToken,
+            }).catch(() => {});
+        } catch (error) {
+            // non-blocking
         }
     },
 

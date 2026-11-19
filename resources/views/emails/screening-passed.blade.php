@@ -20,7 +20,7 @@
                     <tr>
                         <td style="background-color:#06231b;padding:28px 32px;">
                             <p style="margin:0;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#d4af37;">Rekrutmen</p>
-                            <p style="margin:8px 0 0;font-size:20px;font-weight:bold;color:#ffffff;">{{ config('app.name') }}</p>
+                            <p style="margin:8px 0 0;font-size:20px;font-weight:bold;color:#ffffff;">Majesty Talent Portal</p>
                         </td>
                     </tr>
 

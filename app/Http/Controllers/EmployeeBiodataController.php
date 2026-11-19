@@ -171,6 +171,7 @@ class EmployeeBiodataController extends Controller
 
             'signed_name' => ['required', 'string', 'max:150'],
             'signed_city' => ['nullable', 'string', 'max:50'],
+            'digital_signature' => ['nullable', 'string'],
         ]);
 
         $attachments = $biodata->attachments ?? [];
@@ -194,6 +195,7 @@ class EmployeeBiodataController extends Controller
             'signed_city' => $validated['signed_city'] ?? 'Batam',
             'signed_name' => $validated['signed_name'],
             'signed_date' => now()->toDateString(),
+            'digital_signature' => $validated['digital_signature'] ?? $biodata->digital_signature,
             'submitted_at' => now(),
             'status' => 'submitted',
         ]);
@@ -209,11 +211,7 @@ class EmployeeBiodataController extends Controller
 
         abort_unless($biodata, 404, 'Biodata karyawan untuk kandidat ini belum dibuat.');
 
-        return view('recruitment.forms.admin-employee-biodata-view', [
-            'application' => $application,
-            'biodata' => $biodata,
-            'company' => $application->jobOpening?->company,
-        ]);
+        return view('recruitment.forms.admin-employee-biodata-view', $this->getBiodataViewData($application, $biodata));
     }
 
     public function printAdmin(Application $application): View
@@ -223,10 +221,28 @@ class EmployeeBiodataController extends Controller
 
         abort_unless($biodata, 404, 'Biodata karyawan untuk kandidat ini belum dibuat.');
 
-        return view('recruitment.forms.print-employee-biodata', [
+        return view('recruitment.forms.print-employee-biodata', $this->getBiodataViewData($application, $biodata));
+    }
+
+    protected function getBiodataViewData(Application $application, EmployeeBiodata $biodata): array
+    {
+        $application->loadMissing(['candidate', 'jobOpening.company', 'employeeBiodata']);
+
+        return [
             'application' => $application,
-            'biodata' => $biodata,
+            'candidate' => $application->candidate,
+            'jobOpening' => $application->jobOpening,
             'company' => $application->jobOpening?->company,
-        ]);
+            'biodata' => $biodata,
+            'personal' => $biodata->personal_data ?? [],
+            'bankAccounts' => $biodata->bank_accounts ?? [],
+            'family' => $biodata->family_details ?? [],
+            'eduFormal' => $biodata->education_formal ?? [],
+            'eduInformal' => $biodata->education_informal ?? [],
+            'workExperiences' => $biodata->work_experiences ?? [],
+            'residences' => $biodata->residences_history ?? [],
+            'organizations' => $biodata->organization_history ?? [],
+            'attachments' => $biodata->attachments ?? [],
+        ];
     }
 }

@@ -22,7 +22,7 @@ class WhatsAppLink
         $lines = [
             'Halo ' . $invitation->candidateName() . ',',
             '',
-            'Kami dari HRD ' . ($invitation->application?->jobOpening?->company?->name ?? 'Majesty Group')
+            'Kami dari HRD ' . ($invitation->application?->jobOpening?->company?->name ?: 'PT Majesty Group')
                 . ' mengundang Anda mengikuti tes online untuk posisi '
                 . ($invitation->application?->jobOpening?->title ?? '-') . '.',
             '',
@@ -82,30 +82,108 @@ class WhatsAppLink
 
     public static function interviewMessage(Application $application): string
     {
-        $application->loadMissing(['candidate', 'jobOpening.company']);
+        $application->loadMissing(['candidate', 'jobOpening.company', 'jobOpening.position', 'decidedBy', 'jobApplicationForm']);
 
         $schedule = $application->interview_at;
+        $candidateName = $application->candidate?->name ?? 'Candidate';
+        $companyName = $application->jobOpening?->company?->name ?: 'PT Majesty Group';
+        $positionTitle = $application->jobOpening?->position?->name ?? $application->jobOpening?->title ?? 'the applied position';
+        $hrName = $application->decidedBy?->name ?? auth()->user()?->name ?? 'HR Department';
+
+        $hour = $schedule ? (int) $schedule->format('H') : (int) now()->format('H');
+        $timeGreeting = $hour < 12 ? 'Good morning' : ($hour < 18 ? 'Good afternoon' : 'Good evening');
+
+        $gender = $application->jobApplicationForm?->personal_data['gender'] ?? $application->jobApplicationForm?->personal_data['sex'] ?? null;
+        $honorific = match (strtoupper((string) $gender)) {
+            'M', 'L', 'PRIA', 'LAKI-LAKI' => 'Mr. ',
+            'F', 'P', 'WANITA', 'PEREMPUAN' => 'Ms. ',
+            default => '',
+        };
+
+        $greetingLine = "{$timeGreeting}, {$honorific}{$candidateName}";
+
+        $dateFormatted = $schedule ? $schedule->format('l, F d, Y') : '-';
+        $timeFormatted = $schedule ? $schedule->format('H:i') . ' (WIB)' : '-';
+
+        $venue = $application->interview_location;
+        $address = $application->interview_address;
+        $mapsUrl = $application->interview_maps_url;
 
         $lines = [
-            'Halo ' . ($application->candidate?->name ?? 'Kandidat') . ',',
+            'INTERVIEW INVITATION',
+            strtoupper($companyName),
             '',
-            'Kami dari HRD ' . ($application->jobOpening?->company?->name ?? 'Majesty Group')
-                . ' mengundang Anda untuk mengikuti interview posisi '
-                . ($application->jobOpening?->title ?? '-') . '.',
+            $greetingLine,
             '',
-            'Hari/tanggal: ' . $schedule->translatedFormat('l, d F Y'),
-            'Waktu: ' . $schedule->format('H:i') . ' WIB',
-            'Metode: ' . ($application->interviewModeLabel() ?? '-'),
-            'Lokasi/tautan: ' . ($application->interview_location ?? '-'),
+            "Greetings from {$companyName}!",
+            '',
+            "My name is {$hrName} from the Human Resources Department of {$companyName}.",
+            '',
+            "We are pleased to invite you to participate in the next stage of our recruitment process for the {$positionTitle} position at {$companyName}.",
+            '',
+            'Please find the interview details below:',
+            '1. INTERVIEW SCHEDULE',
+            "* Date: {$dateFormatted}",
+            "* Time: {$timeFormatted}",
         ];
+
+        if ($application->interview_mode === 'online') {
+            $lines[] = '* Method: Online / Video Call';
+            if (filled($venue)) {
+                $lines[] = "* Platform / Link: {$venue}";
+            }
+            if (filled($mapsUrl)) {
+                $lines[] = "* Meeting Link: {$mapsUrl}";
+            }
+        } else {
+            if (filled($venue)) {
+                $lines[] = "* Venue: {$venue}";
+            }
+            if (filled($address)) {
+                $lines[] = "* Address: {$address}";
+            }
+            if (filled($mapsUrl)) {
+                $lines[] = '';
+                $lines[] = '📍 *Google Maps Location:*';
+                $lines[] = $mapsUrl;
+            }
+        }
 
         if (filled($application->interview_notes)) {
             $lines[] = '';
-            $lines[] = 'Catatan: ' . trim($application->interview_notes);
+            $lines[] = 'Notes: ' . trim($application->interview_notes);
         }
 
         $lines[] = '';
-        $lines[] = 'Mohon konfirmasi kehadiran Anda dengan membalas pesan ini. Terima kasih.';
+        $lines[] = '2. REQUIRED DOCUMENTS';
+        $lines[] = '';
+        $lines[] = 'To support our recruitment and evaluation process, kindly submit the following documents:';
+        $lines[] = '';
+        $lines[] = '1. Job Application Form';
+        $lines[] = '2. Updated Curriculum Vitae (CV)';
+        $lines[] = '3. Copy of Educational Certificate';
+        $lines[] = '4. Academic Transcript';
+        $lines[] = '5. Copy of National ID Card (KTP)';
+        $lines[] = '6. Other relevant supporting documents, if applicable..';
+        $lines[] = '';
+        $lines[] = 'Kindly bring all the required documents with you on the scheduled interview day for verification purposes.';
+        $lines[] = '';
+        $lines[] = '3. SELECTION PROCESS';
+        $lines[] = '';
+        $lines[] = 'The selection process will consist of:';
+        $lines[] = '* HR/User Interview';
+        $lines[] = '* Assessment Test*';
+        $lines[] = '';
+        $lines[] = 'Please confirm your attendance by replying to this message.';
+        $lines[] = '';
+        $lines[] = "We appreciate your interest in pursuing a career with {$companyName} and look forward to meeting you during the selection process.";
+        $lines[] = 'Thank you for your attention and cooperation.';
+        $lines[] = '';
+        $lines[] = 'Best regards,';
+        $lines[] = '';
+        $lines[] = $hrName;
+        $lines[] = 'Human Resources Department';
+        $lines[] = strtoupper($companyName);
 
         return implode("\n", $lines);
     }
@@ -122,7 +200,7 @@ class WhatsAppLink
             'Halo ' . ($application->candidate?->name ?? 'Kandidat') . ',',
             '',
             'Selamat! Lamaran Anda untuk posisi ' . ($application->jobOpening?->title ?? '-')
-                . ' di ' . ($application->jobOpening?->company?->name ?? 'Majesty Group')
+                . ' di ' . ($application->jobOpening?->company?->name ?: 'PT Majesty Group')
                 . ' dinyatakan LOLOS seleksi berkas awal.',
             '',
             'Sebagai langkah berikutnya sebelum tahapan interview, mohon kesediaan Anda untuk melengkapi Formulir Data Pelamar resmi kami melalui tautan berikut:',
@@ -148,7 +226,7 @@ class WhatsAppLink
             'Halo ' . ($application->candidate?->name ?? 'Kandidat') . ',',
             '',
             'Selamat! Berdasarkan hasil evaluasi seluruh tahapan seleksi, Anda dinyatakan DITERIMA untuk bergabung di '
-                . ($application->jobOpening?->company?->name ?? 'Majesty Group')
+                . ($application->jobOpening?->company?->name ?: 'PT Majesty Group')
                 . ' pada posisi ' . ($application->jobOpening?->title ?? '-') . '.',
             '',
             'Sebagai persiapan administrasi dan penomoran karyawan, mohon untuk melengkapi Formulir Biodata Karyawan melalui tautan berikut:',

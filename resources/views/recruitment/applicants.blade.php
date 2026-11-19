@@ -14,14 +14,14 @@
             <div class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-emerald-900 dark:text-emerald-200">
                 <div class="flex items-center gap-3">
                     <span class="flex size-9 items-center justify-center rounded-xl bg-emerald-600 text-white">
-                        <x-icon name="phone" class="size-5" />
+                        <x-icon name="link" class="size-5" />
                     </span>
                     <div>
                         <strong class="text-[14px]">Link Formulir Lamaran Kerja Siap Dikirim!</strong>
                         <p class="text-[12.5px] text-emerald-800/80 dark:text-emerald-300/80">Kirimkan tautan pengisian formulir lamaran kerja ke WhatsApp {{ session('wa_applicant_name') }}.</p>
                     </div>
                 </div>
-                <x-ui.button variant="primary" icon="phone" :href="session('wa_job_form_url')" target="_blank" class="bg-emerald-600 hover:bg-emerald-700">
+                <x-ui.button variant="primary" icon="link" :href="session('wa_job_form_url')" target="_blank" class="bg-emerald-600 hover:bg-emerald-700">
                     Buka WhatsApp Sekarang
                 </x-ui.button>
             </div>
@@ -162,6 +162,9 @@
                                     <x-ui.badge :variant="$application->statusTone()">{{ $application->statusLabel() }}</x-ui.badge>
                                     @if ($application->interview_at)
                                         <p class="mt-1 whitespace-nowrap text-[11px] text-subtle">{{ $application->interview_at->translatedFormat('d M Y · H:i') }}</p>
+                                        @if ($application->status === 'interview_scheduled' && $application->isInterviewCompleted())
+                                            <p class="mt-0.5 text-[10.5px] font-medium text-emerald-600 dark:text-emerald-400">Interview selesai</p>
+                                        @endif
                                     @endif
                                 </td>
                                 <td class="whitespace-nowrap px-2 py-3.5 text-[12.5px] text-muted">
@@ -191,101 +194,6 @@
                                                 </button>
                                             </form>
 
-                                        @elseif (in_array($application->status, ['screening_passed', 'form_sent', 'form_completed'], true))
-                                            @if ($application->jobApplicationForm)
-                                                @php
-                                                    $formWa = \App\Services\WhatsAppLink::jobApplicationFormInvitation($application, $application->jobApplicationForm->url());
-                                                @endphp
-                                                @if ($formWa)
-                                                    <a href="{{ $formWa }}" target="_blank" title="Kirim link Formulir Lamaran via WhatsApp" class="inline-flex size-8 items-center justify-center rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-700 transition hover:bg-emerald-100 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
-                                                        <x-icon name="phone" class="size-4" />
-                                                    </a>
-                                                @endif
-                                                @if ($application->jobApplicationForm->isSubmitted())
-                                                    <a href="{{ route('applicants.view-form', $application) }}" title="Lihat Formulir Lamaran Kerja" class="inline-flex size-8 items-center justify-center rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 transition hover:bg-indigo-100 dark:border-indigo-400/25 dark:bg-indigo-400/10 dark:text-indigo-300">
-                                                        <x-icon name="file-text" class="size-4" />
-                                                    </a>
-                                                @endif
-                                            @else
-                                                <form method="POST" action="{{ route('applicants.send-form', $application) }}">
-                                                    @csrf
-                                                    <button type="submit" title="Kirim Formulir Lamaran Kerja ke WhatsApp" class="flex size-8 items-center justify-center rounded-lg border border-amber-300 bg-amber-50 text-amber-700 transition hover:bg-amber-100 dark:border-amber-400/25 dark:bg-amber-400/10 dark:text-amber-300">
-                                                        <x-icon name="file-plus" class="size-4" />
-                                                    </button>
-                                                </form>
-                                            @endif
-
-                                            <button
-                                                type="button"
-                                                title="Jadwalkan interview"
-                                                class="flex size-8 items-center justify-center rounded-lg border border-sky-200 bg-sky-50 text-sky-700 transition hover:bg-sky-100 dark:border-sky-400/25 dark:bg-sky-400/10 dark:text-sky-300 dark:hover:bg-sky-400/20"
-                                                x-on:click="interview = interview === {{ $application->id }} ? null : {{ $application->id }}; $nextTick(() => window.refreshSelect2Soon(['interview_mode-{{ $application->id }}']))"
-                                            >
-                                                <x-icon name="calendar" class="size-4" />
-                                            </button>
-
-                                            <form method="POST" action="{{ route('applicants.decide-final', $application) }}" data-confirm="Kandidat dinyatakan belum sesuai / ditolak." data-confirm-title="Tolak / Belum Sesuai?" data-confirm-tone="danger" data-confirm-label="Ya, Belum Sesuai">
-                                                @csrf
-                                                <input type="hidden" name="decision" value="reject">
-                                                <button type="submit" title="Belum Sesuai / Tolak" class="flex size-8 items-center justify-center rounded-lg border border-rose-200 bg-rose-50 text-rose-600 transition hover:bg-rose-100 dark:border-rose-400/25 dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500/20">
-                                                    <x-icon name="close" class="size-4" />
-                                                </button>
-                                            </form>
-
-                                        @elseif (in_array($application->status, ['interview_scheduled', 'assessment_sent', 'assessment_done'], true))
-                                            @if ($application->jobApplicationForm)
-                                                @php
-                                                    $formWa = \App\Services\WhatsAppLink::jobApplicationFormInvitation($application, $application->jobApplicationForm->url());
-                                                @endphp
-                                                @if ($formWa)
-                                                    <a href="{{ $formWa }}" target="_blank" title="Kirim link Formulir Lamaran via WhatsApp" class="inline-flex size-8 items-center justify-center rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-700 transition hover:bg-emerald-100 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
-                                                        <x-icon name="phone" class="size-4" />
-                                                    </a>
-                                                @endif
-                                                @if ($application->jobApplicationForm->isSubmitted())
-                                                    <a href="{{ route('applicants.view-form', $application) }}" title="Lihat Formulir Lamaran Kerja" class="inline-flex size-8 items-center justify-center rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 transition hover:bg-indigo-100 dark:border-indigo-400/25 dark:bg-indigo-400/10 dark:text-indigo-300">
-                                                        <x-icon name="file-text" class="size-4" />
-                                                    </a>
-                                                @endif
-                                            @endif
-
-                                            @if ($application->interview_at)
-                                                @php
-                                                    $waInterview = \App\Services\WhatsAppLink::interviewInvitation($application);
-                                                @endphp
-                                                @if ($waInterview)
-                                                    <a href="{{ $waInterview }}" target="_blank" title="Kirim undangan interview via WhatsApp" class="inline-flex size-8 items-center justify-center rounded-lg border border-sky-300 bg-sky-50 text-sky-700 transition hover:bg-sky-100">
-                                                        <x-icon name="phone" class="size-4" />
-                                                    </a>
-                                                @endif
-                                            @endif
-
-                                            <button
-                                                type="button"
-                                                title="{{ $application->status === 'assessment_done' ? 'Lihat hasil tes online' : 'Undang / kelola tes online' }}"
-                                                class="flex size-8 items-center justify-center rounded-lg border border-purple-200 bg-purple-50 text-purple-700 transition hover:bg-purple-100 dark:border-purple-400/25 dark:bg-purple-400/10 dark:text-purple-300 dark:hover:bg-purple-400/20"
-                                                x-on:click="testInvite = testInvite === {{ $application->id }} ? null : {{ $application->id }}; interview = null"
-                                            >
-                                                <x-icon name="clipboard" class="size-4" />
-                                            </button>
-
-                                            <form method="POST" action="{{ route('applicants.decide-final', $application) }}" data-confirm="Kandidat akan dinyatakan DITERIMA sebagai karyawan baru dan link Formulir Biodata Karyawan akan dibuatkan." data-confirm-title="Terima kandidat sebagai karyawan?" data-confirm-label="Ya, Terima Karyawan">
-                                                @csrf
-                                                <input type="hidden" name="decision" value="hire">
-                                                <button type="submit" title="Terima sebagai Karyawan (Hired)" class="inline-flex items-center gap-1 rounded-lg border border-emerald-300 bg-emerald-500 px-2 py-1 text-[11px] font-bold text-white shadow-sm transition hover:bg-emerald-600">
-                                                    <x-icon name="check" class="size-3.5" />
-                                                    Terima
-                                                </button>
-                                            </form>
-
-                                            <form method="POST" action="{{ route('applicants.decide-final', $application) }}" data-confirm="Kandidat dinyatakan belum sesuai / ditolak." data-confirm-title="Tolak / Belum Sesuai?" data-confirm-tone="danger" data-confirm-label="Ya, Belum Sesuai">
-                                                @csrf
-                                                <input type="hidden" name="decision" value="reject">
-                                                <button type="submit" title="Belum Sesuai / Tolak" class="flex size-8 items-center justify-center rounded-lg border border-rose-200 bg-rose-50 text-rose-600 transition hover:bg-rose-100 dark:border-rose-400/25 dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500/20">
-                                                    <x-icon name="close" class="size-4" />
-                                                </button>
-                                            </form>
-
                                         @elseif ($application->status === 'hired')
                                             @if ($application->employeeBiodata)
                                                 @php
@@ -311,7 +219,98 @@
                                             </a>
 
                                         @elseif ($application->status === 'rejected')
-                                            <x-ui.badge variant="danger">Ditolak</x-ui.badge>
+                                            <span class="text-[12px] font-semibold text-rose-600 dark:text-rose-400">Ditolak</span>
+
+                                        @else
+                                            {{-- Tahap 1: Interview --}}
+                                            @if (! $application->isInterviewCompleted())
+                                                <button
+                                                    type="button"
+                                                    title="{{ $application->interview_at ? 'Ubah jadwal interview' : 'Jadwalkan interview' }}"
+                                                    class="flex size-8 items-center justify-center rounded-lg border border-sky-200 bg-sky-50 text-sky-700 transition hover:bg-sky-100 dark:border-sky-400/25 dark:bg-sky-400/10 dark:text-sky-300 dark:hover:bg-sky-400/20"
+                                                    x-on:click="interview = interview === {{ $application->id }} ? null : {{ $application->id }}; $nextTick(() => window.refreshSelect2Soon(['interview_mode-{{ $application->id }}']))"
+                                                >
+                                                    <x-icon name="calendar" class="size-4" />
+                                                </button>
+
+                                                @if ($application->interview_at)
+                                                    @php
+                                                        $waInterview = \App\Services\WhatsAppLink::interviewInvitation($application);
+                                                    @endphp
+                                                    @if ($waInterview)
+                                                        <a href="{{ $waInterview }}" target="_blank" title="Kirim undangan interview via WhatsApp" class="inline-flex size-8 items-center justify-center rounded-lg border border-sky-300 bg-sky-50 text-sky-700 transition hover:bg-sky-100 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-300">
+                                                            <x-icon name="phone" class="size-4" />
+                                                        </a>
+                                                    @endif
+
+                                                    <form method="POST" action="{{ route('applicants.complete-interview', $application) }}" data-confirm="Tandai bahwa interview dengan {{ $application->candidate->name }} sudah selesai dilakukan?" data-confirm-title="Interview Selesai?" data-confirm-label="Ya, Selesai">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <button type="submit" title="Tandai interview selesai" class="flex size-8 items-center justify-center rounded-lg border border-teal-200 bg-teal-50 text-teal-700 transition hover:bg-teal-100 dark:border-teal-400/25 dark:bg-teal-400/10 dark:text-teal-300">
+                                                            <x-icon name="check-circle" class="size-4" />
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                            @endif
+
+                                            {{-- Tahap 2: Formulir Lamaran (Muncul setelah dipanggil interview) --}}
+                                            @if ($application->interview_at || in_array($application->status, ['interview_scheduled', 'assessment_sent', 'assessment_done', 'form_sent', 'form_completed'], true))
+                                                @if ($application->jobApplicationForm)
+                                                    @if (! $application->jobApplicationForm->isSubmitted())
+                                                        @php
+                                                            $formWa = \App\Services\WhatsAppLink::jobApplicationFormInvitation($application, $application->jobApplicationForm->url());
+                                                        @endphp
+                                                        @if ($formWa)
+                                                            <a href="{{ $formWa }}" target="_blank" title="Kirim link Formulir Lamaran via WhatsApp" class="inline-flex size-8 items-center justify-center rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-700 transition hover:bg-emerald-100 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
+                                                                <x-icon name="link" class="size-4" />
+                                                            </a>
+                                                        @endif
+                                                    @else
+                                                        <a href="{{ route('applicants.view-form', $application) }}" title="Lihat Formulir Lamaran Kerja" class="inline-flex size-8 items-center justify-center rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 transition hover:bg-indigo-100 dark:border-indigo-400/25 dark:bg-indigo-400/10 dark:text-indigo-300">
+                                                            <x-icon name="file-text" class="size-4" />
+                                                        </a>
+                                                    @endif
+                                                @else
+                                                    <form method="POST" action="{{ route('applicants.send-form', $application) }}">
+                                                        @csrf
+                                                        <button type="submit" title="Kirim Formulir Lamaran Kerja ke WhatsApp" class="flex size-8 items-center justify-center rounded-lg border border-amber-300 bg-amber-50 text-amber-700 transition hover:bg-amber-100 dark:border-amber-400/25 dark:bg-amber-400/10 dark:text-amber-300">
+                                                            <x-icon name="file-plus" class="size-4" />
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                            @endif
+
+                                            {{-- Tahap 3: Tes Online (Baru muncul ketika interview ditandai selesai) --}}
+                                            @if ($application->isInterviewCompleted())
+                                                <button
+                                                    type="button"
+                                                    title="{{ $application->status === 'assessment_done' ? 'Lihat hasil tes online' : 'Undang / kelola tes online' }}"
+                                                    class="flex size-8 items-center justify-center rounded-lg border border-purple-200 bg-purple-50 text-purple-700 transition hover:bg-purple-100 dark:border-purple-400/25 dark:bg-purple-400/10 dark:text-purple-300 dark:hover:bg-purple-400/20"
+                                                    x-on:click="testInvite = testInvite === {{ $application->id }} ? null : {{ $application->id }}; interview = null"
+                                                >
+                                                    <x-icon name="clipboard" class="size-4" />
+                                                </button>
+                                            @endif
+
+                                            {{-- Tahap 4: Keputusan Akhir (Baru muncul ketika tes online selesai) --}}
+                                            @if ($application->status === 'assessment_done')
+                                                <form method="POST" action="{{ route('applicants.decide-final', $application) }}" data-confirm="Kandidat akan dinyatakan DITERIMA sebagai karyawan baru dan link Formulir Biodata Karyawan akan dibuatkan." data-confirm-title="Terima kandidat sebagai karyawan?" data-confirm-label="Ya, Terima Karyawan">
+                                                    @csrf
+                                                    <input type="hidden" name="decision" value="hire">
+                                                    <button type="submit" title="Terima sebagai Karyawan (Hired)" class="inline-flex items-center gap-1 rounded-lg border border-emerald-300 bg-emerald-500 px-2 py-1 text-[11px] font-bold text-white shadow-sm transition hover:bg-emerald-600">
+                                                        <x-icon name="check" class="size-3.5" />
+                                                        Terima
+                                                    </button>
+                                                </form>
+
+                                                <form method="POST" action="{{ route('applicants.decide-final', $application) }}" data-confirm="Kandidat dinyatakan belum sesuai / ditolak." data-confirm-title="Tolak / Belum Sesuai?" data-confirm-tone="danger" data-confirm-label="Ya, Belum Sesuai">
+                                                    @csrf
+                                                    <input type="hidden" name="decision" value="reject">
+                                                    <button type="submit" title="Belum Sesuai / Tolak" class="flex size-8 items-center justify-center rounded-lg border border-rose-200 bg-rose-50 text-rose-600 transition hover:bg-rose-100 dark:border-rose-400/25 dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500/20">
+                                                        <x-icon name="close" class="size-4" />
+                                                    </button>
+                                                </form>
+                                            @endif
                                         @endif
                                     </div>
                                 </td>
@@ -431,7 +430,7 @@
 
                             <tr x-show="interview === {{ $application->id }}" x-cloak class="border-t border-line/60 bg-sky-50/60 dark:bg-sky-400/5">
                                 <td colspan="7" class="px-5 py-5 sm:px-6">
-                                    <form method="POST" action="{{ route('applicants.interview', $application) }}" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-[230px_200px_minmax(0,1fr)] xl:items-end">
+                                    <form method="POST" action="{{ route('applicants.interview', $application) }}" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:items-end">
                                         @csrf
                                         @method('PATCH')
 
@@ -441,7 +440,7 @@
                                                 type="datetime-local"
                                                 name="interview_at"
                                                 :id="'interview_at-' . $application->id"
-                                                :value="$application->interview_at?->format('Y-m-d\TH:i') ?? now()->addDays(3)->setTime(10, 0)->format('Y-m-d\TH:i')"
+                                                :value="$application->interview_at?->format('Y-m-d\TH:i')"
                                             />
                                             <x-ui.field-error name="interview_at" />
                                         </div>
@@ -458,23 +457,45 @@
                                         </div>
 
                                         <div>
-                                            <x-ui.label :for="'interview_location-' . $application->id">Lokasi / tautan / nomor</x-ui.label>
+                                            <x-ui.label :for="'interview_location-' . $application->id">Tempat / Venue</x-ui.label>
                                             <x-ui.input
                                                 name="interview_location"
                                                 :id="'interview_location-' . $application->id"
                                                 :value="$application->interview_location"
-                                                placeholder="Kantor HRD, Google Meet, atau 0812..."
+                                                placeholder="Misal: Kantor Majesty Jl. Yos Sudarso / Google Meet"
                                             />
                                             <x-ui.field-error name="interview_location" />
                                         </div>
 
-                                        <div class="sm:col-span-2 xl:col-span-3">
+                                        <div class="sm:col-span-2">
+                                            <x-ui.label :for="'interview_address-' . $application->id">Alamat Lengkap</x-ui.label>
+                                            <x-ui.input
+                                                name="interview_address"
+                                                :id="'interview_address-' . $application->id"
+                                                :value="$application->interview_address"
+                                                placeholder="Alamat lengkap lokasi interview (opsional)"
+                                            />
+                                            <x-ui.field-error name="interview_address" />
+                                        </div>
+
+                                        <div>
+                                            <x-ui.label :for="'interview_maps_url-' . $application->id">Tautan Google Maps</x-ui.label>
+                                            <x-ui.input
+                                                name="interview_maps_url"
+                                                :id="'interview_maps_url-' . $application->id"
+                                                :value="$application->interview_maps_url"
+                                                placeholder="https://maps.app.goo.gl/... (opsional)"
+                                            />
+                                            <x-ui.field-error name="interview_maps_url" />
+                                        </div>
+
+                                        <div class="sm:col-span-2 lg:col-span-3">
                                             <x-ui.label :for="'interview_notes-' . $application->id">Catatan untuk kandidat (opsional)</x-ui.label>
-                                            <x-ui.textarea name="interview_notes" :id="'interview_notes-' . $application->id" :value="$application->interview_notes" :rows="2" placeholder="Misal: bawa portofolio dan hadir 10 menit sebelum jadwal." />
+                                            <x-ui.textarea name="interview_notes" :id="'interview_notes-' . $application->id" :value="$application->interview_notes" :rows="2" placeholder="Misal: hadir 10 menit sebelum jadwal interview." />
                                             <x-ui.field-error name="interview_notes" />
                                         </div>
 
-                                        <div class="flex flex-wrap items-center gap-2 sm:col-span-2 xl:col-span-3">
+                                        <div class="flex flex-wrap items-center gap-2 sm:col-span-2 lg:col-span-3">
                                             <x-ui.button type="submit" size="sm" icon="mail">{{ $application->interview_sent_at ? 'Simpan & kirim ulang undangan' : 'Simpan & kirim undangan' }}</x-ui.button>
                                             <x-ui.button variant="ghost" size="sm" x-on:click="interview = null">Batal</x-ui.button>
                                             @if ($application->interview_sent_at)
@@ -559,7 +580,7 @@
                                                 </div>
 
                                                 <div>
-                                                    <x-ui.label :for="'expires_at-' . $application->id">Batas Waktu Pengerjaan</x-ui.label>
+                                                    <x-ui.label :for="'expires_at-' . $application->id">Masa Berlaku Link (Deadline Akses)</x-ui.label>
                                                     <x-ui.input
                                                         type="datetime-local"
                                                         name="expires_at"
@@ -567,6 +588,7 @@
                                                         :value="now()->addDays(7)->format('Y-m-d\TH:i')"
                                                         required
                                                     />
+                                                    <p class="mt-1 text-[11px] text-subtle">Tenggat tanggal & jam terakhir kandidat dapat membuka dan memulai tes.</p>
                                                 </div>
 
                                                 <div class="flex items-end">

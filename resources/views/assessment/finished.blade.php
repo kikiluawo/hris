@@ -6,15 +6,13 @@
 
         <div class="relative mx-auto flex min-h-dvh w-full max-w-2xl flex-col px-5 py-6 sm:px-8">
             <header class="flex items-center gap-3">
-                <span class="flex size-9 items-center justify-center rounded-xl bg-gold text-[#1d150a] shadow-sm">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="size-5" aria-hidden="true">
-                        <path d="M8 6v12M16 6v12M8 12h8" />
-                    </svg>
-                </span>
-                <span class="leading-tight">
-                    <span class="block text-[15px] font-bold tracking-tight text-white">HRD System</span>
-                    <span class="block text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-100/60">Tes online</span>
-                </span>
+                <img
+                    src="{{ asset('images/majesty-logo.png') }}"
+                    alt="Majesty Group"
+                    class="h-7 w-auto object-contain opacity-95 sm:h-8"
+                />
+                <span class="h-5 w-px bg-gold/30" aria-hidden="true"></span>
+                <span class="text-[10px] font-semibold uppercase tracking-[0.2em] text-gold/85">Tes online</span>
             </header>
 
             <main class="flex flex-1 items-center py-10">
@@ -92,7 +90,7 @@
             </main>
 
             <footer class="border-t border-white/10 py-5 text-[11px] text-emerald-50/35">
-                &copy; {{ date('Y') }} {{ config('app.name') }} · Tes online hanya dapat diakses lewat tautan dari HRD.
+                &copy; {{ date('Y') }} Majesty Talent Portal · Tes online hanya dapat diakses lewat tautan dari HRD.
             </footer>
         </div>
     </div>

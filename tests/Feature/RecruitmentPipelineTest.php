@@ -70,6 +70,31 @@ class RecruitmentPipelineTest extends TestCase
         $this->assertSame(1, Application::where('job_opening_id', $opening->id)->count());
     }
 
+    public function test_same_phone_cannot_apply_twice_for_the_same_opening_even_with_different_email(): void
+    {
+        $opening = $this->opening();
+        $candidate = $this->candidate();
+        Application::create([
+            'job_opening_id' => $opening->id,
+            'candidate_id' => $candidate->id,
+            'status' => Application::STATUS_NEW,
+        ]);
+
+        $response = $this->from(route('career.show', $opening->slug))
+            ->post(route('career.apply', $opening->slug), [
+                'name' => 'Budi Santoso Email Lain',
+                'email' => 'budi.lain@example.com',
+                'phone' => '08123456789',
+                'address' => 'Jl. Merdeka 1',
+                'city' => 'Jakarta',
+                'cv' => UploadedFile::fake()->create('cv.pdf', 100, 'application/pdf'),
+                'consent' => '1',
+            ]);
+
+        $response->assertSessionHasErrors(['email', 'phone']);
+        $this->assertSame(1, Application::where('job_opening_id', $opening->id)->count());
+    }
+
     public function test_manual_pass_sends_screening_passed_email_once(): void
     {
         Mail::fake();
@@ -192,6 +217,82 @@ class RecruitmentPipelineTest extends TestCase
             'application_id' => $app->id,
         ]);
         $this->assertSame(Application::STATUS_ASSESSMENT_SENT, $app->fresh()->status);
+    }
+
+    public function test_hrd_can_mark_interview_as_completed(): void
+    {
+        $user = User::factory()->create(['is_hrd' => true]);
+        $app = $this->application(Application::STATUS_INTERVIEW_SCHEDULED);
+        $app->update([
+            'interview_at' => now()->addDays(2),
+            'interview_mode' => 'onsite',
+            'interview_location' => 'Kantor',
+        ]);
+
+        $response = $this->actingAs($user)->patch(route('applicants.complete-interview', $app));
+
+        $response->assertSessionHas('status');
+        $this->assertNotNull($app->fresh()->interview_completed_at);
+        $this->assertTrue($app->fresh()->isInterviewCompleted());
+    }
+
+    public function test_applicant_page_hides_decision_buttons_until_assessment_done(): void
+    {
+        $user = User::factory()->create(['is_hrd' => true]);
+        $app = $this->application(Application::STATUS_INTERVIEW_SCHEDULED);
+        $app->update([
+            'interview_at' => now()->addDays(2),
+            'interview_mode' => 'onsite',
+            'interview_location' => 'Kantor',
+        ]);
+
+        $response = $this->actingAs($user)->get(route('applicants.index'));
+        $response->assertOk()
+            ->assertDontSee('Terima sebagai Karyawan (Hired)')
+            ->assertSee('Kirim undangan interview via WhatsApp');
+
+        $app->update(['interview_completed_at' => now()]);
+        $response = $this->actingAs($user)->get(route('applicants.index'));
+        $response->assertOk()
+            ->assertDontSee('Kirim undangan interview via WhatsApp')
+            ->assertDontSee('Terima sebagai Karyawan (Hired)');
+
+        $app->update(['status' => Application::STATUS_ASSESSMENT_DONE]);
+        $response = $this->actingAs($user)->get(route('applicants.index'));
+        $response->assertOk()
+            ->assertDontSee('Kirim undangan interview via WhatsApp')
+            ->assertSee('Terima sebagai Karyawan (Hired)');
+    }
+
+    public function test_applicant_page_renders_with_attempt_score(): void
+    {
+        $user = User::factory()->create(['is_hrd' => true]);
+        $app = $this->application(Application::STATUS_ASSESSMENT_DONE);
+
+        $assessment = \App\Models\Assessment::create([
+            'title' => 'Tes Standar',
+            'duration_minutes' => 30,
+            'status' => 'published',
+        ]);
+
+        $invitation = $assessment->invitations()->create([
+            'application_id' => $app->id,
+            'token' => 'token-test-123456',
+            'duration_minutes' => 30,
+            'expires_at' => now()->addDays(2),
+        ]);
+
+        $attempt = $invitation->attempt()->create([
+            'token' => 'attempt-token-123456',
+            'status' => \App\Models\AssessmentAttempt::STATUS_SUBMITTED,
+            'score' => 85,
+            'started_at' => now(),
+            'ends_at' => now()->addMinutes(30),
+        ]);
+
+        $response = $this->actingAs($user)->get(route('applicants.index'));
+        $response->assertOk()
+            ->assertSee('Lihat Hasil (85%)');
     }
 
     private function candidate(): Candidate

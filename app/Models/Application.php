@@ -42,8 +42,11 @@ class Application extends Model
         'interview_at',
         'interview_mode',
         'interview_location',
+        'interview_address',
+        'interview_maps_url',
         'interview_notes',
         'interview_sent_at',
+        'interview_completed_at',
         'decided_at',
         'decided_by',
     ];
@@ -56,6 +59,7 @@ class Application extends Model
             'screening_notified_at' => 'datetime',
             'interview_at' => 'datetime',
             'interview_sent_at' => 'datetime',
+            'interview_completed_at' => 'datetime',
             'decided_at' => 'datetime',
             'screening_score' => 'integer',
         ];
@@ -72,6 +76,11 @@ class Application extends Model
     }
 
     public function decider(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'decided_by');
+    }
+
+    public function decidedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'decided_by');
     }
@@ -135,6 +144,19 @@ class Application extends Model
             self::STATUS_ASSESSMENT_DONE,
             self::STATUS_HIRED,
         ], true);
+    }
+
+    public function isInterviewCompleted(): bool
+    {
+        if ($this->interview_completed_at !== null) {
+            return true;
+        }
+
+        if (in_array($this->status, [self::STATUS_ASSESSMENT_SENT, self::STATUS_ASSESSMENT_DONE, self::STATUS_HIRED, self::STATUS_REJECTED], true)) {
+            return true;
+        }
+
+        return $this->interview_at !== null && now()->greaterThan($this->interview_at);
     }
 
     public function interviewModeLabel(): ?string

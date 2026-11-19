@@ -10,6 +10,7 @@ use App\Support\AssessmentImageStore;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -252,6 +253,49 @@ class AssessmentTestController extends Controller
         ]);
 
         return response()->json($runner->recordViolation($attempt, $data['type']));
+    }
+
+    public function snapshot(Request $request, string $token): JsonResponse
+    {
+        $attempt = $this->attempt($token);
+
+        if (! $this->hasValidAccess($attempt, $request)) {
+            return response()->json(['message' => 'Tes sedang dibuka di tab lain.'], 409);
+        }
+
+        if (! $attempt->isInProgress()) {
+            return response()->json(['status' => 'ignored'], 200);
+        }
+
+        $data = $request->validate([
+            'image' => ['required', 'string'],
+            'trigger' => ['nullable', 'string', 'max:50'],
+        ]);
+
+        $imageStr = $data['image'];
+        if (str_contains($imageStr, ',')) {
+            $imageStr = explode(',', $imageStr, 2)[1];
+        }
+
+        $bytes = base64_decode($imageStr, true);
+        if ($bytes === false || strlen($bytes) > 500 * 1024) {
+            return response()->json(['error' => 'Ukuran atau format gambar tidak valid.'], 422);
+        }
+
+        $filename = 'snap_' . now()->format('Ymd_His') . '_' . Str::random(8) . '.jpg';
+        $path = 'assessments/snapshots/' . $attempt->id . '/' . $filename;
+        Storage::disk('local')->put($path, $bytes);
+
+        $snapshot = $attempt->snapshots()->create([
+            'file_path' => $path,
+            'trigger' => $data['trigger'] ?? 'periodic',
+            'captured_at' => now(),
+        ]);
+
+        return response()->json([
+            'ok' => true,
+            'id' => $snapshot->id,
+        ]);
     }
 
     public function status(Request $request, string $token, AssessmentRunner $runner): JsonResponse

@@ -14,13 +14,42 @@ class DepartmentController extends Controller
 {
     public function index(Request $request): View
     {
+        $filters = [
+            'q' => trim((string) $request->query('q', '')),
+            'company' => $request->query('company'),
+            'status' => $request->query('status'),
+        ];
+
+        $perPage = $request->integer('per_page', 10);
+        if (! in_array($perPage, [10, 25, 50, 100], true)) {
+            $perPage = 10;
+        }
+
+        $departments = Department::with('company')
+            ->withCount(['positions', 'employees'])
+            ->when($filters['q'] !== '', function ($query) use ($filters): void {
+                $term = '%' . $filters['q'] . '%';
+                $query->where(function ($sub) use ($term): void {
+                    $sub->where('name', 'like', $term)
+                        ->orWhereHas('company', function ($companyQuery) use ($term): void {
+                            $companyQuery->where('name', 'like', $term)
+                                ->orWhere('code', 'like', $term);
+                        });
+                });
+            })
+            ->when($filters['company'], fn ($query, $companyId) => $query->where('company_id', $companyId))
+            ->when($filters['status'] === 'active', fn ($query) => $query->where('is_active', true))
+            ->when($filters['status'] === 'inactive', fn ($query) => $query->where('is_active', false))
+            ->orderBy('company_id')
+            ->orderBy('name')
+            ->paginate($perPage)
+            ->withQueryString();
+
         return view('organization.departments', [
-            'departments' => Department::with('company')
-                ->withCount(['positions', 'employees'])
-                ->orderBy('company_id')
-                ->orderBy('name')
-                ->get(),
+            'departments' => $departments,
             'companies' => Company::orderBy('name')->get(),
+            'filters' => $filters,
+            'perPage' => $perPage,
             'editing' => Department::find($request->integer('edit')),
         ]);
     }

@@ -138,9 +138,11 @@ class JobApplicationFormController extends Controller
             'phone' => $personal['phone_mobile'],
         ]);
 
-        $application->update([
-            'status' => Application::STATUS_FORM_COMPLETED,
-        ]);
+        if (in_array($application->status, [Application::STATUS_NEW, Application::STATUS_REVIEW, Application::STATUS_SCREENING_PASSED, Application::STATUS_FORM_SENT], true)) {
+            $application->update([
+                'status' => Application::STATUS_FORM_COMPLETED,
+            ]);
+        }
 
         return redirect()->route('application-forms.show', $token)
             ->with('status', 'Formulir lamaran kerja Anda berhasil dikirim dan tersimpan di sistem. Tim HRD kami akan meninjau dan menghubungi Anda untuk tahapan selanjutnya.');

@@ -103,14 +103,25 @@ class CareerController extends Controller
 
         $data['phone'] = Candidate::normalizePhone($data['phone']) ?? $data['phone'];
         $email = Str::lower($data['email']);
+        $phone = $data['phone'];
 
         $alreadyApplied = Application::where('job_opening_id', $opening->id)
-            ->whereHas('candidate', fn ($query) => $query->where('email', $email))
+            ->whereHas('candidate', function ($query) use ($email, $phone) {
+                $query->where('email', $email)
+                    ->orWhere('phone', $phone);
+            })
             ->exists();
 
         if ($alreadyApplied) {
-            return back()->withInput()->withErrors([
-                'email' => 'Email ini sudah pernah melamar untuk lowongan ini.',
+            return back()->withInput()->with('already_applied', [
+                'email' => $data['email'],
+                'phone' => $data['phone'],
+                'opening_title' => $opening->title,
+                'company_name' => $opening->company?->name ?? 'Majesty Group',
+                'other_openings_url' => route('career.index'),
+            ])->withErrors([
+                'email' => 'Email atau Nomor HP ini sudah pernah melamar untuk lowongan ini. Anda dapat menggunakan data yang sama untuk melamar pada lowongan lain yang tersedia.',
+                'phone' => 'Email atau Nomor HP ini sudah pernah melamar untuk lowongan ini. Anda dapat menggunakan data yang sama untuk melamar pada lowongan lain yang tersedia.',
             ]);
         }
 
@@ -185,8 +196,15 @@ class CareerController extends Controller
             Storage::disk('local')->delete($cvPath);
 
             if ($e->getCode() === '23000') {
-                return back()->withInput()->withErrors([
-                    'email' => 'Email ini sudah pernah melamar untuk lowongan ini.',
+                return back()->withInput()->with('already_applied', [
+                    'email' => $data['email'],
+                    'phone' => $data['phone'],
+                    'opening_title' => $opening->title,
+                    'company_name' => $opening->company?->name ?? 'Majesty Group',
+                    'other_openings_url' => route('career.index'),
+                ])->withErrors([
+                    'email' => 'Email atau Nomor HP ini sudah pernah melamar untuk lowongan ini. Anda dapat menggunakan data yang sama untuk melamar pada lowongan lain yang tersedia.',
+                    'phone' => 'Email atau Nomor HP ini sudah pernah melamar untuk lowongan ini. Anda dapat menggunakan data yang sama untuk melamar pada lowongan lain yang tersedia.',
                 ]);
             }
 

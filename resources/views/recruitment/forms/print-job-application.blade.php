@@ -57,7 +57,7 @@
     <div class="sheet">
         <div class="header">
             <h1>JOB APPLICATION FORM / FORMULIR LAMARAN KERJA</h1>
-            <h2>{{ $jobOpening->company?->name ?? 'MAJESTY GROUP' }}</h2>
+            <h2>{{ strtoupper($jobOpening->company?->name ?: 'PT MAJESTY GROUP') }}</h2>
         </div>
 
         <div class="confidential">

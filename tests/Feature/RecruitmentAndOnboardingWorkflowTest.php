@@ -142,6 +142,42 @@ class RecruitmentAndOnboardingWorkflowTest extends TestCase
         $this->assertEquals(Application::STATUS_FORM_COMPLETED, $this->application->fresh()->status);
     }
 
+    public function test_form_submission_does_not_downgrade_advanced_application_status(): void
+    {
+        $this->application->update(['status' => Application::STATUS_ASSESSMENT_DONE]);
+
+        $form = JobApplicationForm::create([
+            'application_id' => $this->application->id,
+            'token' => 'advanced-status-token',
+            'status' => 'draft',
+        ]);
+
+        $postData = [
+            'personal' => [
+                'name' => 'Budi Santoso',
+                'nickname' => 'Budi',
+                'pob' => 'Jakarta',
+                'dob' => '1998-05-15',
+                'gender' => 'pria',
+                'blood_type' => 'O',
+                'religion' => 'Islam',
+                'ktp_no' => '3171011505980001',
+                'address' => 'Jl. Sudirman No 123, Jakarta Barat',
+                'address_domicile' => 'Jl. Sudirman No 123, Jakarta Barat',
+                'phone_mobile' => '081234567890',
+                'marital_status' => 'Belum Menikah',
+            ],
+            'confirmation_truth' => '1',
+            'confirmation_agree' => '1',
+            'signature_name' => 'Budi Santoso',
+        ];
+
+        $response = $this->post(route('application-forms.store', $form->token), $postData);
+        $response->assertRedirect(route('application-forms.show', $form->token));
+
+        $this->assertEquals(Application::STATUS_ASSESSMENT_DONE, $this->application->fresh()->status);
+    }
+
     public function test_hrd_can_view_and_print_job_application_form(): void
     {
         $form = JobApplicationForm::create([
@@ -260,6 +296,7 @@ class RecruitmentAndOnboardingWorkflowTest extends TestCase
             ],
             'signed_name' => 'Budi Santoso',
             'signed_city' => 'Jakarta',
+            'digital_signature' => 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
         ];
 
         $postRes = $this->post(route('employee-biodatas.store', $biodata->token), $submitData);
@@ -268,6 +305,7 @@ class RecruitmentAndOnboardingWorkflowTest extends TestCase
         $freshBio = $biodata->fresh();
         $this->assertEquals('submitted', $freshBio->status);
         $this->assertEquals('1234567890', $freshBio->bank_accounts['bca']['number']);
+        $this->assertNotNull($freshBio->digital_signature);
     }
 
     public function test_employee_creation_form_prepopulates_from_accepted_application(): void

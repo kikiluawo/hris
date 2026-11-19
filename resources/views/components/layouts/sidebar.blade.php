@@ -29,20 +29,18 @@
     :class="sidebarOpen ? 'translate-x-0 shadow-pop' : '-translate-x-full'"
     aria-label="Navigasi utama"
 >
-    <div class="flex h-16 shrink-0 items-center justify-between px-5">
-        <a href="{{ route('dashboard') }}" class="flex items-center gap-3">
-            <span class="flex size-9 items-center justify-center rounded-xl bg-brand text-brand-ink shadow-sm">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="size-5" aria-hidden="true">
-                    <path d="M8 6v12M16 6v12M8 12h8" />
-                </svg>
-            </span>
-            <span class="leading-tight">
-                <span class="block text-[15px] font-bold tracking-tight">HRD System</span>
-                <span class="block text-[10px] font-semibold uppercase tracking-[0.14em] text-subtle">People Ops</span>
-            </span>
+    <div class="flex h-16 shrink-0 items-center justify-between border-b border-gold/15 bg-[#06231b] px-5 text-white">
+        <a href="{{ route('dashboard') }}" class="flex min-w-0 items-center gap-2.5">
+            <img
+                src="{{ asset('images/majesty-logo.png') }}"
+                alt="Majesty Group"
+                class="h-7 w-auto shrink-0 object-contain opacity-95"
+            />
+            <span class="h-5 w-px shrink-0 bg-gold/30" aria-hidden="true"></span>
+            <span class="truncate text-[10px] font-semibold uppercase tracking-[0.18em] text-gold">HR Portal</span>
         </a>
 
-        <button type="button" @click="sidebarOpen = false" class="rounded-lg p-1.5 text-subtle transition hover:bg-surface-2 hover:text-ink lg:hidden" aria-label="Tutup menu">
+        <button type="button" @click="sidebarOpen = false" class="rounded-lg p-1.5 text-white/70 transition hover:bg-white/10 hover:text-white lg:hidden" aria-label="Tutup menu">
             <x-icon name="close" class="size-5" />
         </button>
     </div>

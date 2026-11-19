@@ -38,6 +38,7 @@ class ApplicantController extends Controller
             'assessmentInvitations.attempt',
             'jobApplicationForm',
             'employeeBiodata',
+            'decidedBy',
         ])
             ->when($filters['job'] ?? null, fn ($query, $job) => $query->where('job_opening_id', $job))
             ->when($filters['status'] ?? null, fn ($query, $status) => $query->where('status', $status))
@@ -157,17 +158,25 @@ class ApplicantController extends Controller
             'interview_at' => ['required', 'date', 'after:now'],
             'interview_mode' => ['required', Rule::in(array_keys(self::INTERVIEW_MODES))],
             'interview_location' => ['required', 'string', 'max:255'],
+            'interview_address' => ['nullable', 'string', 'max:500'],
+            'interview_maps_url' => ['nullable', 'string', 'max:500'],
             'interview_notes' => ['nullable', 'string', 'max:1000'],
         ], [], [
             'interview_at' => 'jadwal interview',
             'interview_mode' => 'metode interview',
-            'interview_location' => 'lokasi / tautan interview',
+            'interview_location' => 'tempat / tautan interview',
+            'interview_address' => 'alamat interview',
+            'interview_maps_url' => 'tautan Google Maps',
             'interview_notes' => 'catatan',
         ]);
 
+        $newStatus = in_array($application->status, [Application::STATUS_ASSESSMENT_SENT, Application::STATUS_ASSESSMENT_DONE, Application::STATUS_HIRED], true)
+            ? $application->status
+            : Application::STATUS_INTERVIEW_SCHEDULED;
+
         $application->update([
             ...$data,
-            'status' => Application::STATUS_INTERVIEW_SCHEDULED,
+            'status' => $newStatus,
             'decided_at' => now(),
             'decided_by' => $request->user()?->id,
         ]);
@@ -208,10 +217,22 @@ class ApplicantController extends Controller
         ]);
 
         if ($application->status !== Application::STATUS_HIRED) {
-            $application->update(['status' => Application::STATUS_ASSESSMENT_SENT]);
+            $application->update([
+                'status' => Application::STATUS_ASSESSMENT_SENT,
+                'interview_completed_at' => $application->interview_completed_at ?? now(),
+            ]);
         }
 
         return back()->with('status', 'Undangan tes "' . $assessment->title . '" untuk ' . $application->candidate->name . ' berhasil dibuat.');
+    }
+
+    public function completeInterview(Application $application): RedirectResponse
+    {
+        $application->update([
+            'interview_completed_at' => now(),
+        ]);
+
+        return back()->with('status', "Interview dengan {$application->candidate->name} telah selesai.");
     }
 
     public function downloadCv(Application $application): StreamedResponse

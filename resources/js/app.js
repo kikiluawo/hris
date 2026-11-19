@@ -3,10 +3,12 @@ import '@fontsource-variable/plus-jakarta-sans';
 import '@fontsource-variable/fraunces';
 import $ from 'jquery';
 import select2 from 'select2';
+import Swal from 'sweetalert2';
 import Alpine from 'alpinejs';
 import { renderOpeningPoster, downloadOpeningPoster } from './poster';
 import './assessment';
 
+window.Swal = Swal;
 select2(window, $);
 window.$ = window.jQuery = $;
 

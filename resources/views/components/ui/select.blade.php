@@ -12,7 +12,7 @@
         data-select2-init
         @if ($placeholder) data-placeholder="{{ $placeholder }}" @endif
         {{ $attributes->except(['id'])->merge([
-            'class' => 'h-11 w-full appearance-none rounded-xl border bg-surface pl-3.5 pr-10 text-[15px] text-ink shadow-sm outline-none transition '
+            'class' => 'h-11 w-full appearance-none rounded-xl border bg-surface pl-3.5 pr-10 text-[16px] sm:text-[14.5px] text-ink shadow-sm outline-none transition '
                 . ($hasError
                     ? 'border-rose-400 focus:border-rose-400 focus:ring-4 focus:ring-rose-500/15 dark:border-rose-500/60'
                     : 'border-line focus:border-brand focus:ring-4 focus:ring-brand/15'),

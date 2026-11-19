@@ -1,4 +1,9 @@
-@props(['title' => null])
+@props(['title' => null, 'description' => null, 'image' => null])
+
+@php
+    $fullTitle = $title ? $title . ' · Majesty Talent Portal' : 'Majesty Talent Portal';
+    $metaDescription = $description ?? 'Rekrutmen resmi Majesty Group. Temukan posisi yang sesuai dan kirim lamaran 100% online tanpa perlu membuat akun.';
+@endphp
 
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
@@ -6,7 +11,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title ? $title . ' · Majesty Talent Portal' : 'Majesty Talent Portal' }}</title>
+    <title>{{ $fullTitle }}</title>
+    <x-layouts.head-meta :title="$fullTitle" :description="$metaDescription" :image="$image" site-name="Majesty Talent Portal" />
 
     <script>
         (() => {

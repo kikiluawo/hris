@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Job Application Form - {{ $candidate->name }}</title>
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=1">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}?v=1">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; font-size: 11px; line-height: 1.35; color: #111; background: #f3f4f6; }

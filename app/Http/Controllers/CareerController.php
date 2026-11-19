@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Application;
-use App\Models\Branch;
 use App\Models\Candidate;
-use App\Models\Company;
 use App\Models\JobOpening;
 use App\Services\CvScreener;
 use App\Services\FileSecurityValidator;
@@ -41,8 +39,6 @@ class CareerController extends Controller
                 ->get(),
             'search' => $search,
             'totalOpenings' => JobOpening::where('is_open', true)->count(),
-            'totalCompanies' => Company::count(),
-            'totalBranches' => Branch::count(),
         ]);
     }
 

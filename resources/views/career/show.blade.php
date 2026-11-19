@@ -1,4 +1,15 @@
-<x-layouts.public :title="$opening->title">
+@php
+    $shareSummary = \Illuminate\Support\Str::limit(preg_replace('/\s+/', ' ', trim(strip_tags((string) $opening->description))), 140);
+    $shareDescription = trim(sprintf(
+        'Lowongan %s di %s%s. %s',
+        $opening->title,
+        $opening->company?->name ?? 'Majesty Group',
+        $opening->department ? ' (' . $opening->department->name . ')' : '',
+        $shareSummary
+    ));
+@endphp
+
+<x-layouts.public :title="$opening->title" :description="$shareDescription">
     <x-slot:hero>
         <section class="relative isolate overflow-hidden bg-[#06231b] text-white">
             <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(217,180,106,0.14),transparent_55%)]"></div>

@@ -7,93 +7,55 @@
             <span class="pointer-events-none absolute -right-16 top-0 hidden select-none font-display text-[240px] leading-none text-white/[0.025] lg:block">Karir</span>
 
             <div class="relative mx-auto w-full max-w-[1160px] px-4 pb-14 pt-14 sm:px-6 sm:pb-20 sm:pt-20 lg:px-8">
-                <div class="grid gap-12 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-end">
-                    <div>
-                        <p class="flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.34em] text-gold">
-                            <span class="h-px w-8 bg-gold/60"></span>
-                            Karier di Majesty Group
-                        </p>
+                <div>
+                    <p class="flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.34em] text-gold">
+                        <span class="h-px w-8 bg-gold/60"></span>
+                        Karier di Majesty Group
+                    </p>
 
-                        <h1 class="mt-6 max-w-2xl font-display text-[40px] font-medium leading-[1.04] tracking-tight sm:text-[56px] lg:text-[64px]">
-                            Tumbuh di tempat<br>
-                            yang menghargai <span class="italic text-gold">karya</span>.
-                        </h1>
+                    <h1 class="mt-6 max-w-2xl font-display text-[40px] font-medium leading-[1.04] tracking-tight sm:text-[56px] lg:text-[64px]">
+                        Tumbuh di tempat<br>
+                        yang menghargai <span class="italic text-gold">karya</span>.
+                    </h1>
 
-                        <p class="mt-6 max-w-xl text-[13.5px] leading-relaxed text-white/60 sm:text-[14.5px]">
-                            Kami membangun tim dari orang-orang yang teliti, hangat, dan ingin bertumbuh. Temukan posisi yang sesuai, lalu kirim lamaran beserta CV Anda tanpa perlu membuat akun.
-                        </p>
+                    <p class="mt-6 max-w-xl text-[13.5px] leading-relaxed text-white/60 sm:text-[14.5px]">
+                        Kami membangun tim dari orang-orang yang teliti, hangat, dan ingin bertumbuh. Temukan posisi yang sesuai, lalu kirim lamaran beserta CV Anda tanpa perlu membuat akun.
+                    </p>
 
-                        <form method="GET" action="{{ route('career.index') }}" class="mt-9 flex w-full max-w-xl flex-col gap-2 sm:flex-row">
-                            <div class="relative flex-1">
-                                <label for="q" class="sr-only">Cari lowongan</label>
-                                <x-icon name="search" class="pointer-events-none absolute left-5 top-1/2 size-[18px] -translate-y-1/2 text-white/40" />
-                                <input
-                                    type="search"
-                                    name="q"
-                                    id="q"
-                                    value="{{ $search }}"
-                                    placeholder="Cari posisi, perusahaan, atau departemen"
-                                    class="h-14 w-full rounded-full border border-white/15 bg-white/[0.06] pl-13 pr-5 text-[13.5px] text-white placeholder:text-white/40 focus:border-gold/60 focus:bg-white/10 focus:outline-none focus:ring-4 focus:ring-gold/10"
-                                />
-                            </div>
-                            <button
-                                type="submit"
-                                class="inline-flex h-14 shrink-0 items-center justify-center rounded-full bg-gold px-7 text-[13px] font-bold text-[#1d150a] shadow-sm transition hover:bg-gold-strong focus:outline-none focus-visible:ring-4 focus-visible:ring-gold/30"
-                            >
-                                Cari lowongan
-                            </button>
-                        </form>
-
-                        <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-[11.5px] font-medium text-white/50">
-                            <span class="inline-flex items-center gap-2">
-                                <span class="size-1.5 rounded-full bg-gold"></span>
-                                {{ $totalOpenings }} lowongan dibuka
-                            </span>
-                            <span class="inline-flex items-center gap-2">
-                                <span class="size-1.5 rounded-full bg-gold/60"></span>
-                                Seleksi transparan
-                            </span>
-                            <span class="inline-flex items-center gap-2">
-                                <span class="size-1.5 rounded-full bg-gold/60"></span>
-                                Lamaran 100% online
-                            </span>
+                    <form method="GET" action="{{ route('career.index') }}" class="mt-9 flex w-full max-w-xl flex-col gap-2 sm:flex-row">
+                        <div class="relative flex-1">
+                            <label for="q" class="sr-only">Cari lowongan</label>
+                            <x-icon name="search" class="pointer-events-none absolute left-5 top-1/2 size-[18px] -translate-y-1/2 text-white/40" />
+                            <input
+                                type="search"
+                                name="q"
+                                id="q"
+                                value="{{ $search }}"
+                                placeholder="Cari posisi, perusahaan, atau departemen"
+                                class="h-14 w-full rounded-full border border-white/15 bg-white/[0.06] pl-13 pr-5 text-[13.5px] text-white placeholder:text-white/40 focus:border-gold/60 focus:bg-white/10 focus:outline-none focus:ring-4 focus:ring-gold/10"
+                            />
                         </div>
-                    </div>
+                        <button
+                            type="submit"
+                            class="inline-flex h-14 shrink-0 items-center justify-center rounded-full bg-gold px-7 text-[13px] font-bold text-[#1d150a] shadow-sm transition hover:bg-gold-strong focus:outline-none focus-visible:ring-4 focus-visible:ring-gold/30"
+                        >
+                            Cari lowongan
+                        </button>
+                    </form>
 
-                    <aside class="hidden lg:block">
-                        <div class="rounded-[26px] border border-gold/20 bg-white/[0.03] p-7 backdrop-blur-sm">
-                            <p class="text-[9.5px] font-semibold uppercase tracking-[0.32em] text-gold/80">Sekilas</p>
-
-                            <dl class="mt-5 space-y-5">
-                                <div class="flex items-end justify-between gap-4 border-b border-white/10 pb-5">
-                                    <dt class="pb-1 text-[11px] uppercase tracking-[0.14em] text-white/45">Lowongan dibuka</dt>
-                                    <dd class="font-display text-[36px] leading-none text-gold">{{ $totalOpenings }}</dd>
-                                </div>
-                                <div class="flex items-end justify-between gap-4 border-b border-white/10 pb-5">
-                                    <dt class="pb-1 text-[11px] uppercase tracking-[0.14em] text-white/45">Perusahaan</dt>
-                                    <dd class="font-display text-[36px] leading-none text-white">{{ $totalCompanies }}</dd>
-                                </div>
-                                <div class="flex items-end justify-between gap-4">
-                                    <dt class="pb-1 text-[11px] uppercase tracking-[0.14em] text-white/45">Cabang</dt>
-                                    <dd class="font-display text-[36px] leading-none text-white">{{ $totalBranches }}</dd>
-                                </div>
-                            </dl>
-                        </div>
-                    </aside>
-                </div>
-
-                <div class="mt-10 grid grid-cols-3 gap-4 border-t border-white/10 pt-6 lg:hidden">
-                    <div>
-                        <p class="font-display text-[28px] leading-none text-gold">{{ $totalOpenings }}</p>
-                        <p class="mt-1.5 text-[10px] uppercase tracking-[0.12em] text-white/45">Lowongan</p>
-                    </div>
-                    <div class="border-l border-white/10 pl-4">
-                        <p class="font-display text-[28px] leading-none text-white">{{ $totalCompanies }}</p>
-                        <p class="mt-1.5 text-[10px] uppercase tracking-[0.12em] text-white/45">Perusahaan</p>
-                    </div>
-                    <div class="border-l border-white/10 pl-4">
-                        <p class="font-display text-[28px] leading-none text-white">{{ $totalBranches }}</p>
-                        <p class="mt-1.5 text-[10px] uppercase tracking-[0.12em] text-white/45">Cabang</p>
+                    <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-[11.5px] font-medium text-white/50">
+                        <span class="inline-flex items-center gap-2">
+                            <span class="size-1.5 rounded-full bg-gold"></span>
+                            {{ $totalOpenings }} lowongan dibuka
+                        </span>
+                        <span class="inline-flex items-center gap-2">
+                            <span class="size-1.5 rounded-full bg-gold/60"></span>
+                            Seleksi transparan
+                        </span>
+                        <span class="inline-flex items-center gap-2">
+                            <span class="size-1.5 rounded-full bg-gold/60"></span>
+                            Lamaran 100% online
+                        </span>
                     </div>
                 </div>
             </div>

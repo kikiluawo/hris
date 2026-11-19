@@ -1,4 +1,9 @@
-@props(['title' => null])
+@props(['title' => null, 'description' => null, 'image' => null])
+
+@php
+    $fullTitle = $title ? $title . ' · ' . config('app.name') : config('app.name');
+    $metaDescription = $description ?? 'Majesty HR Portal — Sistem manajemen SDM dan rekrutmen internal Majesty Group.';
+@endphp
 
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
@@ -6,7 +11,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title ? $title . ' · ' . config('app.name') : config('app.name') }}</title>
+    <title>{{ $fullTitle }}</title>
+    <x-layouts.head-meta :title="$fullTitle" :description="$metaDescription" :image="$image" :site-name="config('app.name')" />
 
     <script>
         (() => {

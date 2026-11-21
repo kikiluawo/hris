@@ -8,6 +8,8 @@ import { renderOpeningPoster, downloadOpeningPoster } from './poster';
 import './assessment';
 
 window.Swal = Swal;
+window.renderOpeningPoster = renderOpeningPoster;
+window.downloadOpeningPoster = downloadOpeningPoster;
 select2(window, $);
 window.$ = window.jQuery = $;
 

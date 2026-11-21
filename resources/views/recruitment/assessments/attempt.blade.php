@@ -360,12 +360,12 @@
                 @if ($attempt->snapshots->isEmpty())
                     <p class="px-5 py-6 text-[13px] text-muted">Belum ada foto snapshot terekam.</p>
                 @else
-                    <div class="p-3" x-data="{ preview: null }">
+                    <div class="p-3" x-data="{ preview: null, previewTime: null, previewTrigger: null }">
                         <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
                             @foreach ($attempt->snapshots as $snapshot)
                                 <button
                                     type="button"
-                                    x-on:click="preview = '{{ route('assessments.attempts.snapshot', $snapshot) }}'"
+                                    x-on:click="preview = '{{ route('assessments.attempts.snapshot', $snapshot) }}'; previewTime = '{{ $snapshot->captured_at->translatedFormat('H:i:s') }}'; previewTrigger = '{{ $snapshot->triggerLabel() }}'"
                                     class="group relative aspect-[4/3] w-full overflow-hidden rounded-lg border border-line bg-surface-2 transition hover:ring-2 hover:ring-brand focus:outline-none"
                                 >
                                     <img
@@ -384,14 +384,57 @@
                             @endforeach
                         </div>
 
-                        <div x-show="preview" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm" x-on:click="preview = null">
-                            <div class="relative max-w-lg overflow-hidden rounded-2xl border border-line bg-surface p-2 shadow-pop" x-on:click.stop>
-                                <img :src="preview" alt="Foto pengawasan" class="w-full rounded-xl object-contain">
-                                <button type="button" x-on:click="preview = null" class="absolute top-4 right-4 flex size-8 items-center justify-center rounded-full bg-black/70 text-white hover:bg-black">
-                                    <x-icon name="close" class="size-4" />
-                                </button>
+                        <template x-teleport="body">
+                            <div
+                                x-show="preview"
+                                x-cloak
+                                @keydown.escape.window="preview = null"
+                                class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md"
+                                role="dialog"
+                                aria-modal="true"
+                                x-on:click.self="preview = null"
+                            >
+                                <div
+                                    x-show="preview"
+                                    x-transition:enter="ease-out duration-200"
+                                    x-transition:enter-start="opacity-0 scale-95"
+                                    x-transition:enter-end="opacity-100 scale-100"
+                                    x-transition:leave="ease-in duration-150"
+                                    x-transition:leave-start="opacity-100 scale-100"
+                                    x-transition:leave-end="opacity-0 scale-95"
+                                    class="relative flex flex-col w-full max-w-2xl max-h-[90vh] overflow-hidden rounded-3xl border border-white/20 bg-surface shadow-2xl"
+                                    x-on:click.stop
+                                >
+                                    <div class="flex items-center justify-between border-b border-line bg-surface-2/60 px-5 py-3.5">
+                                        <div class="flex items-center gap-2.5 min-w-0">
+                                            <span class="flex size-7 shrink-0 items-center justify-center rounded-lg bg-brand/10 text-brand">
+                                                <x-icon name="camera" class="size-4" />
+                                            </span>
+                                            <div class="min-w-0">
+                                                <h4 class="text-[13.5px] font-bold text-ink">Foto Pengawasan Kamera</h4>
+                                                <p class="text-[11px] text-muted truncate">
+                                                    Terekam <span class="font-semibold text-ink" x-text="previewTime"></span>
+                                                    <template x-if="previewTrigger">
+                                                        <span> · Trigger: <span class="font-semibold text-brand" x-text="previewTrigger"></span></span>
+                                                    </template>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            x-on:click="preview = null"
+                                            class="flex size-8 shrink-0 items-center justify-center rounded-xl border border-line bg-surface text-subtle hover:bg-surface-2 hover:text-ink transition"
+                                            title="Tutup (Esc)"
+                                        >
+                                            <x-icon name="close" class="size-4" />
+                                        </button>
+                                    </div>
+                                    <div class="flex flex-1 items-center justify-center bg-black/95 p-3 sm:p-5 overflow-hidden">
+                                        <img :src="preview" alt="Foto pengawasan kamera" class="max-h-[70vh] w-auto max-w-full rounded-2xl object-contain shadow-lg">
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        </template>
                     </div>
                 @endif
             </x-ui.card>

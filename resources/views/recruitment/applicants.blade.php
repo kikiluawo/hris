@@ -82,7 +82,7 @@
             </form>
         </x-ui.card>
 
-        <x-ui.card :padded="false">
+        <x-ui.card :padded="false" x-data="{ screeningModal: null, interview: null, testInvite: null, copiedId: null }">
             <div class="flex items-center justify-between px-5 py-4 sm:px-6">
                 <div>
                     <h2 class="text-[15px] font-semibold">Daftar pelamar</h2>
@@ -104,7 +104,7 @@
                             <th class="px-5 py-3 text-right font-semibold">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody x-data="{ open: null, interview: null, testInvite: null, copiedId: null }">
+                    <tbody>
                         @forelse ($applications as $application)
                             @php
                                 $screening = $application->screening_data ?? [];
@@ -140,23 +140,40 @@
                                 </td>
                                 <td class="px-3 py-3.5">
                                     @if ($score === null)
-                                        <x-ui.badge variant="neutral" title="{{ $screening['reason'] ?? 'Tinjau manual.' }}">Manual</x-ui.badge>
+                                        <div class="flex flex-col items-start gap-1">
+                                            <x-ui.badge variant="neutral" title="{{ $screening['reason'] ?? 'Tinjau manual.' }}">Manual</x-ui.badge>
+                                            <button
+                                                type="button"
+                                                class="mt-0.5 inline-flex items-center gap-1 text-[11.5px] font-semibold text-brand transition hover:underline"
+                                                x-on:click="screeningModal = {{ $application->id }}"
+                                            >
+                                                <x-icon name="sparkles" class="size-3.5" />
+                                                Lihat Detail
+                                            </button>
+                                        </div>
                                     @else
                                         <div class="flex flex-col items-start gap-1">
-                                            <x-ui.badge :variant="$score >= $jobThreshold ? 'success' : ($score >= ($jobThreshold * 0.6) ? 'warning' : 'danger')">{{ $score }}/100</x-ui.badge>
+                                            <button
+                                                type="button"
+                                                class="transition hover:opacity-85 text-left"
+                                                x-on:click="screeningModal = {{ $application->id }}"
+                                                title="Klik untuk melihat rincian screening CV"
+                                            >
+                                                <x-ui.badge :variant="$score >= $jobThreshold ? 'success' : ($score >= ($jobThreshold * 0.6) ? 'warning' : 'danger')">{{ $score }}/100</x-ui.badge>
+                                            </button>
                                             @if ($summary !== '')
                                                 <span class="whitespace-nowrap text-[11px] text-subtle">{{ $summary }}</span>
                                             @endif
+                                            <button
+                                                type="button"
+                                                class="mt-0.5 inline-flex items-center gap-1 text-[11.5px] font-semibold text-brand transition hover:underline"
+                                                x-on:click="screeningModal = {{ $application->id }}"
+                                            >
+                                                <x-icon name="sparkles" class="size-3.5" />
+                                                Lihat Detail
+                                            </button>
                                         </div>
                                     @endif
-                                    <button
-                                        type="button"
-                                        class="mt-1 inline-flex items-center gap-1 text-[11.5px] font-semibold text-muted transition hover:text-ink"
-                                        x-on:click="open = open === {{ $application->id }} ? null : {{ $application->id }}"
-                                    >
-                                        <x-icon name="chevron-down" class="size-3.5" />
-                                        Detail
-                                    </button>
                                 </td>
                                 <td class="px-3 py-3.5">
                                     <x-ui.badge :variant="$application->statusTone()">{{ $application->statusLabel() }}</x-ui.badge>
@@ -313,118 +330,6 @@
                                             @endif
                                         @endif
                                     </div>
-                                </td>
-                            </tr>
-
-                            <tr x-show="open === {{ $application->id }}" x-cloak class="border-t border-line/60 bg-surface-2/50">
-                                <td colspan="7" class="px-5 py-4 sm:px-6">
-                                    @if ($score === null)
-                                        <div class="flex items-start gap-2.5">
-                                            <x-icon name="alert-circle" class="mt-0.5 size-4 shrink-0 text-subtle" />
-                                            <p class="text-[12.5px] leading-relaxed text-muted">
-                                                {{ $screening['reason'] ?? 'CV ini belum dianalisis otomatis.' }}
-                                                Baca CV lewat tombol CV untuk menilai manual.
-                                            </p>
-                                        </div>
-                                    @else
-                                        @php
-                                            $education = $screening['education'] ?? [];
-                                            $experience = $screening['experience'] ?? [];
-                                        @endphp
-
-                                        <div class="grid gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)]">
-                                            <div>
-                                                <p class="flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-[0.08em] text-subtle">
-                                                    <x-icon name="sparkles" class="size-3.5" />
-                                                    Keahlian · {{ $matchedSkills }}/{{ $requiredSkills }} cocok
-                                                </p>
-                                                <div class="mt-2 flex flex-wrap gap-1.5">
-                                                    @forelse ($skills['matched'] ?? [] as $skill)
-                                                        <x-ui.badge variant="success">{{ $skill }}</x-ui.badge>
-                                                    @empty
-                                                        <span class="text-[12px] text-subtle">Tidak ada keahlian yang cocok.</span>
-                                                    @endforelse
-                                                    @foreach ($skills['missing'] ?? [] as $skill)
-                                                        <x-ui.badge variant="danger">{{ $skill }}</x-ui.badge>
-                                                    @endforeach
-                                                </div>
-                                            </div>
-
-                                            <div>
-                                                <p class="flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-[0.08em] text-subtle">
-                                                    <x-icon name="file-text" class="size-3.5" />
-                                                    Pendidikan
-                                                </p>
-                                                <div class="mt-2 space-y-1.5 text-[12.5px]">
-                                                    <div class="flex items-center justify-between gap-3">
-                                                        <span class="text-muted">Minimal</span>
-                                                        <span class="font-semibold">{{ $education['required'] ?? '—' }}</span>
-                                                    </div>
-                                                    <div class="flex items-center justify-between gap-3">
-                                                        <span class="text-muted">Terdeteksi</span>
-                                                        <span class="font-semibold">{{ $education['detected'] ?? 'Tidak terdeteksi' }}</span>
-                                                    </div>
-                                                    @if (($education['passed'] ?? null) !== null)
-                                                        <x-ui.badge :variant="$education['passed'] ? 'success' : 'danger'">{{ $education['passed'] ? 'Memenuhi' : 'Belum memenuhi' }}</x-ui.badge>
-                                                    @endif
-                                                </div>
-                                            </div>
-
-                                            <div>
-                                                <p class="flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-[0.08em] text-subtle">
-                                                    <x-icon name="clock" class="size-3.5" />
-                                                    Pengalaman
-                                                </p>
-                                                <div class="mt-2 space-y-1.5 text-[12.5px]">
-                                                    <div class="flex items-center justify-between gap-3">
-                                                        <span class="text-muted">Minimal</span>
-                                                        <span class="font-semibold">{{ $experience['required'] ?? 0 }} tahun</span>
-                                                    </div>
-                                                    <div class="flex items-center justify-between gap-3">
-                                                        <span class="text-muted">Terdeteksi</span>
-                                                        <span class="font-semibold">{{ $experience['detected'] !== null ? $experience['detected'] . ' tahun' : 'Tidak terdeteksi' }}</span>
-                                                    </div>
-                                                    @if (($experience['passed'] ?? null) !== null)
-                                                        <x-ui.badge :variant="$experience['passed'] ? 'success' : 'danger'">{{ $experience['passed'] ? 'Memenuhi' : 'Belum memenuhi' }}</x-ui.badge>
-                                                    @endif
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        @php
-                                            $textSource = $screening['text_source'] ?? null;
-                                            $isScanned = ($screening['is_scanned_image'] ?? false) || $textSource === 'ocr';
-                                            $sourceLabels = [
-                                                'pdfparser' => 'PDF parser (Teks Asli)',
-                                                'pdftotext' => 'pdftotext (Teks Asli)',
-                                                'ocr' => 'OCR (CV hasil scan gambar)',
-                                                'phpword' => 'Word parser (Teks Asli)',
-                                                'docx-xml' => 'DOCX XML (Teks Asli)',
-                                                'antiword' => 'Antiword',
-                                            ];
-                                        @endphp
-
-                                        <div class="mt-3.5 flex flex-wrap items-center gap-2 border-t border-line/60 pt-3 text-[11.5px]">
-                                            @if ($isScanned)
-                                                <x-ui.badge variant="warning">
-                                                    <x-icon name="image" class="mr-1 size-3" />
-                                                    Hasil Gambar / Scan
-                                                </x-ui.badge>
-                                                <span class="text-amber-700 dark:text-amber-400">Berkas ini berupa scan/gambar. Teks dibaca via {{ $sourceLabels[$textSource] ?? 'OCR' }}.</span>
-                                            @else
-                                                <x-ui.badge variant="success">
-                                                    <x-icon name="file-text" class="mr-1 size-3" />
-                                                    Teks Digital (Tulisan Asli)
-                                                </x-ui.badge>
-                                                <span class="text-subtle">
-                                                    Dokumen digital murni dibaca lewat {{ $sourceLabels[$textSource] ?? 'pembaca teks' }}
-                                                    @if (($screening['text_chars'] ?? 0) > 0)
-                                                        · {{ number_format($screening['text_chars'], 0, ',', '.') }} karakter
-                                                    @endif
-                                                </span>
-                                            @endif
-                                        </div>
-                                    @endif
                                 </td>
                             </tr>
 
@@ -609,6 +514,365 @@
                     </tbody>
                 </table>
             </div>
+
+            @foreach ($applications as $application)
+                @php
+                    $screening = $application->screening_data ?? [];
+                    $score = $application->screening_score;
+                    $skills = $screening['skills'] ?? [];
+                    $matchedSkillsList = $skills['matched'] ?? [];
+                    $missingSkillsList = $skills['missing'] ?? [];
+                    $requiredSkillsList = $skills['required'] ?? [];
+
+                    $splitSkills = function ($items) {
+                        $result = [];
+                        foreach ($items as $item) {
+                            if (is_string($item) && str_contains($item, ',')) {
+                                $parts = array_values(array_filter(array_map('trim', explode(',', $item)), fn ($p) => $p !== ''));
+                                if (count($parts) > 1) {
+                                    foreach ($parts as $p) {
+                                        $result[] = $p;
+                                    }
+                                    continue;
+                                }
+                            }
+                            $result[] = $item;
+                        }
+                        return $result;
+                    };
+
+                    $flatMatched = $splitSkills($matchedSkillsList);
+                    $flatMissing = $splitSkills($missingSkillsList);
+                    $totalMatched = count($flatMatched);
+                    $totalRequired = count($splitSkills($requiredSkillsList));
+                    if ($totalRequired < ($totalMatched + count($flatMissing))) {
+                        $totalRequired = $totalMatched + count($flatMissing);
+                    }
+
+                    $education = $screening['education'] ?? [];
+                    $experience = $screening['experience'] ?? [];
+                    $educationPassed = $education['passed'] ?? null;
+                    $experiencePassed = $experience['passed'] ?? null;
+                    $jobThreshold = $application->jobOpening->screening_threshold ?? 70;
+
+                    $textSource = $screening['text_source'] ?? null;
+                    $isScanned = ($screening['is_scanned_image'] ?? false) || $textSource === 'ocr';
+                    $sourceLabels = [
+                        'pdfparser' => 'PDF Parser (Teks Digital Murni)',
+                        'pdftotext' => 'pdftotext (Teks Digital Murni)',
+                        'ocr' => 'Optical Character Recognition / OCR (Hasil Scan/Foto)',
+                        'phpword' => 'Word Parser (Teks Digital Murni)',
+                        'docx-xml' => 'DOCX XML (Teks Digital Murni)',
+                        'antiword' => 'Antiword',
+                    ];
+                @endphp
+
+                <template x-teleport="body">
+                    <div
+                        x-show="screeningModal === {{ $application->id }}"
+                        x-cloak
+                        @keydown.escape.window="if (screeningModal === {{ $application->id }}) screeningModal = null"
+                        class="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto p-4 sm:p-6 pt-20 sm:pt-24 pb-12"
+                        role="dialog"
+                        aria-modal="true"
+                        @click.self="screeningModal = null"
+                    >
+                        <div
+                            class="fixed inset-0 bg-ink/60 backdrop-blur-sm transition-opacity"
+                            @click="screeningModal = null"
+                            x-show="screeningModal === {{ $application->id }}"
+                            x-transition:enter="ease-out duration-200"
+                            x-transition:enter-start="opacity-0"
+                            x-transition:enter-end="opacity-100"
+                            x-transition:leave="ease-in duration-150"
+                            x-transition:leave-start="opacity-100"
+                            x-transition:leave-end="opacity-0"
+                        ></div>
+
+                        <div
+                            class="relative flex flex-col w-full max-w-3xl max-h-[calc(100vh-8.5rem)] rounded-3xl border border-line bg-surface shadow-2xl transition-all overflow-hidden"
+                            x-show="screeningModal === {{ $application->id }}"
+                            x-transition:enter="ease-out duration-200"
+                            x-transition:enter-start="opacity-0 translate-y-4 sm:scale-95"
+                            x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                            x-transition:leave="ease-in duration-150"
+                            x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                            x-transition:leave-end="opacity-0 translate-y-4 sm:scale-95"
+                        >
+                        <div class="flex items-start justify-between gap-4 border-b border-line bg-surface-2/40 px-6 py-4.5">
+                            <div class="flex items-center gap-3.5 min-w-0">
+                                <x-ui.avatar :name="$application->candidate->name" size="md" />
+                                <div class="min-w-0">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <h3 class="text-[16px] font-bold text-ink truncate">{{ $application->candidate->name }}</h3>
+                                        <x-ui.badge :variant="$application->statusTone()">{{ $application->statusLabel() }}</x-ui.badge>
+                                    </div>
+                                    <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-muted">
+                                        <span class="inline-flex items-center gap-1 font-medium text-brand">
+                                            <x-icon name="briefcase" class="size-3.5" />
+                                            {{ $application->jobOpening->title }}
+                                        </span>
+                                        <span>•</span>
+                                        <span class="inline-flex items-center gap-1">
+                                            <x-icon name="mail" class="size-3.5 text-subtle" />
+                                            {{ $application->candidate->email }}
+                                        </span>
+                                        <span>•</span>
+                                        <span class="inline-flex items-center gap-1">
+                                            <x-icon name="phone" class="size-3.5 text-subtle" />
+                                            {{ $application->candidate->phone }}
+                                        </span>
+                                        @if ($application->candidate->city)
+                                            <span>•</span>
+                                            <span class="inline-flex items-center gap-1">
+                                                <x-icon name="map-pin" class="size-3.5 text-subtle" />
+                                                {{ $application->candidate->city }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                @click="screeningModal = null"
+                                class="shrink-0 flex size-8 items-center justify-center rounded-xl border border-line bg-surface text-subtle hover:bg-surface-2 hover:text-ink transition"
+                                title="Tutup (Esc)"
+                            >
+                                <x-icon name="close" class="size-4" />
+                            </button>
+                        </div>
+
+                        <div class="overflow-y-auto p-6 space-y-5">
+                            @if ($score === null)
+                                <div class="rounded-2xl border border-amber-200/80 bg-amber-500/10 p-4.5 dark:border-amber-500/30">
+                                    <div class="flex items-start gap-3.5">
+                                        <span class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-300">
+                                            <x-icon name="alert-circle" class="size-5" />
+                                        </span>
+                                        <div>
+                                            <h4 class="text-[14.5px] font-bold text-amber-950 dark:text-amber-100">Penilaian Manual Diperlukan</h4>
+                                            <p class="mt-0.5 text-[12.5px] leading-relaxed text-amber-900/80 dark:text-amber-200/80">
+                                                {{ $screening['reason'] ?? 'CV ini belum dianalisis otomatis atau format berkas memerlukan verifikasi manual oleh HR.' }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            @else
+                                @php
+                                    $isPassing = $score >= $jobThreshold;
+                                    $isWarning = ! $isPassing && $score >= ($jobThreshold * 0.6);
+                                @endphp
+                                <div class="rounded-2xl border p-4.5 {{ $isPassing ? 'border-emerald-200/80 bg-emerald-500/10 dark:border-emerald-500/30' : ($isWarning ? 'border-amber-200/80 bg-amber-500/10 dark:border-amber-500/30' : 'border-rose-200/80 bg-rose-500/10 dark:border-rose-500/30') }}">
+                                    <div class="flex flex-wrap items-center justify-between gap-4">
+                                        <div class="flex items-center gap-3.5">
+                                            <div class="flex size-12 shrink-0 items-center justify-center rounded-2xl {{ $isPassing ? 'bg-emerald-600 text-white' : ($isWarning ? 'bg-amber-600 text-white' : 'bg-rose-600 text-white') }} shadow-sm">
+                                                <span class="text-[18px] font-black leading-none">{{ $score }}</span>
+                                            </div>
+                                            <div>
+                                                <div class="flex items-center gap-2">
+                                                    <h4 class="text-[15px] font-bold {{ $isPassing ? 'text-emerald-950 dark:text-emerald-100' : ($isWarning ? 'text-amber-950 dark:text-amber-100' : 'text-rose-950 dark:text-rose-100') }}">
+                                                        {{ $isPassing ? 'Memenuhi Standar Kualifikasi' : ($isWarning ? 'Mendekati Standar Kualifikasi' : 'Belum Memenuhi Standar Screening') }}
+                                                    </h4>
+                                                    <span class="rounded-md px-2 py-0.5 text-[11px] font-bold {{ $isPassing ? 'bg-emerald-200/80 text-emerald-900 dark:bg-emerald-500/20 dark:text-emerald-300' : ($isWarning ? 'bg-amber-200/80 text-amber-900 dark:bg-amber-500/20 dark:text-amber-300' : 'bg-rose-200/80 text-rose-900 dark:bg-rose-500/20 dark:text-rose-300') }}">
+                                                        Skor: {{ $score }}/100
+                                                    </span>
+                                                </div>
+                                                <p class="mt-0.5 text-[12.5px] {{ $isPassing ? 'text-emerald-900/80 dark:text-emerald-200/80' : ($isWarning ? 'text-amber-900/80 dark:text-amber-200/80' : 'text-rose-900/80 dark:text-rose-200/80') }}">
+                                                    Ambang batas minimum kelolosan lowongan ini adalah <strong>{{ $jobThreshold }}/100</strong>.
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="text-[11.5px] text-subtle">Dianalisis pada:</span>
+                                            <p class="text-[12px] font-semibold text-ink">{{ $application->screened_at ? $application->screened_at->translatedFormat('d M Y, H:i') : $application->created_at->translatedFormat('d M Y, H:i') }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
+                            <div class="rounded-2xl border border-line bg-surface p-4.5 space-y-3.5">
+                                <div class="flex items-center justify-between border-b border-line/70 pb-3">
+                                    <div class="flex items-center gap-2">
+                                        <span class="flex size-7 items-center justify-center rounded-lg bg-brand/10 text-brand">
+                                            <x-icon name="sparkles" class="size-4" />
+                                        </span>
+                                        <h4 class="text-[14px] font-bold text-ink">Analisis Keahlian (Skills)</h4>
+                                    </div>
+                                    <span class="rounded-lg bg-surface-2 px-2.5 py-1 text-[11.5px] font-semibold text-muted">
+                                        {{ $totalMatched }} dari {{ $totalRequired }} Keahlian Cocok
+                                    </span>
+                                </div>
+
+                                <div class="space-y-3">
+                                    <div>
+                                        <p class="text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 mb-2 flex items-center gap-1.5">
+                                            <x-icon name="check-circle" class="size-3.5" />
+                                            Keahlian yang Ditemukan di CV ({{ count($flatMatched) }}):
+                                        </p>
+                                        @if (count($flatMatched) > 0)
+                                            <div class="flex flex-wrap gap-2">
+                                                @foreach ($flatMatched as $skill)
+                                                    <div class="inline-flex items-center gap-1.5 rounded-xl border border-emerald-300/80 bg-emerald-50 px-3 py-1.5 text-[12px] font-medium text-emerald-900 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-200 break-words whitespace-normal max-w-full text-left">
+                                                        <x-icon name="check" class="size-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                                                        <span>{{ $skill }}</span>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <div class="rounded-xl border border-dashed border-line bg-surface-2/40 px-3.5 py-2.5 text-[12px] text-subtle">
+                                                Tidak ada keahlian yang secara langsung terdeteksi cocok dengan kata kunci kualifikasi lowongan.
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    @if (count($flatMissing) > 0)
+                                        <div class="pt-2 border-t border-line/60">
+                                            <p class="text-[11px] font-bold uppercase tracking-wider text-rose-700 dark:text-rose-400 mb-2 flex items-center gap-1.5">
+                                                <x-icon name="alert-circle" class="size-3.5" />
+                                                Keahlian Belum Terdeteksi di CV ({{ count($flatMissing) }}):
+                                            </p>
+                                            <div class="flex flex-wrap gap-2">
+                                                @foreach ($flatMissing as $skill)
+                                                    <div class="inline-flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-3 py-1.5 text-[12px] font-medium text-rose-900 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200 break-words whitespace-normal max-w-full text-left">
+                                                        <x-icon name="close" class="size-3.5 shrink-0 text-rose-500" />
+                                                        <span>{{ $skill }}</span>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <div class="rounded-2xl border border-line bg-surface p-4.5 space-y-3">
+                                    <div class="flex items-center justify-between border-b border-line/70 pb-2.5">
+                                        <div class="flex items-center gap-2">
+                                            <span class="flex size-7 items-center justify-center rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400">
+                                                <x-icon name="file-text" class="size-4" />
+                                            </span>
+                                            <h4 class="text-[13.5px] font-bold text-ink">Kualifikasi Pendidikan</h4>
+                                        </div>
+                                        @if ($educationPassed !== null)
+                                            <span class="rounded-lg px-2 py-0.5 text-[11px] font-bold {{ $educationPassed ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300' : 'bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300' }}">
+                                                {{ $educationPassed ? 'Memenuhi' : 'Belum Memenuhi' }}
+                                            </span>
+                                        @endif
+                                    </div>
+
+                                    <div class="space-y-2 text-[12.5px]">
+                                        <div class="flex items-center justify-between gap-2 rounded-xl bg-surface-2/60 px-3 py-2">
+                                            <span class="text-muted">Syarat Minimal Lowongan</span>
+                                            <span class="font-bold text-ink">{{ $education['required'] ?? '—' }}</span>
+                                        </div>
+                                        <div class="flex items-center justify-between gap-2 rounded-xl bg-surface-2/60 px-3 py-2">
+                                            <span class="text-muted">Terdeteksi pada CV</span>
+                                            <span class="font-bold text-ink">{{ $education['detected'] ?? 'Tidak terdeteksi' }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="rounded-2xl border border-line bg-surface p-4.5 space-y-3">
+                                    <div class="flex items-center justify-between border-b border-line/70 pb-2.5">
+                                        <div class="flex items-center gap-2">
+                                            <span class="flex size-7 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                                                <x-icon name="clock" class="size-4" />
+                                            </span>
+                                            <h4 class="text-[13.5px] font-bold text-ink">Pengalaman Kerja</h4>
+                                        </div>
+                                        @if ($experiencePassed !== null)
+                                            <span class="rounded-lg px-2 py-0.5 text-[11px] font-bold {{ $experiencePassed ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300' : 'bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300' }}">
+                                                {{ $experiencePassed ? 'Memenuhi' : 'Belum Memenuhi' }}
+                                            </span>
+                                        @endif
+                                    </div>
+
+                                    <div class="space-y-2 text-[12.5px]">
+                                        <div class="flex items-center justify-between gap-2 rounded-xl bg-surface-2/60 px-3 py-2">
+                                            <span class="text-muted">Syarat Minimal Pengalaman</span>
+                                            <span class="font-bold text-ink">{{ $experience['required'] ?? 0 }} tahun</span>
+                                        </div>
+                                        <div class="flex items-center justify-between gap-2 rounded-xl bg-surface-2/60 px-3 py-2">
+                                            <span class="text-muted">Terdeteksi pada CV</span>
+                                            <span class="font-bold text-ink">{{ $experience['detected'] !== null ? $experience['detected'] . ' tahun' : 'Tidak terdeteksi' }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="rounded-2xl border border-line bg-surface-2/40 p-4 space-y-2.5">
+                                <div class="flex flex-wrap items-center justify-between gap-2">
+                                    <div class="flex items-center gap-2 text-[12px] font-semibold text-ink">
+                                        <x-icon name="file-text" class="size-4 text-brand" />
+                                        <span>Integritas Dokumen CV:</span>
+                                        @if ($isScanned)
+                                            <span class="inline-flex items-center gap-1 rounded-full border border-amber-300 bg-amber-100/80 px-2 py-0.5 text-[11px] font-bold text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/20 dark:text-amber-300">
+                                                <x-icon name="image" class="size-3" /> Berkas Hasil Scan / Gambar
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center gap-1 rounded-full border border-emerald-300 bg-emerald-100/80 px-2 py-0.5 text-[11px] font-bold text-emerald-900 dark:border-emerald-500/30 dark:bg-emerald-500/20 dark:text-emerald-300">
+                                                <x-icon name="check" class="size-3" /> Teks Digital Murni
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <span class="text-[11.5px] text-muted">
+                                        {{ number_format($screening['text_chars'] ?? 0, 0, ',', '.') }} karakter teks diekstrak
+                                    </span>
+                                </div>
+                                <p class="text-[12px] leading-relaxed text-subtle">
+                                    @if ($isScanned)
+                                        Berkas ini terdeteksi sebagai scan gambar atau foto. Teks dianalisis menggunakan teknologi OCR ({{ $sourceLabels[$textSource] ?? 'OCR' }}).
+                                    @else
+                                        Dokumen pelamar tersusun dari teks digital asli yang diekstrak langsung via {{ $sourceLabels[$textSource] ?? 'pembaca teks digital' }}. Tingkat akurasi ekstraksi optimal.
+                                    @endif
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap items-center justify-between gap-3 border-t border-line bg-surface-2/40 px-6 py-4">
+                            <a
+                                href="{{ route('applicants.cv', $application) }}"
+                                target="_blank"
+                                class="inline-flex items-center gap-2 rounded-xl border border-line bg-surface px-3.5 py-2 text-[12.5px] font-semibold text-ink shadow-sm transition hover:bg-surface-2 hover:border-brand/40"
+                            >
+                                <x-icon name="download" class="size-4 text-subtle" />
+                                Buka / Unduh Berkas CV
+                            </a>
+
+                            <div class="flex items-center gap-2">
+                                @if (in_array($application->status, ['new', 'review', 'screening_failed'], true))
+                                    <form method="POST" action="{{ route('applicants.status', $application) }}" data-confirm="Kandidat akan diloloskan screening CV dan siap ke tahap formulir / interview." data-confirm-title="Loloskan screening CV?" data-confirm-label="Ya, loloskan">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="hidden" name="decision" value="pass">
+                                        <x-ui.button type="submit" variant="primary" size="sm" icon="check" class="bg-emerald-600 hover:bg-emerald-700">
+                                            Loloskan Screening
+                                        </x-ui.button>
+                                    </form>
+
+                                    <form method="POST" action="{{ route('applicants.status', $application) }}" data-confirm="Lamaran kandidat akan ditolak." data-confirm-title="Tolak lamaran?" data-confirm-tone="danger" data-confirm-label="Ya, tolak">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="hidden" name="decision" value="reject">
+                                        <x-ui.button type="submit" variant="danger" size="sm" icon="close">
+                                            Tolak
+                                        </x-ui.button>
+                                    </form>
+                                @endif
+
+                                <button
+                                    type="button"
+                                    @click="screeningModal = null"
+                                    class="inline-flex items-center rounded-xl border border-line bg-surface px-4 py-2 text-[12.5px] font-semibold text-muted transition hover:bg-surface-2 hover:text-ink"
+                                >
+                                    Tutup
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        @endforeach
 
             @if ($applications->hasPages())
                 <div class="border-t border-line px-5 py-4 sm:px-6">

@@ -408,6 +408,7 @@
                                     'company' => $opening->company?->name ?? 'Majesty Group',
                                     'department' => $opening->department?->name,
                                     'position' => $opening->position?->name,
+                                    'description' => $opening->description,
                                     'education' => $opening->min_education,
                                     'experience' => $opening->min_experience,
                                     'skills' => $opening->required_skills ?? [],

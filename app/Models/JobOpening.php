@@ -26,7 +26,7 @@ class JobOpening extends Model
             if (! preg_match('/\.\s*$/u', $line) && str_contains($line, ',')) {
                 $candidates = array_values(array_filter(array_map('trim', explode(',', $line)), fn ($part) => $part !== ''));
 
-                if (count($candidates) > 1 && array_filter($candidates, fn ($part) => str_word_count($part) > 4) === []) {
+                if (count($candidates) > 1 && array_filter($candidates, fn ($part) => count(preg_split('/\s+/u', $part, -1, PREG_SPLIT_NO_EMPTY) ?: []) > 8) === []) {
                     $parts = $candidates;
                 }
             }

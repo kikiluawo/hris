@@ -127,7 +127,7 @@ class QuestionNormalizer
     private static function listRules(): array
     {
         return [
-            'questions' => ['required', 'array', 'min:1', 'max:100'],
+            'questions' => ['required', 'array', 'min:1', 'max:300'],
             'questions.*.type' => ['required', Rule::in(array_keys(AssessmentQuestion::typeOptions()))],
             'questions.*.question' => ['required', 'string', 'max:2000'],
             'questions.*.dimension' => ['nullable', 'string', 'max:50'],

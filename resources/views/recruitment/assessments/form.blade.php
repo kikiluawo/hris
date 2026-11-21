@@ -11,6 +11,7 @@
         <form
             method="POST"
             action="{{ $assessment ? route('assessments.update', $assessment) : route('assessments.store') }}"
+            novalidate
             x-on:submit="if (!validate()) { $event.preventDefault(); }"
         >
             @csrf
@@ -61,9 +62,23 @@
                         </div>
 
                         <div class="flex items-center gap-1.5">
-                            <x-ui.button type="submit" icon="check">
-                                {{ $assessment ? 'Simpan Perubahan' : 'Simpan Tes' }}
-                            </x-ui.button>
+                            <button
+                                type="submit"
+                                :disabled="saving"
+                                class="inline-flex items-center justify-center gap-2 rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-brand-ink shadow-sm transition hover:bg-brand-hover focus:outline-none focus-visible:ring-4 focus-visible:ring-brand/20 disabled:pointer-events-none disabled:opacity-60"
+                            >
+                                <span x-show="!saving" class="flex items-center gap-2">
+                                    <x-icon name="check" class="size-4" />
+                                    <span>{{ $assessment ? 'Simpan Perubahan' : 'Simpan Tes' }}</span>
+                                </span>
+                                <span x-show="saving" x-cloak class="flex items-center gap-2">
+                                    <svg class="size-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                                    </svg>
+                                    <span>Menyimpan…</span>
+                                </span>
+                            </button>
                             <x-ui.button :href="$assessment ? route('assessments.show', $assessment) : route('assessments.index')" variant="secondary">
                                 Batal
                             </x-ui.button>
@@ -504,7 +519,8 @@
                                                     type="radio"
                                                     :name="'correct_' + currentQuestion._uid"
                                                     :value="optionIndex"
-                                                    x-model.number="currentQuestion.correct_option"
+                                                    :checked="currentQuestion.correct_option === optionIndex"
+                                                    @change="currentQuestion.correct_option = optionIndex"
                                                     class="size-4 shrink-0 accent-brand cursor-pointer"
                                                     title="Tandai sebagai kunci jawaban benar"
                                                 >

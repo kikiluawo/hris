@@ -186,6 +186,7 @@ window.assessmentForm = (config = {}) => ({
     bankDimension: '',
     bankChecked: {},
     bankNotice: '',
+    saving: false,
     errorMessage: '',
     imageBusy: '',
     imageError: '',
@@ -527,8 +528,86 @@ window.assessmentForm = (config = {}) => ({
         this.errorMessage = '';
         this.imageError = '';
 
+        const form = this.$el.closest('form') || document.querySelector('form');
+        const titleInput = form?.querySelector('[name="title"]');
+        const durationInput = form?.querySelector('[name="duration_minutes"]');
+        const scoreInput = form?.querySelector('[name="passing_score"]');
+
+        const title = (titleInput?.value || '').trim();
+        if (!title) {
+            this.formTab = 'settings';
+            this.errorMessage = 'Nama tes wajib diisi.';
+            if (window.Swal) {
+                window.Swal.fire({
+                    icon: 'warning',
+                    title: 'Pengaturan Tes Belum Lengkap',
+                    text: this.errorMessage,
+                    confirmButtonText: 'Lengkapi Pengaturan',
+                    confirmButtonColor: '#0c1e38',
+                });
+            }
+            titleInput?.focus();
+            return false;
+        }
+
+        const duration = Number(durationInput?.value);
+        if (!Number.isFinite(duration) || duration < 5 || duration > 240) {
+            this.formTab = 'settings';
+            this.errorMessage = 'Durasi tes harus antara 5 sampai 240 menit.';
+            if (window.Swal) {
+                window.Swal.fire({
+                    icon: 'warning',
+                    title: 'Pengaturan Tes Belum Lengkap',
+                    text: this.errorMessage,
+                    confirmButtonText: 'Perbaiki Durasi',
+                    confirmButtonColor: '#0c1e38',
+                });
+            }
+            durationInput?.focus();
+            return false;
+        }
+
+        const passingScore = Number(scoreInput?.value);
+        if (!Number.isFinite(passingScore) || passingScore < 0 || passingScore > 100) {
+            this.formTab = 'settings';
+            this.errorMessage = 'Passing score harus antara 0 sampai 100%.';
+            if (window.Swal) {
+                window.Swal.fire({
+                    icon: 'warning',
+                    title: 'Pengaturan Tes Belum Lengkap',
+                    text: this.errorMessage,
+                    confirmButtonText: 'Perbaiki Nilai',
+                    confirmButtonColor: '#0c1e38',
+                });
+            }
+            scoreInput?.focus();
+            return false;
+        }
+
         if (this.imageBusy) {
             this.errorMessage = 'Gambar masih diunggah. Tunggu sampai selesai sebelum menyimpan.';
+            if (window.Swal) {
+                window.Swal.fire({
+                    icon: 'info',
+                    title: 'Sedang Mengunggah Gambar',
+                    text: this.errorMessage,
+                    confirmButtonColor: '#0c1e38',
+                });
+            }
+            return false;
+        }
+
+        if (!Array.isArray(this.questions) || this.questions.length === 0) {
+            this.formTab = 'questions';
+            this.errorMessage = 'Tes harus memiliki minimal 1 butir soal.';
+            if (window.Swal) {
+                window.Swal.fire({
+                    icon: 'warning',
+                    title: 'Belum Ada Soal',
+                    text: this.errorMessage,
+                    confirmButtonColor: '#0c1e38',
+                });
+            }
             return false;
         }
 
@@ -537,12 +616,36 @@ window.assessmentForm = (config = {}) => ({
             const number = index + 1;
 
             if (!String(question.question).trim()) {
-                this.errorMessage = `Teks soal nomor ${number} masih kosong.`;
+                this.formTab = 'questions';
+                this.questionFilter = 'all';
+                this.activeQuestionIndex = index;
+                this.errorMessage = `Teks pertanyaan untuk soal nomor ${number} masih kosong.`;
+                if (window.Swal) {
+                    window.Swal.fire({
+                        icon: 'warning',
+                        title: `Soal Nomor ${number} Belum Lengkap`,
+                        text: this.errorMessage,
+                        confirmButtonText: 'Buka Soal ' + number,
+                        confirmButtonColor: '#0c1e38',
+                    });
+                }
                 return false;
             }
 
             if (question.type !== 'scale' && question.type !== 'disc' && (!Number.isFinite(Number(question.points)) || Number(question.points) < 1)) {
-                this.errorMessage = `Poin soal nomor ${number} minimal 1.`;
+                this.formTab = 'questions';
+                this.questionFilter = 'all';
+                this.activeQuestionIndex = index;
+                this.errorMessage = `Poin untuk soal nomor ${number} minimal 1.`;
+                if (window.Swal) {
+                    window.Swal.fire({
+                        icon: 'warning',
+                        title: `Poin Soal Nomor ${number}`,
+                        text: this.errorMessage,
+                        confirmButtonText: 'Perbaiki Poin',
+                        confirmButtonColor: '#0c1e38',
+                    });
+                }
                 return false;
             }
 
@@ -551,10 +654,21 @@ window.assessmentForm = (config = {}) => ({
             }
 
             const minOptions = question.type === 'disc' ? 4 : 2;
-            if (question.options.length < minOptions) {
+            if (!Array.isArray(question.options) || question.options.length < minOptions) {
+                this.formTab = 'questions';
+                this.activeQuestionIndex = index;
+                this.questionFilter = 'all';
                 this.errorMessage = question.type === 'disc'
                     ? `Soal nomor ${number} (DISC) harus memiliki 4 pilihan pernyataan.`
-                    : `Soal nomor ${number} butuh minimal dua pilihan.`;
+                    : `Soal nomor ${number} butuh minimal 2 pilihan.`;
+                if (window.Swal) {
+                    window.Swal.fire({
+                        icon: 'warning',
+                        title: `Pilihan Soal Nomor ${number}`,
+                        text: this.errorMessage,
+                        confirmButtonColor: '#0c1e38',
+                    });
+                }
                 return false;
             }
 
@@ -564,7 +678,19 @@ window.assessmentForm = (config = {}) => ({
                 .map((optionIndex) => String.fromCharCode(65 + optionIndex));
 
             if (blank.length > 0) {
-                this.errorMessage = `Pilihan ${blank.join(', ')} di soal nomor ${number} belum ada teks atau gambarnya.`;
+                this.formTab = 'questions';
+                this.activeQuestionIndex = index;
+                this.questionFilter = 'all';
+                this.errorMessage = `Pilihan ${blank.join(', ')} di soal nomor ${number} belum diisi teks atau gambarnya.`;
+                if (window.Swal) {
+                    window.Swal.fire({
+                        icon: 'warning',
+                        title: `Pilihan Belum Diisi (Nomor ${number})`,
+                        text: this.errorMessage,
+                        confirmButtonText: 'Lengkapi Pilihan',
+                        confirmButtonColor: '#0c1e38',
+                    });
+                }
                 return false;
             }
 
@@ -574,12 +700,34 @@ window.assessmentForm = (config = {}) => ({
 
             const correct = Number(question.correct_option);
 
-            if (question.correct_option === null || correct < 0 || correct >= question.options.length) {
-                this.errorMessage = `Tandai jawaban benar untuk soal nomor ${number}.`;
+            if (question.correct_option === null || !Number.isInteger(correct) || correct < 0 || correct >= question.options.length) {
+                this.formTab = 'questions';
+                this.activeQuestionIndex = index;
+                this.questionFilter = 'all';
+                this.errorMessage = `Tandai kunci jawaban benar untuk soal nomor ${number}.`;
+                if (window.Swal) {
+                    window.Swal.fire({
+                        icon: 'warning',
+                        title: `Kunci Jawaban Belum Ditandai (Nomor ${number})`,
+                        text: this.errorMessage,
+                        confirmButtonText: 'Pilih Kunci Jawaban',
+                        confirmButtonColor: '#0c1e38',
+                    });
+                }
                 return false;
             }
         }
 
+        const hiddenInput = form?.querySelector('input[name="questions_json"]');
+        if (hiddenInput) {
+            const cleanQuestions = this.questions.map((q) => {
+                const { _uid, _originalIndex, ...clean } = q;
+                return clean;
+            });
+            hiddenInput.value = JSON.stringify(cleanQuestions);
+        }
+
+        this.saving = true;
         return true;
     },
 });

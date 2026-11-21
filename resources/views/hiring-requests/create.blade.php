@@ -1,10 +1,9 @@
 <x-layouts.public title="Form Permintaan Karyawan">
     <x-slot:hero>
-        <section class="relative isolate overflow-hidden bg-[#06231b] text-white">
+        <section class="relative isolate overflow-hidden bg-[#0c1e38] text-white">
             <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(217,180,106,0.16),transparent_55%)]"></div>
-            <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(16,185,129,0.12),transparent_55%)]"></div>
+            <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(20,53,102,0.5),transparent_55%)]"></div>
             <div class="pattern-grid pointer-events-none absolute inset-0 opacity-25"></div>
-            <span class="pointer-events-none absolute -right-10 top-0 hidden select-none font-display text-[200px] leading-none text-white/[0.025] lg:block">Rekrutmen</span>
 
             <div class="relative mx-auto w-full max-w-[1160px] px-4 pb-12 pt-14 sm:px-6 sm:pb-16 sm:pt-18 lg:px-8">
                 <p class="flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.34em] text-gold">
@@ -40,7 +39,7 @@
 
     <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
         <div class="overflow-hidden rounded-[26px] border border-line bg-surface shadow-card">
-            <div class="relative overflow-hidden bg-[#06231b] px-6 py-5 text-white">
+            <div class="relative overflow-hidden bg-[#0c1e38] px-6 py-5 text-white">
                 <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(217,180,106,0.16),transparent_60%)]"></div>
                 <div class="relative">
                     <p class="text-[9.5px] font-semibold uppercase tracking-[0.3em] text-gold">Formulir permintaan</p>
@@ -60,7 +59,7 @@
                     </x-ui.alert>
                 @endif
 
-                <form method="POST" action="{{ route('hiring-requests.store', $token) }}" class="space-y-8" x-data="{ submitting: false }" @submit="submitting = true">
+                <form method="POST" action="{{ route('hiring-requests.store', $token) }}" class="space-y-8" x-data="{ submitting: false, requestType: '{{ old('request_type', 'baru') }}' }" @submit="submitting = true">
                     @csrf
 
                     <div class="sr-only" aria-hidden="true">
@@ -111,14 +110,87 @@
 
                     <section class="space-y-4">
                         <div>
-                            <p class="text-[10px] font-bold uppercase tracking-[0.22em] text-gold-strong">2. Kebutuhan posisi</p>
-                            <p class="mt-1 text-[12px] text-muted">Tulis jabatan dalam bahasa sehari-hari. HRD yang memetakan ke jabatan internal.</p>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.22em] text-gold-strong">2. Kebutuhan posisi &amp; jenis pengajuan</p>
+                            <p class="mt-1 text-[12px] text-muted">Tentukan apakah ini penambahan karyawan baru atau pergantian posisi yang sudah ada.</p>
                         </div>
 
                         <div>
-                            <x-ui.label for="title">Jabatan yang dibutuhkan <span class="text-rose-500">*</span></x-ui.label>
-                            <x-ui.input name="title" icon="briefcase" placeholder="Contoh: Service Advisor, Mekanik Mobil, Admin Warranty" />
-                            <x-ui.field-error name="title" />
+                            <x-ui.label>Jenis kebutuhan karyawan <span class="text-rose-500">*</span></x-ui.label>
+                            <div class="mt-2 grid gap-3 sm:grid-cols-2">
+                                <label
+                                    class="relative flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition"
+                                    :class="requestType === 'baru' ? 'border-brand bg-brand-soft/40 shadow-sm' : 'border-line bg-surface hover:border-brand/40'"
+                                >
+                                    <input
+                                        type="radio"
+                                        name="request_type"
+                                        value="baru"
+                                        x-model="requestType"
+                                        class="mt-0.5 size-4 text-brand focus:ring-brand"
+                                    />
+                                    <div>
+                                        <p class="text-[13.5px] font-semibold text-ink">Karyawan Baru</p>
+                                        <p class="mt-0.5 text-[12px] text-muted leading-relaxed">
+                                            Penambahan kuota / formasi baru untuk ekspansi atau beban kerja tambahan.
+                                        </p>
+                                    </div>
+                                </label>
+
+                                <label
+                                    class="relative flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition"
+                                    :class="requestType === 'pergantian' ? 'border-brand bg-brand-soft/40 shadow-sm' : 'border-line bg-surface hover:border-brand/40'"
+                                >
+                                    <input
+                                        type="radio"
+                                        name="request_type"
+                                        value="pergantian"
+                                        x-model="requestType"
+                                        class="mt-0.5 size-4 text-brand focus:ring-brand"
+                                    />
+                                    <div>
+                                        <p class="text-[13.5px] font-semibold text-ink">Pergantian Karyawan</p>
+                                        <p class="mt-0.5 text-[12px] text-muted leading-relaxed">
+                                            Menggantikan karyawan sebelumnya (resign, mutasi, promosi, dsb).
+                                        </p>
+                                    </div>
+                                </label>
+                            </div>
+                            <x-ui.field-error name="request_type" />
+                        </div>
+
+                        <div x-show="requestType === 'pergantian'" x-cloak x-transition class="space-y-4 rounded-2xl border border-amber-200/80 bg-amber-50/50 p-4.5 dark:border-amber-400/20 dark:bg-amber-400/5">
+                            <div class="flex items-center gap-2 text-amber-800 dark:text-amber-300">
+                                <x-icon name="user" class="size-4" />
+                                <span class="text-[12.5px] font-semibold">Data karyawan yang digantikan</span>
+                            </div>
+
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <div class="sm:col-span-2">
+                                    <x-ui.label for="replaced_employee_name">Nama karyawan yang digantikan <span class="text-rose-500">*</span></x-ui.label>
+                                    <x-ui.input name="replaced_employee_name" :value="old('replaced_employee_name')" placeholder="Nama lengkap karyawan yang digantikan" />
+                                    <x-ui.field-error name="replaced_employee_name" />
+                                </div>
+
+                                <div class="sm:col-span-2">
+                                    <x-ui.label for="replacement_reason">Alasan pergantian <span class="text-rose-500">*</span></x-ui.label>
+                                    <x-ui.textarea name="replacement_reason" :rows="3" placeholder="Sertakan alasan pergantian (contoh: Mengundurkan diri terhitung akhir bulan ini, mutasi ke cabang lain, dll.)">{{ old('replacement_reason') }}</x-ui.textarea>
+                                    <x-ui.field-error name="replacement_reason" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid gap-4 sm:grid-cols-3">
+                            <div class="sm:col-span-2">
+                                <x-ui.label for="title">Jabatan yang dibutuhkan <span class="text-rose-500">*</span></x-ui.label>
+                                <x-ui.input name="title" icon="briefcase" placeholder="Contoh: Service Advisor, Mekanik Mobil, Admin Warranty" />
+                                <x-ui.field-error name="title" />
+                            </div>
+
+                            <div>
+                                <x-ui.label for="job_type">Tipe pekerjaan <span class="text-rose-500">*</span></x-ui.label>
+                                <x-ui.select name="job_type" :options="$jobTypes" :selected="old('job_type', \App\Models\JobOpening::TYPE_FULL_TIME)" />
+                                <x-ui.field-error name="job_type" />
+                            </div>
                         </div>
 
                         <div class="grid gap-4 sm:grid-cols-2">
@@ -203,7 +275,7 @@
         </div>
 
         <aside class="space-y-4 lg:sticky lg:top-24">
-            <div class="rounded-[26px] border border-gold/20 bg-[#06231b] p-6 text-white">
+            <div class="rounded-[26px] border border-gold/20 bg-[#0c1e38] p-6 text-white">
                 <p class="text-[9.5px] font-semibold uppercase tracking-[0.3em] text-gold">Setelah dikirim</p>
                 <h2 class="mt-2 font-display text-[22px] font-medium leading-snug">Alur permintaan</h2>
 

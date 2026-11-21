@@ -50,7 +50,7 @@
                     companyId: @js($initialCompany),
                     departmentId: @js($initialDepartment),
                     positionId: @js($initialPosition),
-                    review: { title: '', company: '—', department: '—', position: '—', skills: [], education: '—', experience: '—', threshold: '70' },
+                    review: { title: '', job_type: 'Full Time', company: '—', department: '—', position: '—', skills: [], education: '—', experience: '—', threshold: '70' },
                     init() {
                         if (this.step === 3) this.$nextTick(() => this.buildReview());
                         this.$nextTick(() => this.refreshSelects());
@@ -123,6 +123,7 @@
                         const experience = this.field('min_experience');
                         this.review = {
                             title: this.field('title') || 'Belum diisi',
+                            job_type: this.field('job_type') || 'Full Time',
                             company: this.company ? this.company.name : '—',
                             department: this.department ? this.department.name : '—',
                             position: this.position ? this.position.name : '—',
@@ -156,10 +157,21 @@
 
                 <div x-ref="panel1" x-show="step === 1" class="space-y-4">
                     <div class="grid gap-4 md:grid-cols-3 sm:grid-cols-1">
-                        <div class="md:col-span-3">
+                        <div class="md:col-span-2">
                             <x-ui.label for="title">Judul lowongan</x-ui.label>
                             <x-ui.input name="title" :value="$editing?->title" data-required placeholder="Accounting Staff" />
                             <x-ui.field-error name="title" />
+                        </div>
+
+                        <div>
+                            <x-ui.label for="job_type">Tipe pekerjaan</x-ui.label>
+                            <x-ui.select
+                                name="job_type"
+                                id="job_type"
+                                :options="$jobTypes"
+                                :selected="old('job_type', $editing?->job_type ?? \App\Models\JobOpening::TYPE_FULL_TIME)"
+                            />
+                            <x-ui.field-error name="job_type" />
                         </div>
 
                         <div>
@@ -301,7 +313,10 @@
                 <div x-ref="panel3" x-show="step === 3" x-cloak class="space-y-4">
                     <div class="rounded-2xl border border-line bg-surface-2/40 p-5">
                         <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-subtle">Ringkasan lowongan</p>
-                        <p class="mt-2 text-[17px] font-semibold leading-snug" x-text="review.title"></p>
+                        <div class="mt-2 flex flex-wrap items-center gap-2.5">
+                            <p class="text-[17px] font-semibold leading-snug" x-text="review.title"></p>
+                            <span class="inline-flex items-center rounded-md bg-brand/10 px-2 py-0.5 text-[11px] font-semibold text-brand" x-text="review.job_type"></span>
+                        </div>
                         <p class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12.5px] text-muted">
                             <span x-text="review.company"></span>
                             <span class="text-subtle">·</span>
@@ -388,6 +403,7 @@
                             @php
                                 $poster = [
                                     'title' => $opening->title,
+                                    'jobType' => $opening->job_type ?? 'Full Time',
                                     'slug' => $opening->slug,
                                     'company' => $opening->company?->name ?? 'Majesty Group',
                                     'department' => $opening->department?->name,
@@ -402,7 +418,12 @@
                             @endphp
                             <tr class="border-t border-line/80 transition hover:bg-surface-2/40">
                                 <td class="px-5 py-3.5">
-                                    <p class="text-[13.5px] font-semibold">{{ $opening->title }}</p>
+                                    <div class="flex items-center gap-2">
+                                        <p class="text-[13.5px] font-semibold">{{ $opening->title }}</p>
+                                        <span class="inline-flex items-center rounded-md px-1.5 py-0.5 text-[10.5px] font-semibold {{ $opening->job_type === 'Internship' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : ($opening->job_type === 'Part Time' ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400' : 'bg-brand/10 text-brand') }}">
+                                            {{ $opening->job_type ?? 'Full Time' }}
+                                        </span>
+                                    </div>
                                     <p class="mt-0.5 text-[11px] text-subtle">/karir/{{ $opening->slug }}</p>
                                 </td>
                                 <td class="px-3 py-3.5 text-[12.5px] text-muted">{{ $opening->company?->name ?? '—' }}</td>

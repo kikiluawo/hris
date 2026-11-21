@@ -7,7 +7,16 @@
         </x-ui.alert>
     @endif
 
-    @if ($newHiringRequests > 0)
+    @if (($pendingApprovalsForMe ?? 0) > 0)
+        <x-ui.alert variant="warning" class="mb-5">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+                <span>Halo <strong>{{ auth()->user()->name }}</strong>, terdapat <strong>{{ $pendingApprovalsForMe }} permintaan karyawan</strong> yang membutuhkan persetujuan Anda sebagai {{ auth()->user()->roleLabel() }}.</span>
+                <a href="{{ route('hiring-requests.index', ['my_approval' => 1]) }}" class="font-bold underline underline-offset-2">Tinjau &amp; Setujui Sekarang &rarr;</a>
+            </div>
+        </x-ui.alert>
+    @endif
+
+    @if ($newHiringRequests > 0 && auth()->user()->isPureHrd())
         <x-ui.alert variant="warning" class="mb-5">
             <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
                 <span><strong>{{ $newHiringRequests }} permintaan karyawan baru</strong> masuk dari form publik dan belum ditinjau.</span>
@@ -95,32 +104,34 @@
                 $gridValues = collect(range(0, 3))->map(fn ($step) => $minY + ($rangeY / 3) * $step);
             @endphp
 
-            <div class="px-2 pb-1 pt-2">
-                <svg viewBox="0 0 {{ $width }} {{ $height }}" class="w-full" role="img" aria-label="Grafik tren kehadiran 12 minggu terakhir">
-                    <defs>
-                        <linearGradient id="attendanceFill" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stop-color="var(--c-brand)" stop-opacity="0.18" />
-                            <stop offset="100%" stop-color="var(--c-brand)" stop-opacity="0" />
-                        </linearGradient>
-                    </defs>
+            <div class="overflow-x-auto">
+                <div class="min-w-[500px] sm:min-w-0 px-2 pb-1 pt-2">
+                    <svg viewBox="0 0 {{ $width }} {{ $height }}" class="w-full" role="img" aria-label="Grafik tren kehadiran 12 minggu terakhir">
+                        <defs>
+                            <linearGradient id="attendanceFill" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="var(--c-brand)" stop-opacity="0.18" />
+                                <stop offset="100%" stop-color="var(--c-brand)" stop-opacity="0" />
+                            </linearGradient>
+                        </defs>
 
-                    @foreach ($gridValues as $value)
-                        @php $gridY = $padTop + $chartHeight - (($value - $minY) / $rangeY) * $chartHeight; @endphp
-                        <line x1="{{ $padLeft }}" x2="{{ $width - $padRight }}" y1="{{ $gridY }}" y2="{{ $gridY }}" stroke="var(--c-line)" stroke-width="1" stroke-dasharray="4 6" />
-                        <text x="{{ $padLeft - 8 }}" y="{{ $gridY + 3 }}" text-anchor="end" font-size="9.5" fill="var(--c-subtle)">{{ number_format($value, 0) }}%</text>
-                    @endforeach
+                        @foreach ($gridValues as $value)
+                            @php $gridY = $padTop + $chartHeight - (($value - $minY) / $rangeY) * $chartHeight; @endphp
+                            <line x1="{{ $padLeft }}" x2="{{ $width - $padRight }}" y1="{{ $gridY }}" y2="{{ $gridY }}" stroke="var(--c-line)" stroke-width="1" stroke-dasharray="4 6" />
+                            <text x="{{ $padLeft - 8 }}" y="{{ $gridY + 3 }}" text-anchor="end" font-size="9.5" fill="var(--c-subtle)">{{ number_format($value, 0) }}%</text>
+                        @endforeach
 
-                    <polygon points="{{ $area }}" fill="url(#attendanceFill)" />
-                    <polyline points="{{ $polyline }}" fill="none" stroke="var(--c-brand)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                        <polygon points="{{ $area }}" fill="url(#attendanceFill)" />
+                        <polyline points="{{ $polyline }}" fill="none" stroke="var(--c-brand)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
 
-                    <circle cx="{{ $points[$count - 1][0] }}" cy="{{ $points[$count - 1][1] }}" r="4" fill="var(--c-brand)" stroke="var(--c-surface)" stroke-width="2" />
+                        <circle cx="{{ $points[$count - 1][0] }}" cy="{{ $points[$count - 1][1] }}" r="4" fill="var(--c-brand)" stroke="var(--c-surface)" stroke-width="2" />
 
-                    @foreach ($attendanceLabels as $index => $label)
-                        @if ($index % 3 === 0 || $index === $count - 1)
-                            <text x="{{ $points[$index][0] }}" y="{{ $height - 10 }}" text-anchor="middle" font-size="9.5" fill="var(--c-subtle)">{{ $label }}</text>
-                        @endif
-                    @endforeach
-                </svg>
+                        @foreach ($attendanceLabels as $index => $label)
+                            @if ($index % 3 === 0 || $index === $count - 1)
+                                <text x="{{ $points[$index][0] }}" y="{{ $height - 10 }}" text-anchor="middle" font-size="9.5" fill="var(--c-subtle)">{{ $label }}</text>
+                            @endif
+                        @endforeach
+                    </svg>
+                </div>
             </div>
         </x-ui.card>
 

@@ -131,6 +131,7 @@ Route::middleware(['auth', 'hrd'])->prefix('admin-hrd')->group(function () {
     Route::get('rekrutmen/permintaan/{hiringRequest}', [HiringRequestAdminController::class, 'show'])->name('hiring-requests.show');
     Route::patch('rekrutmen/permintaan/{hiringRequest}', [HiringRequestAdminController::class, 'update'])->name('hiring-requests.update');
     Route::patch('rekrutmen/permintaan/{hiringRequest}/terbitkan', [HiringRequestAdminController::class, 'publish'])->name('hiring-requests.publish');
+    Route::patch('rekrutmen/permintaan/{hiringRequest}/setujui', [HiringRequestAdminController::class, 'approve'])->name('hiring-requests.approve');
     Route::patch('rekrutmen/permintaan/{hiringRequest}/tolak', [HiringRequestAdminController::class, 'reject'])->name('hiring-requests.reject');
 
     Route::get('rekrutmen/pelamar', [ApplicantController::class, 'index'])->name('applicants.index');

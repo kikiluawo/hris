@@ -108,13 +108,41 @@
     </x-ui.card>
 
     @php
-        $statusTones = ['baru' => 'info', 'direview' => 'warning', 'terbit' => 'success', 'ditolak' => 'danger'];
+        $statusTones = [
+            'baru' => 'info',
+            'direview' => 'warning',
+            'menunggu_approval' => 'warning',
+            'terbit' => 'success',
+            'ditolak' => 'danger',
+        ];
     @endphp
 
+    @if (($pendingMyApproval ?? 0) > 0)
+        <div class="mb-4 rounded-2xl border border-gold/40 bg-gold/10 p-4 text-[13px] text-ink">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <span class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-gold text-[#1d150a]">
+                        <x-icon name="bell" class="size-4.5" />
+                    </span>
+                    <div>
+                        <p class="font-bold">Perhatian: {{ $pendingMyApproval }} permintaan karyawan menunggu approval Anda</p>
+                        <p class="text-[12px] text-muted">Silakan tinjau dan berikan persetujuan untuk menerbitkan lowongan.</p>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <x-ui.button :href="route('hiring-requests.index', ['my_approval' => 1])" variant="gold" size="sm" icon="filter">
+                        Tampilkan yang butuh approval saya
+                    </x-ui.button>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <div class="space-y-4">
-        <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <x-ui.stat-card label="Baru" :value="$counts['baru'] ?? 0" icon="bell" footnote="Belum ditinjau" />
+        <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+            <x-ui.stat-card label="Baru" :value="$counts['baru'] ?? 0" icon="bell" footnote="Belum ditinjau HRD" />
             <x-ui.stat-card label="Ditinjau" :value="$counts['direview'] ?? 0" icon="pencil" footnote="Sedang dilengkapi" />
+            <x-ui.stat-card label="Menunggu Approval" :value="$counts['menunggu_approval'] ?? 0" icon="clock" footnote="CEO / CFO" />
             <x-ui.stat-card label="Terbit" :value="$counts['terbit'] ?? 0" icon="check-circle" footnote="Sudah tampil di karir" />
             <x-ui.stat-card label="Ditolak" :value="$counts['ditolak'] ?? 0" icon="x-circle" footnote="Tidak diproses" />
         </div>
@@ -177,6 +205,19 @@
                                     <p class="text-[11px] font-bold uppercase tracking-[0.08em] text-subtle">{{ $hiringRequest->reference() }}</p>
                                     <p class="mt-1 text-[13.5px] font-semibold">{{ $hiringRequest->title }}</p>
                                     <p class="mt-0.5 text-[11.5px] text-subtle">{{ $hiringRequest->headcount }} orang</p>
+                                    @if ($hiringRequest->isReplacement())
+                                        <div class="mt-1">
+                                            <span class="inline-flex items-center gap-1 rounded-md bg-amber-500/10 px-2 py-0.5 text-[11px] font-semibold text-amber-700 dark:text-amber-300">
+                                                Pergantian: {{ $hiringRequest->replaced_employee_name ?: 'Karyawan' }}
+                                            </span>
+                                        </div>
+                                    @else
+                                        <div class="mt-1">
+                                            <span class="inline-flex items-center gap-1 rounded-md bg-blue-500/10 px-2 py-0.5 text-[11px] font-semibold text-blue-700 dark:text-blue-300">
+                                                Karyawan Baru
+                                            </span>
+                                        </div>
+                                    @endif
                                 </td>
                                 <td class="px-3 py-3.5">
                                     <p class="text-[13px] font-medium">{{ $hiringRequest->requester_name }}</p>
@@ -196,7 +237,11 @@
                                     {{ $summary !== '' ? $summary : '—' }}
                                 </td>
                                 <td class="px-2 py-3.5">
-                                    <x-ui.badge :variant="$statusTones[$hiringRequest->status] ?? 'neutral'">{{ $statuses[$hiringRequest->status] ?? ucfirst($hiringRequest->status) }}</x-ui.badge>
+                                    @if ($hiringRequest->status === 'menunggu_approval')
+                                        <x-ui.badge variant="warning">{{ $hiringRequest->approvalSummary() }}</x-ui.badge>
+                                    @else
+                                        <x-ui.badge :variant="$statusTones[$hiringRequest->status] ?? 'neutral'">{{ $statuses[$hiringRequest->status] ?? ucfirst($hiringRequest->status) }}</x-ui.badge>
+                                    @endif
                                 </td>
                                 <td class="whitespace-nowrap px-3 py-3.5 text-[12.5px] text-muted">
                                     {{ $hiringRequest->created_at->translatedFormat('d M Y') }}

@@ -11,9 +11,9 @@
 
 <x-layouts.public :title="$opening->title" :description="$shareDescription">
     <x-slot:hero>
-        <section class="relative isolate overflow-hidden bg-[#06231b] text-white">
+        <section class="relative isolate overflow-hidden bg-[#0c1e38] text-white">
             <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(217,180,106,0.14),transparent_55%)]"></div>
-            <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(16,185,129,0.12),transparent_55%)]"></div>
+            <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(20,53,102,0.5),transparent_55%)]"></div>
             <div class="pattern-grid pointer-events-none absolute inset-0 opacity-20"></div>
 
             <div class="relative mx-auto w-full max-w-[1160px] px-4 pb-12 pt-8 sm:px-6 sm:pb-14 sm:pt-10 lg:px-8">
@@ -28,6 +28,9 @@
                             <span class="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-gold">
                                 {{ $opening->department?->name ?? 'Lowongan' }}
                             </span>
+                            <span class="inline-flex items-center rounded-full border border-gold/40 bg-gold/20 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-gold">
+                                {{ $opening->job_type ?? 'Full Time' }}
+                            </span>
                             <span class="inline-flex items-center gap-2 rounded-full border border-white/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/60">
                                 <span class="size-1.5 rounded-full {{ $opening->is_open ? 'bg-emerald-300' : 'bg-white/40' }}"></span>
                                 {{ $opening->is_open ? 'Dibuka' : 'Ditutup' }}
@@ -39,6 +42,11 @@
                         </h1>
 
                         <div class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12.5px] text-white/60">
+                            <span class="inline-flex items-center gap-2">
+                                <x-icon name="map-pin" class="size-4 text-gold/70" />
+                                {{ $opening->location ?? 'Batam' }}
+                            </span>
+
                             @if ($opening->company)
                                 <span class="inline-flex items-center gap-2">
                                     <x-icon name="building" class="size-4 text-gold/70" />
@@ -62,20 +70,24 @@
                     </div>
                 </div>
 
-                <dl class="mt-10 grid grid-cols-2 gap-5 border-t border-white/10 pt-6 sm:grid-cols-4">
+                <dl class="mt-10 grid grid-cols-2 gap-5 border-t border-white/10 pt-6 sm:grid-cols-5">
                     <div>
+                        <dt class="text-[10px] uppercase tracking-[0.18em] text-white/40">Tipe Pekerjaan</dt>
+                        <dd class="mt-1.5 font-display text-[20px] leading-none">{{ $opening->job_type ?? 'Full Time' }}</dd>
+                    </div>
+                    <div class="sm:border-l sm:border-white/10 sm:pl-5">
                         <dt class="text-[10px] uppercase tracking-[0.18em] text-white/40">Pendidikan</dt>
                         <dd class="mt-1.5 font-display text-[20px] leading-none">{{ $opening->min_education ?? 'Terbuka' }}</dd>
                     </div>
-                    <div class="sm:border-l sm:border-white/10 sm:pl-5">
+                    <div class="border-t border-white/10 pt-4 sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0">
                         <dt class="text-[10px] uppercase tracking-[0.18em] text-white/40">Pengalaman</dt>
                         <dd class="mt-1.5 font-display text-[20px] leading-none">{{ $opening->min_experience === null ? 'Terbuka' : ($opening->min_experience === 0 ? 'Tanpa syarat' : $opening->min_experience . ' tahun') }}</dd>
                     </div>
-                    <div class="border-white/10 pt-4 sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0">
+                    <div class="border-l border-white/10 pl-5 pt-4 sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0">
                         <dt class="text-[10px] uppercase tracking-[0.18em] text-white/40">Keahlian</dt>
                         <dd class="mt-1.5 font-display text-[20px] leading-none">{{ $opening->required_skills ? count($opening->required_skills) . ' bidang' : 'Terbuka' }}</dd>
                     </div>
-                    <div class="border-l border-white/10 pl-5 pt-4 sm:pt-0">
+                    <div class="col-span-2 border-t border-white/10 pt-4 sm:col-span-1 sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0">
                         <dt class="text-[10px] uppercase tracking-[0.18em] text-white/40">Dibuka</dt>
                         <dd class="mt-1.5 font-display text-[20px] leading-none">{{ $opening->created_at->translatedFormat('d M Y') }}</dd>
                     </div>
@@ -141,7 +153,7 @@
                 </div>
             @endif
 
-            <div class="rounded-2xl sm:rounded-[26px] border border-gold/20 bg-[#06231b] p-5 sm:p-8 text-white">
+            <div class="rounded-2xl sm:rounded-[26px] border border-gold/20 bg-[#0c1e38] p-5 sm:p-8 text-white">
                 <div class="flex flex-wrap items-center justify-between gap-4">
                     <div>
                         <p class="text-[10px] font-semibold uppercase tracking-[0.3em] text-gold">Seleksi transparan</p>
@@ -160,7 +172,7 @@
         <aside id="lamar" class="scroll-mt-24 lg:sticky lg:top-24">
             @if ($opening->is_open)
                 <div class="overflow-hidden rounded-2xl sm:rounded-[26px] border border-line bg-surface shadow-card">
-                    <div class="relative overflow-hidden bg-[#06231b] px-5 sm:px-6 py-5 text-white">
+                    <div class="relative overflow-hidden bg-[#0c1e38] px-5 sm:px-6 py-5 text-white">
                         <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(217,180,106,0.18),transparent_60%)]"></div>
                         <div class="relative">
                             <p class="text-[9.5px] font-semibold uppercase tracking-[0.3em] text-gold">Formulir lamaran</p>
@@ -254,7 +266,7 @@
                 </div>
             @else
                 <div class="overflow-hidden rounded-[26px] border border-line bg-surface shadow-card">
-                    <div class="bg-[#06231b] px-6 py-5 text-white">
+                    <div class="bg-[#0c1e38] px-6 py-5 text-white">
                         <p class="text-[9.5px] font-semibold uppercase tracking-[0.3em] text-gold">Status lowongan</p>
                         <h2 class="mt-1.5 font-display text-[24px] font-medium">Lowongan ditutup</h2>
                     </div>
@@ -324,13 +336,13 @@
                                 </p>
                             </div>
                         `,
-                        background: '#fffdfa',
+                        background: '#ffffff',
                         allowOutsideClick: false,
                         allowEscapeKey: false,
                         showCancelButton: true,
                         confirmButtonText: 'Jelajahi Lowongan Lain',
                         cancelButtonText: 'Tutup',
-                        confirmButtonColor: '#06231b',
+                        confirmButtonColor: '#143566',
                         cancelButtonColor: '#78716c',
                         customClass: {
                             popup: 'swal2-modern-popup',

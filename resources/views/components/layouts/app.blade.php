@@ -24,14 +24,18 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-full">
-    <div x-data="{ sidebarOpen: false }" @keydown.escape.window="sidebarOpen = false" class="min-h-screen">
+<body class="min-h-full overflow-x-clip text-ink">
+    <div
+        x-data="{ get sidebarOpen() { return $store.sidebar.open; }, set sidebarOpen(v) { $store.sidebar.open = v; } }"
+        @keydown.escape.window="$store.sidebar.close()"
+        class="min-h-screen overflow-x-clip"
+    >
         <x-layouts.sidebar />
 
         <div class="flex min-h-screen flex-col lg:pl-[264px]">
             <x-layouts.topbar />
 
-            <main class="flex-1 px-4 pb-10 pt-6 sm:px-7 lg:px-10 lg:pt-8">
+            <main class="flex-1 px-4 pb-10 pt-5 sm:px-7 lg:px-10 lg:pt-8">
                 <div class="mx-auto w-full max-w-[1180px] animate-rise">
                     {{ $slot }}
                 </div>
@@ -44,11 +48,17 @@
         </div>
 
         <div
-            x-show="sidebarOpen"
+            x-show="$store.sidebar.open"
             x-cloak
-            x-transition.opacity.duration.200ms
-            @click="sidebarOpen = false"
-            class="fixed inset-0 z-30 bg-black/40 backdrop-blur-[2px] lg:hidden"
+            x-transition:enter="transition-opacity ease-out duration-250"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition-opacity ease-in duration-200"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            @click="$store.sidebar.close()"
+            class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
+            aria-hidden="true"
         ></div>
 
         <x-ui.confirm-modal />

@@ -12,13 +12,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Lolos Screening</title>
 </head>
-<body style="margin:0;padding:0;background-color:#f4f5f3;font-family:Arial,Helvetica,sans-serif;color:#1f2937;">
+<body style="margin:0;padding:0;background-color:#f4f5f3;font-family:'Inter',Arial,Helvetica,sans-serif;color:#1f2937;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f5f3;padding:32px 16px;">
         <tr>
             <td align="center">
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background-color:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e5e7eb;">
                     <tr>
-                        <td style="background-color:#06231b;padding:28px 32px;">
+                        <td style="background-color:#0c1e38;padding:28px 32px;">
                             <p style="margin:0;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#d4af37;">Rekrutmen</p>
                             <p style="margin:8px 0 0;font-size:20px;font-weight:bold;color:#ffffff;">Majesty Talent Portal</p>
                         </td>

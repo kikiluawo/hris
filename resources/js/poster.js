@@ -3,8 +3,8 @@ const H = 1350;
 const M = 76;
 
 const GOLD = '#d9b46a';
-const SANS = '"Plus Jakarta Sans Variable", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif';
-const SERIF = '"Fraunces Variable", Fraunces, Georgia, "Times New Roman", serif';
+const SANS = '"Inter Variable", "Inter", ui-sans-serif, system-ui, sans-serif';
+const SERIF = '"Inter Variable", "Inter", ui-sans-serif, system-ui, sans-serif';
 
 let fontsPromise = null;
 
@@ -135,7 +135,7 @@ const drawDiamond = (ctx, cx, cy, radius) => {
 };
 
 const paintBackground = (ctx) => {
-    ctx.fillStyle = '#06231b';
+    ctx.fillStyle = '#0c1e38';
     ctx.fillRect(0, 0, W, H);
 
     let glow = ctx.createRadialGradient(90, 0, 0, 90, 0, 980);
@@ -145,8 +145,8 @@ const paintBackground = (ctx) => {
     ctx.fillRect(0, 0, W, H);
 
     glow = ctx.createRadialGradient(W, H, 0, W, H, 900);
-    glow.addColorStop(0, 'rgba(16, 185, 129, 0.15)');
-    glow.addColorStop(1, 'rgba(16, 185, 129, 0)');
+    glow.addColorStop(0, 'rgba(20, 53, 102, 0.35)');
+    glow.addColorStop(1, 'rgba(20, 53, 102, 0)');
     ctx.fillStyle = glow;
     ctx.fillRect(0, 0, W, H);
 

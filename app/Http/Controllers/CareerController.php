@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Application;
 use App\Models\Candidate;
+use App\Models\Company;
+use App\Models\Department;
 use App\Models\JobOpening;
 use App\Services\CvScreener;
 use App\Services\FileSecurityValidator;
@@ -22,22 +24,92 @@ class CareerController extends Controller
     public function index(Request $request): View
     {
         $search = $request->string('q')->trim()->toString();
+        $location = $request->string('location')->trim()->toString();
+        $companyId = $request->integer('company_id') ?: null;
+        $department = $request->string('department')->trim()->toString();
+        if ($department === '' && $request->filled('department_id')) {
+            $deptModel = Department::find($request->input('department_id'));
+            $department = $deptModel?->name ?? '';
+        }
+        $type = $request->string('type')->trim()->toString();
+        $selectedType = in_array($type, JobOpening::JOB_TYPES, true) ? $type : null;
+
+        $hasActiveFilters = $search !== ''
+            || $location !== ''
+            || $companyId !== null
+            || $department !== ''
+            || $selectedType !== null;
+
+        $openings = JobOpening::with(['company', 'department', 'position'])
+            ->where('is_open', true)
+            ->when($selectedType !== null, fn ($query) => $query->where('job_type', $selectedType))
+            ->when($companyId !== null, fn ($query) => $query->where('company_id', $companyId))
+            ->when($department !== '', function ($query) use ($department) {
+                $query->where(function ($query) use ($department) {
+                    $query->whereHas('department', fn ($d) => $d->where('name', $department))
+                        ->orWhereHas('position.department', fn ($d) => $d->where('name', $department));
+
+                    $keywords = $this->departmentKeywords($department);
+                    foreach ($keywords as $keyword) {
+                        $term = '%' . $keyword . '%';
+                        $query->orWhere('title', 'like', $term)
+                            ->orWhere('description', 'like', $term)
+                            ->orWhere('required_skills', 'like', $term);
+                    }
+                });
+            })
+            ->when($location !== '', function ($query) use ($location) {
+                $query->where(function ($query) use ($location) {
+                    $query->where('location', $location)
+                        ->orWhereHas('company.branches', fn ($branch) => $branch->where('city', $location));
+                });
+            })
+            ->when($search !== '', function ($query) use ($search) {
+                $term = '%' . $search . '%';
+
+                $query->where(function ($query) use ($term) {
+                    $query->where('title', 'like', $term)
+                        ->orWhere('description', 'like', $term)
+                        ->orWhereHas('position', fn ($position) => $position->where('name', 'like', $term))
+                        ->orWhereHas('company', fn ($company) => $company->where('name', 'like', $term))
+                        ->orWhereHas('department', fn ($department) => $department->where('name', 'like', $term));
+                });
+            })
+            ->latest()
+            ->get();
+
+        $companies = Company::where('is_active', true)
+            ->whereHas('jobOpenings', fn ($query) => $query->where('is_open', true))
+            ->orderBy('name')
+            ->pluck('name', 'id');
+
+        if ($companies->isEmpty()) {
+            $companies = Company::where('is_active', true)->orderBy('name')->pluck('name', 'id');
+        }
+
+        $departments = Department::whereNotNull('name')
+            ->where('name', '!=', '')
+            ->distinct()
+            ->orderBy('name')
+            ->pluck('name')
+            ->values()
+            ->all();
+
+        $locations = ['Batam', 'Tanjung Pinang', 'Medan', 'Jakarta', 'Bintan', 'Karimun'];
 
         return view('career.index', [
-            'openings' => JobOpening::with(['company', 'department', 'position'])
-                ->where('is_open', true)
-                ->when($search !== '', function ($query) use ($search) {
-                    $term = '%' . $search . '%';
-
-                    $query->where(function ($query) use ($term) {
-                        $query->where('title', 'like', $term)
-                            ->orWhereHas('company', fn ($company) => $company->where('name', 'like', $term))
-                            ->orWhereHas('department', fn ($department) => $department->where('name', 'like', $term));
-                    });
-                })
-                ->latest()
-                ->get(),
+            'openings' => $openings,
             'search' => $search,
+            'selectedLocation' => $location,
+            'selectedCompanyId' => $companyId,
+            'selectedDepartment' => $department,
+            'selectedDepartmentId' => $request->input('department_id'),
+            'selectedType' => $selectedType,
+            'hasActiveFilters' => $hasActiveFilters,
+            'companies' => $companies,
+            'departments' => $departments,
+            'locations' => $locations,
+            'jobTypes' => JobOpening::JOB_TYPES,
             'totalOpenings' => JobOpening::where('is_open', true)->count(),
         ]);
     }
@@ -232,5 +304,40 @@ class CareerController extends Controller
             'opening' => $opening,
             'candidateName' => session('applied_name'),
         ]);
+    }
+
+    private function departmentKeywords(string $department): array
+    {
+        $map = [
+            'Accounting' => ['accounting', 'akuntansi', 'keuangan', 'finance', 'pajak', 'tax'],
+            'Accounting & Finance' => ['accounting', 'akuntansi', 'keuangan', 'finance', 'pajak', 'tax'],
+            'Aftersales & Workshop' => ['aftersales', 'workshop', 'bengkel', 'service', 'advisor', 'warranty'],
+            'Collection' => ['collection', 'penagihan', 'kolektor'],
+            'Detailing & Coating' => ['detailing', 'coating', 'car grooming', 'grooming', 'salon mobil'],
+            'Fleet & Maritime' => ['fleet', 'maritime', 'trailer', 'driver', 'sopir', 'kernet', 'kapal'],
+            'General Affairs' => ['general affair', 'ga', 'office boy', 'kebersihan', 'fasilitas'],
+            'General Affairs & Admin' => ['general affair', 'ga', 'admin', 'administrasi', 'office boy'],
+            'HRD' => ['hrd', 'hr', 'human resource', 'recruitment', 'rekrutmen', 'personalia', 'talent'],
+            'Internal Audit' => ['audit', 'auditor', 'internal audit'],
+            'IT' => ['it', 'software', 'developer', 'programmer', 'network', 'jaringan', 'hardware'],
+            'Legal' => ['legal', 'hukum', 'perizinan', 'kontrak'],
+            'Management' => ['management', 'manager', 'personal assistant', 'estate management'],
+            'Operations' => ['operations', 'operasional', 'spbu', 'operator', 'terminal', 'hse', 'pengawas'],
+            'Operations & Logistics' => ['operations', 'operasional', 'logistics', 'logistik', 'jnt', 'pengiriman', 'gudang'],
+            'Production' => ['production', 'produksi', 'pabrik', 'operator produksi'],
+            'Project & Maintenance' => ['project', 'proyek', 'maintenance', 'pengawas lapangan', 'pemeliharaan'],
+            'Sales & Marketing' => ['sales', 'marketing', 'penjualan', 'pemasaran', 'trainer'],
+            'Sparepart & Procurement' => ['sparepart', 'partman', 'procurement', 'pengadaan', 'store', 'gudang'],
+            'Workshop & Maintenance' => ['workshop', 'bengkel', 'mekanik', 'foreman', 'maintenance', 'teknisi'],
+        ];
+
+        $keywords = $map[$department] ?? [];
+
+        $words = array_filter(preg_split('/\s+(&|\/|\+)?\s+/u', $department) ?: [], fn ($w) => mb_strlen($w) > 2);
+        foreach ($words as $w) {
+            $keywords[] = mb_strtolower($w);
+        }
+
+        return array_values(array_unique($keywords));
     }
 }

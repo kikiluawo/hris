@@ -24,13 +24,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Interview Invitation - {{ $company }}</title>
 </head>
-<body style="margin:0;padding:0;background-color:#f4f5f3;font-family:Arial,Helvetica,sans-serif;color:#1f2937;">
+<body style="margin:0;padding:0;background-color:#f4f5f3;font-family:'Inter',Arial,Helvetica,sans-serif;color:#1f2937;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f5f3;padding:32px 16px;">
         <tr>
             <td align="center">
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background-color:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e5e7eb;box-shadow:0 4px 6px -1px rgba(0,0,0,0.05);">
                     <tr>
-                        <td style="background-color:#06231b;padding:28px 32px;">
+                        <td style="background-color:#0c1e38;padding:28px 32px;">
                             <p style="margin:0;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#d4af37;font-weight:600;">INTERVIEW INVITATION</p>
                             <p style="margin:8px 0 0;font-size:22px;font-weight:bold;color:#ffffff;letter-spacing:0.5px;">{{ strtoupper($company) }}</p>
                         </td>

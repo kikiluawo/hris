@@ -30,6 +30,20 @@ class DashboardController extends Controller
 
         $newHiringRequests = HiringRequest::where('status', HiringRequest::STATUS_NEW)->count();
 
+        $user = auth()->user();
+        $pendingApprovalsForMe = 0;
+        if ($user?->isCeo()) {
+            $pendingApprovalsForMe = HiringRequest::where('status', HiringRequest::STATUS_PENDING_APPROVAL)
+                ->whereIn('approval_route', ['ceo', 'both'])
+                ->where('ceo_approval_status', 'pending')
+                ->count();
+        } elseif ($user?->isCfo()) {
+            $pendingApprovalsForMe = HiringRequest::where('status', HiringRequest::STATUS_PENDING_APPROVAL)
+                ->whereIn('approval_route', ['cfo', 'both'])
+                ->where('cfo_approval_status', 'pending')
+                ->count();
+        }
+
         $monthlyPayroll = (int) Employee::where('is_active', true)->sum('salary');
 
         $companyTotals = Company::query()
@@ -64,6 +78,7 @@ class DashboardController extends Controller
             'onLeaveToday' => $onLeaveToday,
             'pendingLeaves' => $pendingLeaves,
             'newHiringRequests' => $newHiringRequests,
+            'pendingApprovalsForMe' => $pendingApprovalsForMe,
             'monthlyPayroll' => $monthlyPayroll,
             'companyTotals' => $companyTotals,
             'companyMax' => $companyMax,

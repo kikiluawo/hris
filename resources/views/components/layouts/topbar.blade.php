@@ -12,17 +12,17 @@
     @keydown.window.meta.k.prevent="$refs.search.focus()"
     @keydown.window.ctrl.k.prevent="$refs.search.focus()"
 >
-    <div class="flex h-16 items-center gap-2 px-4 sm:gap-3 sm:px-7 lg:px-10">
+    <div class="flex h-16 items-center gap-2 px-3 sm:gap-3 sm:px-7 lg:px-10">
         <button
             type="button"
-            @click="sidebarOpen = true"
-            class="-ml-1 rounded-lg p-2 text-muted transition hover:bg-surface-2 hover:text-ink lg:hidden"
-            aria-label="Buka menu"
+            @click="$store.sidebar.toggle()"
+            class="flex size-10 shrink-0 items-center justify-center rounded-xl border border-line bg-surface text-muted shadow-sm transition hover:bg-surface-2 hover:text-ink active:scale-95 lg:hidden"
+            aria-label="Buka menu navigasi"
         >
             <x-icon name="menu" class="size-5" />
         </button>
 
-        <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-2 rounded-lg border border-gold/25 bg-[#06231b] px-2.5 py-1.5 shadow-sm sm:hidden" aria-label="Majesty HR Portal">
+        <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-2 rounded-lg border border-gold/25 bg-[#0c1e38] px-2.5 py-1.5 shadow-sm sm:hidden" aria-label="Majesty HR Portal">
             <img
                 src="{{ asset('images/majesty-logo.png') }}"
                 alt="Majesty Group"
@@ -75,7 +75,7 @@
                     x-show="open"
                     x-cloak
                     x-transition.origin.top.right
-                    class="absolute right-0 mt-2 w-[320px] overflow-hidden rounded-2xl border border-line bg-surface shadow-pop"
+                    class="fixed inset-x-4 top-18 z-50 max-h-[80vh] overflow-hidden rounded-2xl border border-line bg-surface shadow-2xl sm:absolute sm:inset-auto sm:right-0 sm:mt-2 sm:w-[340px]"
                 >
                     <div class="flex items-center justify-between border-b border-line px-4 py-3">
                         <p class="text-[13px] font-semibold">Notifikasi</p>
@@ -146,7 +146,7 @@
                     x-show="open"
                     x-cloak
                     x-transition.origin.top.right
-                    class="absolute right-0 mt-2 w-60 overflow-hidden rounded-2xl border border-line bg-surface shadow-pop"
+                    class="absolute right-0 mt-2 w-60 max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-line bg-surface shadow-2xl"
                 >
                     <div class="border-b border-line px-4 py-3">
                         <p class="truncate text-[13px] font-semibold">{{ auth()->user()->name }}</p>

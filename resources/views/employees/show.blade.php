@@ -102,9 +102,9 @@
         }"
         class="space-y-5"
     >
-        <section class="relative overflow-hidden rounded-3xl border border-gold/20 bg-[#06231b] text-white shadow-card">
+        <section class="relative overflow-hidden rounded-3xl border border-gold/20 bg-[#0c1e38] text-white shadow-card">
             <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(217,180,106,0.18),transparent_55%)]"></div>
-            <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(16,185,129,0.14),transparent_55%)]"></div>
+            <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(20,53,102,0.5),transparent_55%)]"></div>
             <div class="pattern-grid pointer-events-none absolute inset-0 opacity-20"></div>
 
             <div class="relative px-5 pb-6 pt-5 sm:px-7 sm:pb-7 sm:pt-6">
@@ -156,7 +156,7 @@
                                 @endif
                             </div>
 
-                            <p class="mt-1.5 text-[14px] font-medium text-emerald-100/90">
+                            <p class="mt-1.5 text-[14px] font-medium text-blue-100/90">
                                 {{ $employee->position->name }}
                                 <span class="mx-1.5 text-gold/60">·</span>
                                 {{ $employee->department->name }}

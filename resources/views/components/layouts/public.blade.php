@@ -26,8 +26,8 @@
 </head>
 <body class="min-h-full">
     <div class="flex min-h-screen flex-col">
-        <header class="sticky top-0 z-30 border-b border-gold/15 bg-[#06231b] text-white">
-            <div class="mx-auto flex h-[72px] w-full max-w-[1160px] items-center gap-4 px-4 sm:px-6 lg:px-8">
+        <header class="sticky top-0 z-30 border-b border-gold/15 bg-[#0c1e38] text-white">
+            <div class="mx-auto flex h-[72px] w-full max-w-[1360px] items-center gap-4 px-4 sm:px-6 lg:px-8">
                 <a href="{{ route('career.index') }}" class="group flex items-center gap-3" aria-label="Beranda Majesty Talent Portal">
                     <img
                         src="{{ asset('images/majesty-logo.png') }}"
@@ -55,39 +55,39 @@
             @endisset
 
             <div class="px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
-                <div class="mx-auto w-full max-w-[1160px]">
+                <div class="mx-auto w-full max-w-[1360px]">
                     {{ $slot }}
                 </div>
             </div>
         </main>
 
-        <footer class="border-t border-gold/15 bg-[#04150f] text-white/60">
-            <div class="mx-auto flex w-full max-w-[1160px] flex-col gap-8 px-4 py-10 sm:px-6 lg:flex-row lg:items-start lg:justify-between lg:px-8">
+        <footer class="border-t border-gold/20 bg-[#0c1e38] text-slate-300/80">
+            <div class="mx-auto flex w-full max-w-[1360px] flex-col gap-8 px-4 py-10 sm:px-6 lg:flex-row lg:items-start lg:justify-between lg:px-8">
                 <div class="max-w-sm">
                     <img
                         src="{{ asset('images/majesty-logo.png') }}"
                         alt="Majesty Group"
                         class="h-10 w-auto object-contain opacity-95"
                     />
-                    <p class="mt-2.5 text-[10px] font-semibold uppercase tracking-[0.26em] text-gold/80">Talent Portal</p>
-                    <p class="mt-2.5 text-[12.5px] leading-relaxed">Rekrutmen resmi Majesty Group. Satu pintu untuk seluruh kesempatan karier di jaringan perusahaan kami.</p>
+                    <p class="mt-2.5 text-[10px] font-semibold uppercase tracking-[0.26em] text-gold">Talent Portal</p>
+                    <p class="mt-2.5 text-[12.5px] leading-relaxed text-slate-300/70">Rekrutmen resmi Majesty Group. Satu pintu untuk seluruh kesempatan karier di jaringan perusahaan kami.</p>
                 </div>
 
                 <div class="flex gap-12 text-[12.5px]">
                     <div>
-                        <p class="text-[10px] font-semibold uppercase tracking-[0.24em] text-gold/70">Karier</p>
+                        <p class="text-[10px] font-semibold uppercase tracking-[0.24em] text-gold">Karier</p>
                         <div class="mt-3 flex flex-col gap-2">
-                            <a href="{{ route('career.index') }}" class="transition hover:text-white">Lowongan</a>
-                            <a href="{{ route('career.index') }}#cara-melamar" class="transition hover:text-white">Cara melamar</a>
+                            <a href="{{ route('career.index') }}" class="text-slate-300/80 transition hover:text-white">Lowongan</a>
+                            <a href="{{ route('career.index') }}#cara-melamar" class="text-slate-300/80 transition hover:text-white">Cara melamar</a>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="border-t border-white/5">
-                <div class="mx-auto flex w-full max-w-[1160px] flex-col gap-1 px-4 py-4 text-[11.5px] sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+            <div class="border-t border-white/10">
+                <div class="mx-auto flex w-full max-w-[1160px] flex-col gap-1 px-4 py-4 text-[11.5px] text-slate-400 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
                     <p>&copy; {{ date('Y') }} Majesty Talent Portal. Seluruh hak dilindungi.</p>
-                    <p class="uppercase tracking-[0.2em] text-white/40">Rekrutmen &middot; Majesty Group</p>
+                    <p class="uppercase tracking-[0.2em] text-slate-400/60">Rekrutmen &middot; Majesty Group</p>
                 </div>
             </div>
         </footer>

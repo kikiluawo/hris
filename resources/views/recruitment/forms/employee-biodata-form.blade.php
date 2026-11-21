@@ -1,8 +1,8 @@
 <x-layouts.public :title="'Formulir Biodata Karyawan · ' . ($company->name ?? 'Onboarding')">
     <x-slot:hero>
-        <section class="relative isolate overflow-hidden bg-[#06231b] text-white">
+        <section class="relative isolate overflow-hidden bg-[#0c1e38] text-white">
             <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(217,180,106,0.18),transparent_55%)]"></div>
-            <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(16,185,129,0.12),transparent_55%)]"></div>
+            <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(20,53,102,0.5),transparent_55%)]"></div>
             <div class="pattern-grid pointer-events-none absolute inset-0 opacity-20"></div>
 
             <div class="relative mx-auto w-full max-w-4xl px-4 pb-10 pt-8 sm:px-6 sm:pb-12 sm:pt-10">
@@ -24,7 +24,7 @@
 
                 <p class="mt-4 max-w-2xl text-[12.5px] leading-relaxed text-white/75 sm:text-[13px]">
                     Selamat bergabung! Formulir biodata ini diperlukan untuk melengkapi berkas administrasi kepegawaian, pendaftaran BPJS, dan pembukaan akun penggajian Anda.
-                    <span class="block mt-1 text-emerald-300 font-medium text-[12px]">
+                    <span class="block mt-1 text-gold/90 font-medium text-[12px]">
                         ✨ Data yang telah Anda masukkan pada Formulir Lamaran Kerja sebelumnya telah otomatis terisi di bawah. Anda hanya perlu melengkapi data yang belum terisi.
                     </span>
                 </p>
@@ -384,7 +384,7 @@
                                     icon: 'warning',
                                     title: 'Tanda Tangan Belum Dibubuhkan',
                                     text: 'Mohon bubuhkan tanda tangan digital Anda pada Bagian 8 sebelum mengirimkan formulir biodata.',
-                                    confirmButtonColor: '#059669',
+                                    confirmButtonColor: '#143566',
                                     confirmButtonText: 'Baik, Saya Tanda Tangani'
                                 });
                             } else {
@@ -424,7 +424,7 @@
                     </div>
 
                     <div class="h-2 w-full rounded-full bg-surface-2 overflow-hidden">
-                        <div class="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full transition-all duration-300 ease-out" :style="'width: ' + ((step / 8) * 100) + '%'"></div>
+                        <div class="h-full bg-gradient-to-r from-[#143566] to-[#3668a6] rounded-full transition-all duration-300 ease-out" :style="'width: ' + ((step / 8) * 100) + '%'"></div>
                     </div>
 
                     <div class="mt-3.5 flex items-center gap-1.5 overflow-x-auto pb-1 pt-1 -mx-2 px-2 no-scrollbar">
@@ -435,12 +435,12 @@
                                 class="group inline-flex items-center gap-1.5 shrink-0 rounded-xl px-3 py-1.5 text-[11.5px] font-medium transition cursor-pointer"
                                 :class="{
                                     'bg-brand text-white shadow-sm font-semibold': step === s.num,
-                                    'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20': step > s.num,
+                                    'bg-brand-soft text-brand-soft-ink border border-brand-line': step > s.num,
                                     'bg-surface-2 text-subtle hover:text-ink border border-line': step < s.num
                                 }"
                             >
                                 <template x-if="step > s.num">
-                                    <span class="flex size-4 items-center justify-center rounded-full bg-emerald-500 text-white">
+                                    <span class="flex size-4 items-center justify-center rounded-full bg-brand text-white">
                                         <x-icon name="check" class="size-2.5 stroke-[3]" />
                                     </span>
                                 </template>

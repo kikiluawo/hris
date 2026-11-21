@@ -11,7 +11,7 @@
 @endphp
 
 <meta name="description" content="{{ $description }}">
-<meta name="theme-color" content="#06231b">
+<meta name="theme-color" content="#0c1e38">
 
 <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=1">
 <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}?v=1">

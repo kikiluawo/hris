@@ -27,7 +27,7 @@
 <body class="min-h-full bg-canvas">
     <div class="grid min-h-screen lg:grid-cols-[minmax(0,1fr)_46%]">
         <div class="flex flex-col px-6 py-7 sm:px-10 lg:px-16">
-            <a href="{{ url('/') }}" class="inline-flex w-fit items-center gap-3 rounded-xl border border-gold/25 bg-[#06231b] px-4 py-2.5 shadow-sm transition hover:border-gold/50">
+            <a href="{{ url('/') }}" class="inline-flex w-fit items-center gap-3 rounded-xl border border-gold/25 bg-[#0c1e38] px-4 py-2.5 shadow-sm transition hover:border-gold/50">
                 <img
                     src="{{ asset('images/majesty-logo.png') }}"
                     alt="Majesty Group"
@@ -46,10 +46,10 @@
             <p class="text-[11.5px] text-subtle">&copy; {{ date('Y') }} {{ config('app.name') }}. Seluruh hak dilindungi.</p>
         </div>
 
-        <aside class="relative hidden overflow-hidden bg-[#0a3327] lg:flex lg:flex-col">
+        <aside class="relative hidden overflow-hidden bg-[#0c1e38] lg:flex lg:flex-col">
             <div class="pattern-grid absolute inset-0 opacity-70"></div>
-            <div class="absolute -left-28 top-1/4 size-[440px] rounded-full bg-emerald-400/20 blur-3xl"></div>
-            <div class="absolute -right-24 bottom-0 size-[400px] rounded-full bg-lime-300/10 blur-3xl"></div>
+            <div class="absolute -left-28 top-1/4 size-[440px] rounded-full bg-blue-400/20 blur-3xl"></div>
+            <div class="absolute -right-24 bottom-0 size-[400px] rounded-full bg-gold/15 blur-3xl"></div>
 
             <div class="relative flex flex-1 flex-col justify-center px-14 xl:px-20">
                 <img
@@ -58,8 +58,8 @@
                     class="mb-8 h-11 w-auto self-start object-contain opacity-95"
                 />
 
-                <span class="inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[10.5px] font-semibold uppercase tracking-[0.14em] text-emerald-100/90">
-                    <span class="size-1.5 rounded-full bg-emerald-300"></span>
+                <span class="inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[10.5px] font-semibold uppercase tracking-[0.14em] text-blue-100/90">
+                    <span class="size-1.5 rounded-full bg-gold"></span>
                     People Operations
                 </span>
 
@@ -67,14 +67,14 @@
                     Kelola tim Anda dengan tenang, tanpa spreadsheet.
                 </h2>
 
-                <p class="mt-4 max-w-sm text-[14px] leading-relaxed text-emerald-50/70">
+                <p class="mt-4 max-w-sm text-[14px] leading-relaxed text-slate-200/75">
                     Satu tempat untuk data karyawan, cuti, kehadiran, dan penggajian.
                 </p>
 
                 <ul class="mt-9 space-y-3.5">
                     @foreach (['Data karyawan terpusat dan rapi', 'Persetujuan cuti lebih cepat', 'Laporan kehadiran otomatis'] as $feature)
-                        <li class="flex items-center gap-3 text-[13.5px] text-emerald-50/85">
-                            <span class="flex size-5 items-center justify-center rounded-full border border-emerald-300/30 bg-emerald-300/10 text-emerald-200">
+                        <li class="flex items-center gap-3 text-[13.5px] text-slate-100/90">
+                            <span class="flex size-5 items-center justify-center rounded-full border border-gold/40 bg-gold/10 text-gold">
                                 <x-icon name="check" class="size-3" />
                             </span>
                             {{ $feature }}
@@ -83,7 +83,7 @@
                 </ul>
             </div>
 
-            <div class="relative border-t border-white/10 px-14 py-6 text-[11.5px] text-emerald-50/45 xl:px-20">
+            <div class="relative border-t border-white/10 px-14 py-6 text-[11.5px] text-slate-300/50 xl:px-20">
                 Majesty HR Portal · Dashboard Internal Majesty Group
             </div>
         </aside>

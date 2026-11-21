@@ -28,6 +28,7 @@ class JobOpeningController extends Controller
             'departments' => Department::orderBy('name')->pluck('name', 'id'),
             'positions' => Position::orderBy('name')->pluck('name', 'id'),
             'educationLevels' => array_combine(self::EDUCATION_LEVELS, self::EDUCATION_LEVELS),
+            'jobTypes' => JobOpening::jobTypeOptions(),
             'editing' => JobOpening::find($request->integer('edit')),
         ]);
     }
@@ -81,6 +82,7 @@ class JobOpeningController extends Controller
     {
         $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
+            'job_type' => ['nullable', 'string', Rule::in(JobOpening::JOB_TYPES)],
             'company_id' => ['nullable', 'exists:companies,id'],
             'department_id' => [
                 'nullable',
@@ -99,6 +101,8 @@ class JobOpeningController extends Controller
             'department_id.exists' => 'Departemen yang dipilih tidak sesuai dengan PT yang dipilih.',
             'position_id.exists' => 'Jabatan yang dipilih tidak sesuai dengan departemen yang dipilih.',
         ]);
+
+        $data['job_type'] = $data['job_type'] ?? JobOpening::TYPE_FULL_TIME;
 
         if (empty($data['company_id'])) {
             $data['department_id'] = null;

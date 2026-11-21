@@ -43,8 +43,31 @@ class JobOpening extends Model
         return array_slice(array_values($skills), 0, 20);
     }
 
+    public const TYPE_FULL_TIME = 'Full Time';
+
+    public const TYPE_PART_TIME = 'Part Time';
+
+    public const TYPE_INTERNSHIP = 'Internship';
+
+    public const JOB_TYPES = [
+        self::TYPE_FULL_TIME,
+        self::TYPE_PART_TIME,
+        self::TYPE_INTERNSHIP,
+    ];
+
+    public static function jobTypeOptions(): array
+    {
+        return [
+            self::TYPE_FULL_TIME => 'Full Time',
+            self::TYPE_PART_TIME => 'Part Time',
+            self::TYPE_INTERNSHIP => 'Internship',
+        ];
+    }
+
     protected $fillable = [
         'title',
+        'job_type',
+        'location',
         'slug',
         'company_id',
         'department_id',

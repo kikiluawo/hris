@@ -1,8 +1,8 @@
 <x-layouts.public :title="'Job Application Form · ' . $jobOpening->title">
     <x-slot:hero>
-        <section class="relative isolate overflow-hidden bg-[#06231b] text-white">
+        <section class="relative isolate overflow-hidden bg-[#0c1e38] text-white">
             <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(217,180,106,0.18),transparent_55%)]"></div>
-            <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(16,185,129,0.12),transparent_55%)]"></div>
+            <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(20,53,102,0.5),transparent_55%)]"></div>
             <div class="pattern-grid pointer-events-none absolute inset-0 opacity-20"></div>
 
             <div class="relative mx-auto w-full max-w-4xl px-4 pb-10 pt-8 sm:px-6 sm:pb-12 sm:pt-10">

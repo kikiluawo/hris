@@ -1,5 +1,19 @@
 @php
-    $newHiringRequests = \App\Models\HiringRequest::where('status', \App\Models\HiringRequest::STATUS_NEW)->count();
+    $sidebarUser = auth()->user();
+    $requestBadge = 0;
+    if ($sidebarUser?->isCeo()) {
+        $requestBadge = \App\Models\HiringRequest::where('status', \App\Models\HiringRequest::STATUS_PENDING_APPROVAL)
+            ->whereIn('approval_route', ['ceo', 'both'])
+            ->where('ceo_approval_status', 'pending')
+            ->count();
+    } elseif ($sidebarUser?->isCfo()) {
+        $requestBadge = \App\Models\HiringRequest::where('status', \App\Models\HiringRequest::STATUS_PENDING_APPROVAL)
+            ->whereIn('approval_route', ['cfo', 'both'])
+            ->where('cfo_approval_status', 'pending')
+            ->count();
+    } else {
+        $requestBadge = \App\Models\HiringRequest::where('status', \App\Models\HiringRequest::STATUS_NEW)->count();
+    }
 
     $groups = [
         'Ruang kerja' => [
@@ -25,11 +39,11 @@
 @endphp
 
 <aside
-    class="fixed inset-y-0 left-0 z-40 flex w-[264px] flex-col border-r border-line bg-surface transition-transform duration-300 lg:translate-x-0"
-    :class="sidebarOpen ? 'translate-x-0 shadow-pop' : '-translate-x-full'"
+    class="fixed inset-y-0 left-0 z-50 flex w-[280px] max-w-[85vw] flex-col border-r border-line bg-surface transition-transform duration-300 ease-out -translate-x-full lg:w-[264px] lg:translate-x-0"
+    :class="$store.sidebar.open ? '!translate-x-0 shadow-2xl pointer-events-auto' : '-translate-x-full pointer-events-none lg:pointer-events-auto'"
     aria-label="Navigasi utama"
 >
-    <div class="flex h-16 shrink-0 items-center justify-between border-b border-gold/15 bg-[#06231b] px-5 text-white">
+    <div class="flex h-16 shrink-0 items-center justify-between border-b border-gold/15 bg-[#0c1e38] px-5 text-white">
         <a href="{{ route('dashboard') }}" class="flex min-w-0 items-center gap-2.5">
             <img
                 src="{{ asset('images/majesty-logo.png') }}"
@@ -40,7 +54,12 @@
             <span class="truncate text-[10px] font-semibold uppercase tracking-[0.18em] text-gold">HR Portal</span>
         </a>
 
-        <button type="button" @click="sidebarOpen = false" class="rounded-lg p-1.5 text-white/70 transition hover:bg-white/10 hover:text-white lg:hidden" aria-label="Tutup menu">
+        <button
+            type="button"
+            @click="$store.sidebar.close()"
+            class="flex size-9 items-center justify-center rounded-xl bg-white/10 text-white transition hover:bg-white/20 active:scale-95 lg:hidden"
+            aria-label="Tutup menu"
+        >
             <x-icon name="close" class="size-5" />
         </button>
     </div>
@@ -54,13 +73,14 @@
                     @php $active = request()->routeIs($item['match']); @endphp
                     <a
                         href="{{ route($item['route']) }}"
-                        class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13.5px] font-medium transition {{ $active ? 'bg-brand-soft text-brand-soft-ink' : 'text-muted hover:bg-surface-2 hover:text-ink' }}"
+                        @click="if (window.innerWidth < 1024) $store.sidebar.close()"
+                        class="group flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-[14px] font-medium transition active:scale-[0.98] {{ $active ? 'bg-brand-soft text-brand-soft-ink font-semibold' : 'text-muted hover:bg-surface-2 hover:text-ink' }}"
                         @if ($active) aria-current="page" @endif
                     >
                         <x-icon :name="$item['icon']" class="size-[19px] {{ $active ? 'text-brand' : 'text-subtle group-hover:text-muted' }}" />
                         {{ $item['label'] }}
-                        @if ($item['route'] === 'hiring-requests.index' && $newHiringRequests > 0)
-                            <span class="ml-auto rounded-full bg-brand px-1.5 py-0.5 text-[10.5px] font-bold leading-none text-brand-ink">{{ $newHiringRequests }}</span>
+                        @if ($item['route'] === 'hiring-requests.index' && $requestBadge > 0)
+                            <span class="ml-auto rounded-full bg-brand px-1.5 py-0.5 text-[10.5px] font-bold leading-none text-brand-ink">{{ $requestBadge }}</span>
                         @endif
                     </a>
                 @endforeach
@@ -73,7 +93,8 @@
             @php $profileActive = request()->routeIs('profile.*'); @endphp
             <a
                 href="{{ route('profile.edit') }}"
-                class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13.5px] font-medium transition {{ $profileActive ? 'bg-brand-soft text-brand-soft-ink' : 'text-muted hover:bg-surface-2 hover:text-ink' }}"
+                @click="if (window.innerWidth < 1024) $store.sidebar.close()"
+                class="group flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-[14px] font-medium transition active:scale-[0.98] {{ $profileActive ? 'bg-brand-soft text-brand-soft-ink font-semibold' : 'text-muted hover:bg-surface-2 hover:text-ink' }}"
                 @if ($profileActive) aria-current="page" @endif
             >
                 <x-icon name="user" class="size-[19px] {{ $profileActive ? 'text-brand' : 'text-subtle group-hover:text-muted' }}" />
@@ -83,10 +104,17 @@
     </nav>
 
     <div class="border-t border-line p-3">
-        <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 rounded-xl p-2.5 transition hover:bg-surface-2">
+        <a
+            href="{{ route('profile.edit') }}"
+            @click="if (window.innerWidth < 1024) $store.sidebar.close()"
+            class="flex items-center gap-3 rounded-xl p-2.5 transition hover:bg-surface-2 active:scale-[0.98]"
+        >
             <x-ui.avatar :name="auth()->user()->name" size="sm" />
             <span class="min-w-0 flex-1">
-                <span class="block truncate text-[12.5px] font-semibold">{{ auth()->user()->name }}</span>
+                <span class="flex items-center gap-1.5">
+                    <span class="truncate text-[12.5px] font-semibold">{{ auth()->user()->name }}</span>
+                    <span class="rounded bg-gold/20 px-1.5 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-gold-strong">{{ auth()->user()->roleLabel() }}</span>
+                </span>
                 <span class="block truncate text-[11px] text-subtle">{{ auth()->user()->email }}</span>
             </span>
             <x-icon name="settings" class="size-4 shrink-0 text-subtle" />

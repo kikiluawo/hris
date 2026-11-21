@@ -436,13 +436,13 @@
             </div>
         </div>
 
-        <div x-show="ended" x-cloak class="fixed inset-0 z-[70] flex items-center justify-center bg-[#06231b]/95 p-4">
-            <div class="w-full max-w-md rounded-2xl border border-white/12 bg-[#0a3327] p-6 text-center shadow-pop">
+        <div x-show="ended" x-cloak class="fixed inset-0 z-[70] flex items-center justify-center bg-[#0c1e38]/95 p-4">
+            <div class="w-full max-w-md rounded-2xl border border-white/12 bg-[#081528] p-6 text-center shadow-pop">
                 <div class="mx-auto flex size-12 items-center justify-center rounded-2xl bg-rose-400/15 text-rose-300">
                     <x-icon name="x-circle" class="size-7" />
                 </div>
                 <h2 class="mt-4 text-[20px] font-semibold text-white">Tes berakhir</h2>
-                <p class="mt-2 text-[13px] leading-relaxed text-emerald-50/70" x-text="endedMessage"></p>
+                <p class="mt-2 text-[13px] leading-relaxed text-slate-200/80" x-text="endedMessage"></p>
                 <button type="button" x-on:click="leave()" class="mt-5 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-gold text-[13.5px] font-bold text-[#1d150a]">
                     Kembali ke halaman tes
                 </button>

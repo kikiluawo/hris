@@ -51,10 +51,10 @@
                 />
             </div>
 
-            <div class="flex gap-2">
-                <x-ui.button type="submit" icon="filter">Terapkan</x-ui.button>
+            <div class="flex flex-wrap items-center gap-2 sm:col-span-2 xl:col-span-1">
+                <x-ui.button type="submit" icon="filter" class="w-full sm:w-auto">Terapkan</x-ui.button>
                 @if (array_filter($filters))
-                    <x-ui.button variant="ghost" :href="route('employees.index')">Reset</x-ui.button>
+                    <x-ui.button variant="ghost" :href="route('employees.index')" class="w-full sm:w-auto">Reset</x-ui.button>
                 @endif
             </div>
         </div>

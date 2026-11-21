@@ -8,9 +8,9 @@
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}?v=1">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; font-size: 11px; line-height: 1.35; color: #111; background: #f3f4f6; }
+        body { font-family: 'Inter', Arial, "Helvetica Neue", Helvetica, sans-serif; font-size: 11px; line-height: 1.35; color: #111; background: #f3f4f6; }
         .no-print { background: #1e293b; color: white; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
-        .no-print button { background: #059669; color: white; border: none; padding: 8px 18px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; }
+        .no-print button { background: #143566; color: white; border: none; padding: 8px 18px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; }
         .no-print a { color: #94a3b8; text-decoration: none; font-size: 13px; }
         .sheet { max-width: 210mm; margin: 15mm auto; background: white; padding: 15mm; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; }

@@ -1,6 +1,5 @@
 import './bootstrap';
-import '@fontsource-variable/plus-jakarta-sans';
-import '@fontsource-variable/fraunces';
+import '@fontsource-variable/inter';
 import $ from 'jquery';
 import select2 from 'select2';
 import Swal from 'sweetalert2';
@@ -97,6 +96,36 @@ if (document.readyState === 'loading') {
 document.addEventListener('alpine:initialized', wireAllSelect2);
 
 document.addEventListener('alpine:init', () => {
+    Alpine.store('sidebar', {
+        open: false,
+
+        toggle() {
+            this.open = !this.open;
+            this.sync();
+        },
+
+        close() {
+            this.open = false;
+            this.sync();
+        },
+
+        sync() {
+            if (window.innerWidth < 1024 && this.open) {
+                document.documentElement.classList.add('overflow-hidden');
+                document.body.classList.add('overflow-hidden');
+            } else {
+                document.documentElement.classList.remove('overflow-hidden');
+                document.body.classList.remove('overflow-hidden');
+            }
+        },
+    });
+
+    window.addEventListener('resize', () => {
+        if (window.innerWidth >= 1024 && Alpine.store('sidebar')?.open) {
+            Alpine.store('sidebar').close();
+        }
+    });
+
     Alpine.store('theme', {
         mode: localStorage.getItem('theme') ?? 'system',
 

@@ -6,7 +6,7 @@
 ])
 
 @php
-    $rawImage = $image ?: asset('images/og-thumbnail.png');
+    $rawImage = $image ?: asset('images/og-thumbnail-v2.png');
     $ogImage = str_starts_with($rawImage, 'http') ? $rawImage : url($rawImage);
 
     if (request()->isSecure() || str_starts_with(url()->current(), 'https://') || str_starts_with((string) config('app.url'), 'https://')) {

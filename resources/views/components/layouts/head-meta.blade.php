@@ -6,7 +6,13 @@
 ])
 
 @php
-    $ogImage = $image ?: asset('images/og-thumbnail.png') . '?v=1';
+    $rawImage = $image ?: asset('images/og-thumbnail.png');
+    $ogImage = str_starts_with($rawImage, 'http') ? $rawImage : url($rawImage);
+
+    if (request()->isSecure() || str_starts_with(url()->current(), 'https://') || str_starts_with((string) config('app.url'), 'https://')) {
+        $ogImage = preg_replace('/^http:\/\//i', 'https://', $ogImage);
+    }
+
     $ogUrl = url()->current();
 @endphp
 
@@ -25,6 +31,9 @@
 <meta property="og:title" content="{{ $title }}">
 <meta property="og:description" content="{{ $description }}">
 <meta property="og:image" content="{{ $ogImage }}">
+@if (str_starts_with($ogImage, 'https://'))
+<meta property="og:image:secure_url" content="{{ $ogImage }}">
+@endif
 <meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">

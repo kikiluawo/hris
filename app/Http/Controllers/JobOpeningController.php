@@ -23,6 +23,7 @@ class JobOpeningController extends Controller
                 ->withCount('applications')
                 ->latest()
                 ->get(),
+            'organization' => $this->organizationTree(),
             'companies' => Company::orderBy('name')->pluck('name', 'id'),
             'departments' => Department::orderBy('name')->pluck('name', 'id'),
             'positions' => Position::orderBy('name')->pluck('name', 'id'),
@@ -81,14 +82,30 @@ class JobOpeningController extends Controller
         $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'company_id' => ['nullable', 'exists:companies,id'],
-            'department_id' => ['nullable', 'exists:departments,id'],
-            'position_id' => ['nullable', 'exists:positions,id'],
+            'department_id' => [
+                'nullable',
+                Rule::exists('departments', 'id')->where(fn ($query) => $query->where('company_id', $request->company_id)),
+            ],
+            'position_id' => [
+                'nullable',
+                Rule::exists('positions', 'id')->where(fn ($query) => $query->where('department_id', $request->department_id)),
+            ],
             'description' => ['required', 'string', 'max:20000'],
             'required_skills' => ['nullable', 'string', 'max:1000'],
             'min_education' => ['nullable', Rule::in(self::EDUCATION_LEVELS)],
             'min_experience' => ['nullable', 'integer', 'min:0', 'max:50'],
             'screening_threshold' => ['nullable', 'integer', 'min:0', 'max:100'],
+        ], [
+            'department_id.exists' => 'Departemen yang dipilih tidak sesuai dengan PT yang dipilih.',
+            'position_id.exists' => 'Jabatan yang dipilih tidak sesuai dengan departemen yang dipilih.',
         ]);
+
+        if (empty($data['company_id'])) {
+            $data['department_id'] = null;
+            $data['position_id'] = null;
+        } elseif (empty($data['department_id'])) {
+            $data['position_id'] = null;
+        }
 
         $skills = JobOpening::parseSkills($data['required_skills'] ?? null);
 
@@ -97,6 +114,30 @@ class JobOpeningController extends Controller
         $data['screening_threshold'] = (int) ($data['screening_threshold'] ?? 70);
 
         return $data;
+    }
+
+    private function organizationTree(): array
+    {
+        return Company::with([
+            'departments' => fn ($query) => $query->orderBy('name'),
+            'departments.positions' => fn ($query) => $query->orderBy('name'),
+        ])
+            ->orderBy('name')
+            ->get()
+            ->map(fn (Company $company) => [
+                'id' => $company->id,
+                'name' => $company->name,
+                'departments' => $company->departments->map(fn (Department $department) => [
+                    'id' => $department->id,
+                    'name' => $department->name,
+                    'positions' => $department->positions->map(fn (Position $position) => [
+                        'id' => $position->id,
+                        'name' => $position->name,
+                    ])->values()->all(),
+                ])->values()->all(),
+            ])
+            ->values()
+            ->all();
     }
 
     private function uniqueSlug(string $title): string

@@ -24,6 +24,9 @@
     @endif
 
     @php
+        $initialCompany = old('company_id', $editing?->company_id ?? '');
+        $initialDepartment = old('department_id', $editing?->department_id ?? '');
+        $initialPosition = old('position_id', $editing?->position_id ?? '');
         $startStep = $errors->hasAny(['title', 'company_id', 'department_id', 'position_id', 'description'])
             ? 1
             : ($errors->hasAny(['required_skills', 'min_education', 'min_experience', 'screening_threshold']) ? 2 : 1);
@@ -43,10 +46,42 @@
                 x-data="{
                     step: {{ $startStep }},
                     total: 3,
+                    organization: @js($organization),
+                    companyId: @js($initialCompany),
+                    departmentId: @js($initialDepartment),
+                    positionId: @js($initialPosition),
                     review: { title: '', company: '—', department: '—', position: '—', skills: [], education: '—', experience: '—', threshold: '70' },
                     init() {
                         if (this.step === 3) this.$nextTick(() => this.buildReview());
                         this.$nextTick(() => this.refreshSelects());
+                    },
+                    get company() {
+                        return this.organization.find((c) => Number(c.id) === Number(this.companyId));
+                    },
+                    get departmentOptions() {
+                        return this.company ? this.company.departments : [];
+                    },
+                    get department() {
+                        return this.departmentOptions.find((d) => Number(d.id) === Number(this.departmentId));
+                    },
+                    get positionOptions() {
+                        return this.department ? this.department.positions : [];
+                    },
+                    get position() {
+                        return this.positionOptions.find((p) => Number(p.id) === Number(this.positionId));
+                    },
+                    onCompanyChange() {
+                        this.departmentId = '';
+                        this.positionId = '';
+                        this.$nextTick(() => {
+                            window.refreshSelect2Soon(['department_id', 'position_id']);
+                        });
+                    },
+                    onDepartmentChange() {
+                        this.positionId = '';
+                        this.$nextTick(() => {
+                            window.refreshSelect2Soon(['position_id']);
+                        });
                     },
                     refreshSelects() {
                         const panel = this.$refs['panel' + this.step];
@@ -88,9 +123,9 @@
                         const experience = this.field('min_experience');
                         this.review = {
                             title: this.field('title') || 'Belum diisi',
-                            company: this.clean(this.field('company_id')),
-                            department: this.clean(this.field('department_id')),
-                            position: this.clean(this.field('position_id')),
+                            company: this.company ? this.company.name : '—',
+                            department: this.department ? this.department.name : '—',
+                            position: this.position ? this.position.name : '—',
                             skills: this.field('required_skills').split(/[,\n;]+/).map((s) => s.trim()).filter(Boolean),
                             education: this.clean(this.field('min_education')),
                             experience: experience ? experience + ' tahun' : '—',
@@ -120,8 +155,8 @@
                 </div>
 
                 <div x-ref="panel1" x-show="step === 1" class="space-y-4">
-                    <div class="grid gap-4 sm:grid-cols-2">
-                        <div class="sm:col-span-2">
+                    <div class="grid gap-4 md:grid-cols-3 sm:grid-cols-1">
+                        <div class="md:col-span-3">
                             <x-ui.label for="title">Judul lowongan</x-ui.label>
                             <x-ui.input name="title" :value="$editing?->title" data-required placeholder="Accounting Staff" />
                             <x-ui.field-error name="title" />
@@ -129,41 +164,89 @@
 
                         <div>
                             <x-ui.label for="company_id">PT</x-ui.label>
-                            <x-ui.select
-                                name="company_id"
-                                :options="$companies->all()"
-                                :selected="$editing?->company_id"
-                                placeholder="Tanpa PT tertentu"
-                                data-select2-clear
-                            />
+                            <div class="relative">
+                                <select
+                                    name="company_id"
+                                    id="company_id"
+                                    x-model="companyId"
+                                    x-on:change="onCompanyChange()"
+                                    data-select2-init
+                                    data-select2-clear
+                                    data-placeholder="Tanpa PT tertentu (Opsional)"
+                                    class="h-11 w-full appearance-none rounded-xl border border-line bg-surface pl-3.5 pr-10 text-[15px] text-ink shadow-sm outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/15"
+                                >
+                                    <option value="">Tanpa PT tertentu (Opsional)</option>
+                                    <template x-for="option in organization" :key="option.id">
+                                        <option :value="option.id" x-text="option.name" :selected="Number(option.id) === Number(companyId)"></option>
+                                    </template>
+                                </select>
+                                <span data-select-chevron class="pointer-events-none absolute inset-y-0 right-0 flex w-10 items-center justify-center text-subtle">
+                                    <x-icon name="chevron-down" class="size-4" />
+                                </span>
+                            </div>
+                            <p class="mt-1 text-[11.5px] text-subtle">Opsional. Pilih PT untuk memuat daftar departemen.</p>
                             <x-ui.field-error name="company_id" />
                         </div>
 
                         <div>
                             <x-ui.label for="department_id">Departemen</x-ui.label>
-                            <x-ui.select
-                                name="department_id"
-                                :options="$departments->all()"
-                                :selected="$editing?->department_id"
-                                placeholder="Pilih departemen"
-                                data-select2-clear
-                            />
+                            <div class="relative">
+                                <select
+                                    name="department_id"
+                                    id="department_id"
+                                    x-model="departmentId"
+                                    x-on:change="onDepartmentChange()"
+                                    :disabled="!companyId || departmentOptions.length === 0"
+                                    data-select2-init
+                                    data-select2-clear
+                                    :data-placeholder="!companyId ? 'Pilih PT terlebih dahulu' : (departmentOptions.length === 0 ? 'Departemen belum tersedia' : 'Pilih departemen')"
+                                    class="h-11 w-full appearance-none rounded-xl border border-line bg-surface pl-3.5 pr-10 text-[15px] text-ink shadow-sm outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/15 disabled:bg-surface-2 disabled:text-muted disabled:cursor-not-allowed"
+                                >
+                                    <option value="" x-text="!companyId ? 'Pilih PT terlebih dahulu' : (departmentOptions.length === 0 ? 'Departemen belum tersedia' : 'Pilih departemen')"></option>
+                                    <template x-for="option in departmentOptions" :key="option.id">
+                                        <option :value="option.id" x-text="option.name" :selected="Number(option.id) === Number(departmentId)"></option>
+                                    </template>
+                                </select>
+                                <span data-select-chevron class="pointer-events-none absolute inset-y-0 right-0 flex w-10 items-center justify-center text-subtle">
+                                    <x-icon name="chevron-down" class="size-4" />
+                                </span>
+                            </div>
+                            <p class="mt-1 text-[11.5px] text-subtle" x-show="!companyId">Pilih PT terlebih dahulu.</p>
+                            <p class="mt-1 text-[11.5px] text-subtle" x-show="companyId && departmentOptions.length > 0">Pilih departemen untuk memuat jabatan.</p>
+                            <p class="mt-1 text-[11.5px] text-amber-600 dark:text-amber-400" x-show="companyId && departmentOptions.length === 0" x-cloak>PT ini belum memiliki data departemen.</p>
                             <x-ui.field-error name="department_id" />
                         </div>
 
                         <div>
                             <x-ui.label for="position_id">Jabatan</x-ui.label>
-                            <x-ui.select
-                                name="position_id"
-                                :options="$positions->all()"
-                                :selected="$editing?->position_id"
-                                placeholder="Pilih jabatan"
-                                data-select2-clear
-                            />
+                            <div class="relative">
+                                <select
+                                    name="position_id"
+                                    id="position_id"
+                                    x-model="positionId"
+                                    :disabled="!companyId || !departmentId || positionOptions.length === 0"
+                                    data-select2-init
+                                    data-select2-clear
+                                    :data-placeholder="!companyId ? 'Pilih PT terlebih dahulu' : (!departmentId ? 'Pilih departemen terlebih dahulu' : (positionOptions.length === 0 ? 'Jabatan belum tersedia' : 'Pilih jabatan'))"
+                                    class="h-11 w-full appearance-none rounded-xl border border-line bg-surface pl-3.5 pr-10 text-[15px] text-ink shadow-sm outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/15 disabled:bg-surface-2 disabled:text-muted disabled:cursor-not-allowed"
+                                >
+                                    <option value="" x-text="!companyId ? 'Pilih PT terlebih dahulu' : (!departmentId ? 'Pilih departemen terlebih dahulu' : (positionOptions.length === 0 ? 'Jabatan belum tersedia' : 'Pilih jabatan'))"></option>
+                                    <template x-for="option in positionOptions" :key="option.id">
+                                        <option :value="option.id" x-text="option.name" :selected="Number(option.id) === Number(positionId)"></option>
+                                    </template>
+                                </select>
+                                <span data-select-chevron class="pointer-events-none absolute inset-y-0 right-0 flex w-10 items-center justify-center text-subtle">
+                                    <x-icon name="chevron-down" class="size-4" />
+                                </span>
+                            </div>
+                            <p class="mt-1 text-[11.5px] text-subtle" x-show="!companyId">Pilih PT terlebih dahulu.</p>
+                            <p class="mt-1 text-[11.5px] text-subtle" x-show="companyId && !departmentId" x-cloak>Pilih departemen terlebih dahulu.</p>
+                            <p class="mt-1 text-[11.5px] text-subtle" x-show="companyId && departmentId && positionOptions.length > 0" x-cloak>Pilih jabatan internal.</p>
+                            <p class="mt-1 text-[11.5px] text-amber-600 dark:text-amber-400" x-show="departmentId && positionOptions.length === 0" x-cloak>Departemen ini belum memiliki data jabatan.</p>
                             <x-ui.field-error name="position_id" />
                         </div>
 
-                        <div class="sm:col-span-2">
+                        <div class="md:col-span-3">
                             <x-ui.label for="description">Deskripsi & tanggung jawab</x-ui.label>
                             <x-ui.textarea name="description" :value="$editing?->description" :rows="7" data-required placeholder="Tuliskan tanggung jawab, jam kerja, dan informasi lain yang perlu diketahui pelamar." />
                             <x-ui.field-error name="description" />
